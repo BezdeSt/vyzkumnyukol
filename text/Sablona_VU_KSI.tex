@@ -1,0 +1,260 @@
+\documentclass[a4paper,oneside,12pt]{book} % chcete-li si VÚ vytisknout, změňte "oneside" na "twoside"
+%% === nezbytné balíčky:
+%\usepackage[T1]{fontenc}
+\usepackage[IL2]{fontenc}   % písmo pro UTF-8
+\usepackage[utf8]{inputenc}    % vstupní znaková sada UTF-8
+%\usepackage[cp1250]{inputenc}   % vstupní znaková sada: Windows 1250
+
+\usepackage[czech]{babel} % česky psaná práce, typografická pravidla     
+%\usepackage{encxvlna} % postará se o spojky a předložky, které dle českých pravidel nesmí být na konci řádku. Dokumentace: http://texdoc.net/texmf-dist/doc/generic/encxvlna/encxvlna.pdf
+\usepackage[a4paper, hmarginratio=2:2]{geometry} % využití celé A4 stránky a nastavení okrajů. Chcete-li si VÚ vytisknout, změňte: hmarginratio=3:2
+\usepackage{pdfpages} % pokud nemáte formulář "Zadání VÚ" naskenovaný jako PDF, tak ZAKOMENTUJTE
+
+%% === balíčky, které se mohou hodit:
+\usepackage[hidelinks]{hyperref} % v PDF budou klikací odkazy ("hidelinks" je nebude rámovat)
+\usepackage{graphicx} % balíček pro vkládání __rastrových__ grafických souborů (PNG apod.)
+%\usepackage{epsfig} % balíčky pro vkládání grafických souborů typu EPS
+%\usepackage{float} % rozšířené možnosti umístění obrázků
+
+%\usepackage{caption} % pro popisky obrázků, tabulek atd.
+
+\usepackage{tabularx} % rozšířené možnosti tabulek
+%\usepackage{tabu} % jiný balík pro rozšířené možnosti tabulek
+
+\usepackage{listings}  % balíček vhodný pro ukázky kódu 
+\usepackage{amsmath} % balíček pro pokročilou matematickou sazbu
+%\usepackage{color} % pro možnost barevného textu
+%\usepackage{fancybox} % umožňuje pokročilé rámečkování
+
+%\usepackage{index} % nutno použít v případě tvorby rejstříku balíčkem makeindex
+%\newindex{default}{idx}{ind}{Rejstřík} % zavádí rejstřík v případě použití balíku index
+
+
+\topmargin=-15mm      % horní okraj trochu menší
+\textwidth=150mm      % šířka textu na stránce
+\textheight=240mm     % "výška" textu na stránce
+
+\frenchspacing % za větou bude mezislovní mezera (v anglických textech je mezera za větou delší)
+\widowpenalty=1000 % "síla" zákazu vdov (= jeden řádek odstavce na konci stránky)
+\clubpenalty=1000 % "síla" zákazu sirotků (= jeden řádek/slovo odstavce samostatně na začátku stránky)
+\brokenpenalty=1000 % "síla" zákazu zlomu stránky za řádkem, který má na konci rozdělené slovo
+
+\pagenumbering{arabic} % číslování stránek arabskými číslicemi
+\pagestyle{plain}      % stránky číslované dole uprostřed
+
+\parindent=0pt % odsazení 1. řádku odstavce
+\parskip=7pt   % mezera mezi odstavci
+
+\newcommand{\ti}{\textit} % zkrácený příkaz pro kurzívu
+\newcommand{\tb}{\textbf} % zkrácený příkaz pro tučné písmo
+
+
+%% --- zde jsou zavedeny některé "konstanty" - některé musíte změnit! --- %%
+\newcommand{\cvut}{České vysoké učení technické v~Praze}
+\newcommand{\fjfi}{Fakulta jaderná a fyzikálně inženýrská}
+\newcommand{\ksi}{Katedra softwarového inženýrství}
+\newcommand{\program}{Aplikace informatiky v~přírodních vědách} % změňte, pokud máte jiný stud. program
+\newcommand{\specializace}{--} % změňte, pokud máte specializaci stud. programu
+
+\newcommand{\druh}{Výzkumný úkol} % druh práce
+\newcommand{\woman}{} % pokud jste ŽENA, ZMĚŇTE na: ...{\woman}{a} (je to do Prohlášení)
+
+\newcommand{\logoCVUT}{\includegraphics{symbol_cvut_konturova_verze_cb.pdf}} % logo ČVUT -- podle grafického manuálu ČVUT platného od prosince 2016. Pokud nevyhovuje PDF-verze, tak použijte jinou variantu loga: https://www.cvut.cz/logo-a-graficky-manual -> "Symbol a logo ČVUT v Praze"). Pokud chcete logo úplně vynechat, zadejte místo "\includegraphics{...}" text "\vspace{35mm}"
+
+% přesně podle formuláře "Zadání VÚ" VYPLŇTE:
+\newcommand{\nazevcz}{Český název VÚ}    % český název práce (přesně podle zadání!)
+\newcommand{\autor}{Jméno Příjmení}   % vyplňte své jméno a příjmení (s akademickým titulem, máte-li jej)
+\newcommand{\vedouci}{JménoV PříjmeníV} % vyplňte jméno a příjmení vedoucího práce, včetně titulů, např.: Doc. Ing. Ivo Malý, Ph.D.
+\newcommand{\pracovisteVed}{\ksi, \fjfi, \cvut} % ZMĚŇTE, pokud vedoucí Vaší práce není z KSI
+\newcommand{\konzultant}{--} % POKUD MÁTE určeného konzultanta, NAPIŠTE jeho jméno a příjmení
+\newcommand{\pracovisteKonz}{--} % POKUD MÁTE konzultanta, NAPIŠTE jeho pracoviště
+
+% podle skutečnosti VYPLŇTE:
+\newcommand{\rok}{2023}  % rok odevzdání práce (jen rok odevzdání, nikoli celý akademický rok!)
+\newcommand{\kde}{Praze}
+
+\newcommand{\klicova}{Klíčová slova}   % zde NAPIŠTE česky max. 5 klíčových slov
+\newcommand{\abstrCZ}{Popis VÚ česky}    % zde NAPIŠTE abstrakt v češtině (cca 7 vět, min. 80 slov)
+
+\newcommand{\prohlaseni}{Prohlašuji, že jsem svůj výzkumný úkol vypracoval\woman{} samostatně a použil\woman{} jsem pouze podklady (literaturu, projekty, SW atd.) uvedené v přiloženém seznamu.} % text prohlášení můžete mírně upravit :-)
+
+\newcommand{\podekovani}{Děkuji ... za ...} % NAPIŠTE poděkování, např. svému vedoucímu:
+%"Děkuji Ing. Eleonoře Krtečkové, Ph.D. za vedení mého výzkumného úkolu a za podnětné návrhy, které jej obohatily."
+% NEBO:
+% Děkuji doc. Pafnutijovi Snědldítětikaši, Ph.D. za neocenitelné rady a pomoc při tvorbě výzkumného úkolu.
+
+
+\begin{document}
+%%%%%%%%%%%% TITULNÍ STRANA -- následujících cca 30 řádků se generuje AUTOMATICKY (není třeba nic měnit) %%%%%%%%%%%%
+\thispagestyle{empty}
+
+\begin{center}
+    {\Large \textsc{\cvut}\\[1.5ex] \textsc{\fjfi}}\\
+    \vspace{10mm}
+
+    \begin{tabular}{ll}
+		\multicolumn{2}{c}{\tb{\ksi}} \\[8pt]   
+		\tb{Studijní program:} & \tb{\program}\\
+		\tb{Specializace:} & \tb{\specializace}\\
+    \end{tabular}
+
+   \vspace{13mm} \logoCVUT \vspace{15mm} 
+
+   {\huge \tb{\nazevcz}\par}
+   \vspace{5mm}   
+   
+   \vspace{15mm}
+   {\Large \MakeUppercase{\druh}}
+
+   \vfill
+   {\large
+    \begin{tabular}{ll}
+    Vypracoval: & \autor\\
+    Vedoucí práce: & \vedouci\\
+    Rok: & \rok
+    \end{tabular}
+   }
+\end{center}
+
+%%%%%%%%%%%% ZADÁNÍ PRÁCE %%%%%%%%%%%%
+% Zadání (podepsané!) musíte NASKENOVAT. Ideálně jako jednostránkové PDF (soubor "zadaniVU.pdf"). 
+%\newpage  % SEM NESAHEJTE!
+\thispagestyle{empty} % SEM NESAHEJTE!
+
+% --- varianta A: zadání naskenované jako 2stránkové PDF:
+\includepdf[pages={1}]{zadaniVU.pdf} % zadání naskenované jako PDF
+%% --- varianta B: zadání naskenované jako obrázek (JPG):
+%\begin{center}
+%     \includegraphics[width=1\textwidth]{zadani1.jpg}
+%\end{center}
+%\newpage ~  % prázdná stránka za zadáním -- oboustranný tisk; SEM NESAHEJTE!
+%\thispagestyle{empty} % SEM NESAHEJTE!
+
+
+%%%%%%%%%%%% Prohlášení -- SEM NESAHEJTE! Generuje se automaticky z výše nastavených maker \kde{} a \prohlaseni{}. %%%%%%%%%%%%
+\newpage % SEM NESAHEJTE!
+\thispagestyle{empty}  % SEM NESAHEJTE!
+
+~ % SEM NESAHEJTE!
+\vfill % prázdné místo. SEM NESAHEJTE!
+
+\tb{Prohlášení} % SEM NESAHEJTE!
+
+\vspace{1em} % vertikální mezera. SEM NESAHEJTE!
+\prohlaseni
+
+\vspace{2em}  % SEM NESAHEJTE!
+\hspace{-0.5em}\begin{tabularx}{\textwidth}{X c}  % SEM NESAHEJTE!
+V \kde\ dne .................... &........................................ \\	% SEM NESAHEJTE!
+	& \autor
+\end{tabularx}	% SEM NESAHEJTE!
+
+
+%%%%%%%%%%%% Poděkování -- tuto stránku můžete celou odstranit %%%%%%%%%%%%
+\newpage
+\thispagestyle{empty}
+
+~
+\vfill % prázdné místo
+
+\tb{Poděkování}
+
+\vspace{1em} % vertikální mezera
+\podekovani
+\begin{flushright}
+\autor
+\end{flushright}  % <-- konec stránky s poděkováním
+
+
+%%%%%%%%%%%% ABSTRAKT atp. Je generován AUTOMATICKY podle maker nastavených na začátku souboru) %%%%%%%%%%%% 
+\newpage   % SEM NESAHEJTE!
+\thispagestyle{empty}   % SEM NESAHEJTE!
+
+% příprava:    (na následujících 8 řádků NESAHEJTE!)
+\newbox\odstavecbox
+\newlength\vyskaodstavce
+\newcommand\odstavec[2]{%
+    \setbox\odstavecbox=\hbox{%
+         \parbox[t]{#1}{#2\vrule width 0pt depth 4pt}}%
+    \global\vyskaodstavce=\dp\odstavecbox
+    \box\odstavecbox}
+\newcommand{\delka}{120mm} % šířka textů ve 2. sloupci tabulky
+
+% použití přípravy:    % dovnitř "tabular" vůbec NESAHEJTE!
+\begin{tabular}{ll}
+  {\em Název práce:} & ~ \\
+  \multicolumn{2}{l}{\odstavec{\textwidth}{\bf \nazevcz}} \\[1em]
+  {\em Autor:} & \autor \\[1em]
+  {\em Studijní program:} & \program \\
+  {\em Specializace:} & \specializace\\
+  {\em Druh práce:} & \druh \\[1em]
+  {\em Vedoucí práce:} & \odstavec{\delka}{\vedouci\\ \pracovisteVed} \\
+  {\em Konzultant:} & -- %\odstavec{\delka}{\konzultant \\ \pracovisteKonz}  % VYMAŽTE text "-- %" v případě, že jste neměli konzultanta
+ \\[1em]  
+  \multicolumn{2}{l}{\odstavec{\textwidth}{{\em Abstrakt:} ~ \abstrCZ  }} \\[1em]
+  {\em Klíčová slova:} & \odstavec{\delka}{\klicova}
+\end{tabular}
+
+
+
+%%%%%%%%%%%% Obsah VÚ ... je generován AUTOMATICKY %%%%%%%%%%%%
+\parskip=0pt
+\tableofcontents % SEM NESAHEJTE!
+\parskip=7pt
+%\newpage % SEM NESAHEJTE!
+
+
+%--------------------------------------------------------
+%|         Zde začíná SAMOTNÁ PRÁCE (text)              |
+%--------------------------------------------------------
+
+\chapter*{Úvod} % SEM NESAHEJTE!
+\addcontentsline{toc}{chapter}{Úvod} % SEM NESAHEJTE!
+%
+Zde napište text úvodu (1-3 strany, nerozdělujte na podkapitoly) nebo jej vložte ze samostatného souboru: např. příkazem \texttt{\textbackslash input\{uvod.tex\}}.
+
+Tato šablona je určena {\color{red}pro elektronické odevzdání VÚ} (od roku 2023). Pokud byste si VÚ chtěli vytisknout, tak změňte řádky~1~a~10 ve zdrojovém kódu této šablony ($\Rightarrow$ budou správně nastavené \uv{prázdné zadní stránky}).
+%
+%\input{uvod.tex}
+
+
+
+\chapter{Název první kapitoly}
+%
+Tady začněte psát text první kapitoly práce nebo jej vložte ze samostatného souboru, např. příkazem \texttt{\textbackslash input\{kapitola1.tex\}}.
+%
+%\input{kapitola1.tex} % text vkládán ze souboru. Pokud je v souboru uveden i příkaz \chapter{...}, tak ho o 4 řádky výše vymažte!
+
+
+\chapter*{Závěr}
+\addcontentsline{toc}{chapter}{Závěr} % SEM NESAHEJTE!
+%
+Zde napište text závěru (1-3 strany, nerozdělujte na podkapitoly) nebo jej vložte ze samostatného souboru: např. příkazem \texttt{\textbackslash input\{zaver.tex\}}.
+%
+%\input{zaver.tex}
+
+
+%%%%%%%%%%%% SEZNAM POUŽITÝCH ZDROJŮ (LITERATURA) %%%%%%%%%%%%
+\addcontentsline{toc}{chapter}{Literatura} % SEM NESAHEJTE!
+\begin{thebibliography}{99}   
+	\bibitem{odkaz} Autor. \ti{Název knihy}. Město. Nakladatelství. Rok.  
+\end{thebibliography}
+% formát: ČSN ISO 690. Můžete si to vygenerovat na http://www.citacepro.com (přihlaste se přes odkaz "ČVUT"), umí to vygenerovat TeX
+% řazení: abecedně podle autora (resp. provního slova, není-li znám autor)
+
+
+%%%%%%%%%%%% PŘÍLOHY PRÁCE %%%%%%%%%%%%
+\newpage % SEM NESAHEJTE!
+\addcontentsline{toc}{chapter}{Přílohy} % SEM NESAHEJTE!
+\appendix % SEM NESAHEJTE!
+
+
+%%%%%%%%%%%% Příloha A (tj. 1. kapitola v rámci příloh) %%%%%%%%%%%%
+\chapter{Název přílohy} % SEM NESAHEJTE!
+%
+Zde napište text první přílohy nebo jej vložte, např.: \texttt{\textbackslash input\{priloha\_A.tex\}}.
+%
+%\input{priloha_A.tex} % text vkládán ze souboru, kde je i příkaz \chapter{...}
+
+
+\end{document} % SEM NESAHEJTE! Konec.
