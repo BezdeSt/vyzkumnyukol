@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.interpolate import griddata
 
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
 
 def nahodne_pole(rows, cols, min_value=0, max_value=1):
     """
@@ -52,19 +55,46 @@ def cislo_na_policko(grid):
             else: mapa[i][j] = "H" # Hory
     return mapa
 
+def zobraz_mapu(mapa):
+    """
+    Barevně vykreslí terénní mapu.
+    """
+    # Definice barev pro jednotlivé typy terénu
+    barvy = {
+        "V": "#1f77b4",  # Modrá - Voda
+        "P": "#58d162",  # Světle zelená - Pláně
+        "L": "#0c3b10",  # Zelená - Les
+        "H": "#4a4a48",  # Šedá - Hory
+    }
+
+    # Převedení mapy na numerickou matici s indexy (0 = "V", 1 = "P", ...)
+    text_to_index = {"V": 0, "P": 1, "L": 2, "H": 3}
+    index_map = np.vectorize(text_to_index.get)(mapa)
+
+    # Vytvoření barevné mapy
+    cmap = ListedColormap(barvy.values())
+
+    # Vykreslení mřížky
+    plt.figure(figsize=(8, 8))
+    plt.imshow(index_map, cmap=cmap, interpolation='nearest')
+
+    plt.show()
+
 # Příklad použití
-big_rows = 9
-big_cols = 9
-small_rows = 3
-small_cols = 3
+big_rows = 500
+big_cols = 500
+small_rows = 8
+small_cols = 8
 min_value = 0
 max_value = 1
 
-random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-random_tile = cislo_na_policko(random_grid)
-print(random_tile)
+#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+#random_tile = cislo_na_policko(random_grid)
+#print(random_tile)
+#zobraz_mapu(random_tile)
 print('--------------------------------------------------')
 interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
 interpolated_tile = cislo_na_policko(interpolated_grid)
 print(interpolated_tile)
+zobraz_mapu(interpolated_tile)
 
