@@ -38,6 +38,19 @@ def interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value=0, 
 
     return big_grid
 
+def cislo_na_policko(grid):
+    mapa = np.empty_like(grid, dtype='str')
+
+    for i in range(grid.shape[0]):  # Počet řádků
+        for j in range(grid.shape[1]):  # Počet sloupců
+            if grid[i][j] < 0.25:
+                mapa[i][j] = "V" # Voda
+            elif grid[i][j] < 0.5:
+                mapa[i][j] = "P" # Pláně
+            elif grid[i][j] < 0.75:
+                mapa[i][j] = "L" # Les
+            else: mapa[i][j] = "H" # Hory
+    return mapa
 
 # Příklad použití
 big_rows = 9
@@ -47,5 +60,11 @@ small_cols = 3
 min_value = 0
 max_value = 1
 
+random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+random_tile = cislo_na_policko(random_grid)
+print(random_tile)
+print('--------------------------------------------------')
 interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-print(interpolated_grid)
+interpolated_tile = cislo_na_policko(interpolated_grid)
+print(interpolated_tile)
+
