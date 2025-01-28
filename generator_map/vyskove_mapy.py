@@ -94,6 +94,9 @@ def gradientni_pole(rows, cols, gradient_scale=1):
     gradients_x = np.random.uniform(-1, 1, (grad_rows, grad_cols))
     gradients_y = np.random.uniform(-1, 1, (grad_rows, grad_cols))
 
+    scale_factor = 2.0
+    gradients_x *= scale_factor
+    gradients_y *= scale_factor
 
     # Jemná mřížka pro výsledné hodnoty
     terrain = np.zeros((rows, cols))
