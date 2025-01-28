@@ -142,7 +142,7 @@ max_value = 1
 # print(interpolated_tile)
 # zobraz_mapu(interpolated_tile)
 
-gradient_terrain = gradient_based_terrain(big_rows, big_cols, gradient_scale=10)
+gradient_terrain = gradientni_pole(big_rows, big_cols, gradient_scale=10)
 print(gradient_terrain)
 zobraz_mapu(cislo_na_policko(gradient_terrain))
 
