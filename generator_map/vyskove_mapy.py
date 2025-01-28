@@ -94,9 +94,9 @@ def gradientni_pole(rows, cols, gradient_scale=1):
     gradients_x = np.random.uniform(-1, 1, (grad_rows, grad_cols))
     gradients_y = np.random.uniform(-1, 1, (grad_rows, grad_cols))
 
-    scale_factor = 2.0
-    gradients_x *= scale_factor
-    gradients_y *= scale_factor
+    # scale_factor = 2.0
+    # gradients_x *= scale_factor
+    # gradients_y *= scale_factor
 
     # Jemná mřížka pro výsledné hodnoty
     terrain = np.zeros((rows, cols))
@@ -125,6 +125,9 @@ def gradientni_pole(rows, cols, gradient_scale=1):
             height_x1 = h10 * (1 - dx) + h11 * dx
             terrain[y, x] = height_x0 * (1 - dy) + height_x1 * dy
 
+
+    # Normalizace
+    terrain = (terrain - terrain.min()) / (terrain.max() - terrain.min())
     return terrain
 
 # Příklad použití
@@ -145,7 +148,7 @@ max_value = 1
 # print(interpolated_tile)
 # zobraz_mapu(interpolated_tile)
 
-gradient_terrain = gradientni_pole(big_rows, big_cols, gradient_scale=10)
+gradient_terrain = gradientni_pole(big_rows, big_cols, gradient_scale=25)
 print(gradient_terrain)
 zobraz_mapu(cislo_na_policko(gradient_terrain))
 
