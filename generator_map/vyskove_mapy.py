@@ -80,21 +80,70 @@ def zobraz_mapu(mapa):
 
     plt.show()
 
+
+def gradientni_pole(rows, cols, gradient_scale=1):
+    """
+    Vytvoří výškovou mapu pomocí gradientového šumu.
+
+    """
+    # Hrubá mřížka gradientů
+    grad_rows = rows // gradient_scale
+    grad_cols = cols // gradient_scale
+
+    # Náhodné gradienty na hrubé mřížce
+    gradients_x = np.random.uniform(-1, 1, (grad_rows, grad_cols))
+    gradients_y = np.random.uniform(-1, 1, (grad_rows, grad_cols))
+
+
+    # Jemná mřížka pro výsledné hodnoty
+    terrain = np.zeros((rows, cols))
+
+    # Výpočet výšek na jemné mřížce
+    for y in range(rows):
+        for x in range(cols):
+            # Určení čtyř sousedních gradientů na hrubé mřížce
+            x0 = x // gradient_scale
+            y0 = y // gradient_scale
+            x1 = min(x0 + 1, grad_cols - 1)
+            y1 = min(y0 + 1, grad_rows - 1)
+
+            # Relativní pozice uvnitř buňky
+            dx = (x % gradient_scale) / gradient_scale
+            dy = (y % gradient_scale) / gradient_scale
+
+            # Výpočet příspěvků z gradientů
+            h00 = gradients_x[y0, x0] * dx + gradients_y[y0, x0] * dy
+            h01 = gradients_x[y0, x1] * (1 - dx) + gradients_y[y0, x1] * dy
+            h10 = gradients_x[y1, x0] * dx + gradients_y[y1, x0] * (1 - dy)
+            h11 = gradients_x[y1, x1] * (1 - dx) + gradients_y[y1, x1] * (1 - dy)
+
+            # Interpolace výšek
+            height_x0 = h00 * (1 - dx) + h01 * dx
+            height_x1 = h10 * (1 - dx) + h11 * dx
+            terrain[y, x] = height_x0 * (1 - dy) + height_x1 * dy
+
+    return terrain
+
 # Příklad použití
-big_rows = 500
-big_cols = 500
-small_rows = 8
-small_cols = 8
+big_rows = 50
+big_cols = 50
+small_rows = 5
+small_cols = 5
 min_value = 0
 max_value = 1
 
-#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-#random_tile = cislo_na_policko(random_grid)
-#print(random_tile)
-#zobraz_mapu(random_tile)
-print('--------------------------------------------------')
-interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-interpolated_tile = cislo_na_policko(interpolated_grid)
-print(interpolated_tile)
-zobraz_mapu(interpolated_tile)
+# random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+# random_tile = cislo_na_policko(random_grid)
+# print(random_tile)
+# zobraz_mapu(random_tile)
+# print('--------------------------------------------------')
+# interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
+# interpolated_tile = cislo_na_policko(interpolated_grid)
+# print(interpolated_tile)
+# zobraz_mapu(interpolated_tile)
+
+gradient_terrain = gradient_based_terrain(big_rows, big_cols, gradient_scale=10)
+print(gradient_terrain)
+zobraz_mapu(cislo_na_policko(gradient_terrain))
+
 
