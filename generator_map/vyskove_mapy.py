@@ -41,45 +41,21 @@ def interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value=0, 
 
     return big_grid
 
+
 def cislo_na_policko(grid):
     mapa = np.empty_like(grid, dtype='str')
 
     for i in range(grid.shape[0]):  # Počet řádků
         for j in range(grid.shape[1]):  # Počet sloupců
             if grid[i][j] < 0.25:
-                mapa[i][j] = "V" # Voda
+                mapa[i][j] = "V"  # Voda
             elif grid[i][j] < 0.5:
-                mapa[i][j] = "P" # Pláně
+                mapa[i][j] = "P"  # Pláně
             elif grid[i][j] < 0.75:
-                mapa[i][j] = "L" # Les
-            else: mapa[i][j] = "H" # Hory
+                mapa[i][j] = "L"  # Les
+            else:
+                mapa[i][j] = "H"  # Hory
     return mapa
-
-def zobraz_mapu(mapa):
-    """
-    Barevně vykreslí terénní mapu.
-    """
-    # Definice barev pro jednotlivé typy terénu
-    barvy = {
-        "V": "#1f77b4",  # Modrá - Voda
-        "P": "#58d162",  # Světle zelená - Pláně
-        "L": "#0c3b10",  # Zelená - Les
-        "H": "#4a4a48",  # Šedá - Hory
-    }
-
-    # Převedení mapy na numerickou matici s indexy (0 = "V", 1 = "P", ...)
-    text_to_index = {"V": 0, "P": 1, "L": 2, "H": 3}
-    index_map = np.vectorize(text_to_index.get)(mapa)
-
-    # Vytvoření barevné mapy
-    cmap = ListedColormap(barvy.values())
-
-    # Vykreslení mřížky
-    plt.figure(figsize=(8, 8))
-    plt.imshow(index_map, cmap=cmap, interpolation='nearest')
-
-    plt.show()
-
 
 def gradientni_pole(rows, cols, gradient_scale=1):
     """
@@ -94,6 +70,8 @@ def gradientni_pole(rows, cols, gradient_scale=1):
     gradients_x = np.random.uniform(-1, 1, (grad_rows, grad_cols))
     gradients_y = np.random.uniform(-1, 1, (grad_rows, grad_cols))
 
+
+    # Řešení malých hodnot v poli škálováním
     # scale_factor = 2.0
     # gradients_x *= scale_factor
     # gradients_y *= scale_factor
@@ -125,10 +103,38 @@ def gradientni_pole(rows, cols, gradient_scale=1):
             height_x1 = h10 * (1 - dx) + h11 * dx
             terrain[y, x] = height_x0 * (1 - dy) + height_x1 * dy
 
-
     # Normalizace
     terrain = (terrain - terrain.min()) / (terrain.max() - terrain.min())
     return terrain
+
+def zobraz_mapu(mapa):
+    """
+    Barevně vykreslí terénní mapu.
+    """
+    # Definice barev pro jednotlivé typy terénu
+    barvy = {
+        "V": "#1f77b4",  # Modrá - Voda
+        "P": "#58d162",  # Světle zelená - Pláně
+        "L": "#0c3b10",  # Zelená - Les
+        "H": "#4a4a48",  # Šedá - Hory
+    }
+
+    # Převedení mapy na numerickou matici s indexy (0 = "V", 1 = "P", ...)
+    text_to_index = {"V": 0, "P": 1, "L": 2, "H": 3}
+    index_map = np.vectorize(text_to_index.get)(mapa)
+
+    # Vytvoření barevné mapy
+    cmap = ListedColormap(barvy.values())
+
+    # Vykreslení mřížky
+    plt.figure(figsize=(8, 8))
+    plt.imshow(index_map, cmap=cmap, interpolation='nearest')
+
+    plt.show()
+
+
+
+
 
 # Příklad použití
 big_rows = 50
@@ -138,18 +144,11 @@ small_cols = 5
 min_value = 0
 max_value = 1
 
-# random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-# random_tile = cislo_na_policko(random_grid)
-# print(random_tile)
-# zobraz_mapu(random_tile)
-# print('--------------------------------------------------')
-# interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-# interpolated_tile = cislo_na_policko(interpolated_grid)
-# print(interpolated_tile)
-# zobraz_mapu(interpolated_tile)
+random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+zobraz_mapu(cislo_na_policko(random_grid))
+
+interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
+zobraz_mapu(cislo_na_policko(interpolated_grid))
 
 gradient_terrain = gradientni_pole(big_rows, big_cols, gradient_scale=25)
-print(gradient_terrain)
 zobraz_mapu(cislo_na_policko(gradient_terrain))
-
-
