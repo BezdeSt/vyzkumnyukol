@@ -235,7 +235,41 @@ Mezi různé varianty \textit{GAN} patří například \textit{Deep Convolutiona
 
 
 \section{Porovnání metod}
-\begin{itemize}
-    \item Tabulka s výhodami, nevýhodami a vhodností pro daný projekt.
-    \item Vyhodnocení nejvhodnějších metod pro konkrétní potřeby hry.
-\end{itemize}
+
+Popsali jsme několik možných přístupů generování herních map. V této části porovnám popsané metody generování map a zvolím vhodnou metodu kterou implementuji v rámci tohoto výzkumného úkolu. 
+
+Cílem je generovat herní mapu pro svět složený z políček nebo dlaždic pro strategickou hru, tedy výstup by měl připomínat přirozeně vypadající mapu světa. Tedy metody které vytvářejí nesouvislé nebo lineárně rozdělené výsledky nejsou vhodné (nebudu se snažit generovat města, pouze krajinu). 
+
+Zároveň, jelikož pro každou hru bude generována nová unikátní mapa, by bylo vhodné aby generování probíhalo v rozumném čase, tedy metody s nízkou výpočetní náročností budou preferované.
+
+Následující tabulka \ref{tabulka_metod} popisuje výhody a nevýhody jednotlivých metod generování.
+
+
+
+\begin{sidewaystable}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Metoda}                 & \textbf{Výhody}                                                                                                                     & \textbf{Nevýhody}                                                                                  \\ \hline
+Space Partitioning              & \begin{tabular}[c]{@{}l@{}}Logická a hierarchická struktura\\ Snadné dosažení konzistentních výsledků\\ Vhodné pro vnitřní prostory\end{tabular}                                        & \begin{tabular}[c]{@{}l@{}}Výsledky můžou působit pravoúhle\\ Nevhodné pro organické mapy\end{tabular}                                      \\ \hline
+Agent-Based generování          & \begin{tabular}[c]{@{}l@{}}Přirozené, nelineární výsledky\\ Velká variabilita výsledků\\ Snadné přizpůsobení chování agentů\end{tabular}                                                & \begin{tabular}[c]{@{}l@{}}Náročné ladění parametrů\\ Vysoká míra náhodnosti\\ Nepředvídatelné výsledky\end{tabular}                       \\ \hline
+Grammar Algorithms              & \begin{tabular}[c]{@{}l@{}}Vysoká míra kontroly\\ Vhodné pro generování rozvržení úrovní\end{tabular}                                                                                   & \begin{tabular}[c]{@{}l@{}}Náročné na definování pravidel\\ Rychle narůstá složitost pravidel\\ Nevhodné pro přirozené terény\end{tabular} \\ \hline
+Výškové mapy                    & \begin{tabular}[c]{@{}l@{}}Dobře reprezentují reálnou topografii\\ Plynulé přechody mezi výškovými úrovněmi\\ Snadná implementace \\ Snadná kombinace s dalšími technikami\end{tabular} & \begin{tabular}[c]{@{}l@{}}Náhodné generování vede k nereálným výsledkům\\ Nevhodné pro generování budov a interiérů\end{tabular}          \\ \hline
+Fraktálové algoritmy            & \begin{tabular}[c]{@{}l@{}}Přirozeně vypadající krajina\\ Efektivní pro nekonečné terény\\ Relativně nenáročné na výkon\end{tabular}                                                   & \begin{tabular}[c]{@{}l@{}}Omezená kontrola\\ Výsledky mohou být homogenní\end{tabular}                                                    \\ \hline
+Wave Function Collapse          & \begin{tabular}[c]{@{}l@{}}Konzistentní výsledky\\ Vhodné pro mapy s pravidelnými vzory\\ Snadné využití existujících vzorů\end{tabular}                                                                        & \begin{tabular}[c]{@{}l@{}}Výpočetně náročné\\ Složitý vstupní dataset\\ Může skončit ve stavu bez platného řešení\end{tabular}                                     \\ \hline
+Generative Adversarial Networks & \begin{tabular}[c]{@{}l@{}}Realistické a variabilní výsledky\\ Adaptivní na různé typy prostředí\end{tabular}                                                                                                   & \begin{tabular}[c]{@{}l@{}}Velké množství trénovacích dat\\ Výpočetně náročné\\ Obtížně laditelné\end{tabular}                                                     \\ \hline
+\end{tabular}
+\caption{Porovnání metod generování prostředí}
+\label{tabulka_metod}
+\end{sidewaystable}
+
+%_-------------------------------------------
+%_-------------------------------------------
+% GRAFICKY OPRAVIT; ZKONTROLOVAT GRAMATIKU
+%_-------------------------------------------
+%_-------------------------------------------
+\newpage
+
+Po porovnání metod generování map jsem se rozhodl využít \textit{metod výškových map}. Hlavním důvodem je, že tato metoda by měla být schopna generovat přirozeně vypadající krajinné útvary při poměrně nízké výpočetní náročnosti. Využití interpolace nebo gradientních metod umožní vytvářet plynulé přechody mezi různými tipy terénu, což povede k realisticky vypadajícímu světu.
+
+Mou další volbou by byla metoda \textit{Wave Function Collapse (WFC)} případně \textit{Generative Adversarial Networks (GAN)}, jelikož tyto metody mají potenciál vést k ještě realističtějším a více rozmanitým výsledkům. \textit{WFC} by zajistilo více vzorů v prostředí, zatímco \textit{GAN} by umožnil generovat zcela nové mapy na základě trénovacích dat. Nicméně, obě tyto metody jsou výpočetně náročnější a vyžadují velké trénovací data, což je činní nevhodnými pro můj výzkumný úkol. Proto tyto metody ponechám jako případné možné rozšíření do diplomové práce.
