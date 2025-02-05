@@ -1,12 +1,87 @@
 \section{Návrh strategické hry}
+
 \begin{itemize}
-    \item Herní koncept (typ hry, pravidla, cíle hráče).
-    \item Popis mapy: Použití dlaždic a jejich vliv na herní mechaniky.
-    \item Navržené mechaniky:
+    \item Představení cíle kapitoly.
+    \item Vysvětlení, proč je důležité systematicky navrhnout jednotlivé prvky hry.
+    \item Úvodní představy
     \begin{itemize}
-        \item Jednotky (pohyb, útok, obrana).
-        \item Ekonomika (zdroje, produkce).
-        \item Stavba budov (možnosti na jednotlivých terénech).
+        \item Herní koncept (typ hry, pravidla, cíle hráče).
+        \item Popis mapy: Použití dlaždic a jejich vliv na herní mechaniky.
+    \end{itemize}
+    \item Odkaz na \textit{The Art of Game Design} a použitý rámec návrhu.
+    \item Přehled toho, co bude v kapitole popsáno.
+\end{itemize}
+
+\subsection{Prostor}
+\begin{itemize}
+    \item Struktura herního světa a jeho reprezentace.
+    \item Herní mapa:
+    \begin{itemize}
+        \item Dlaždicová struktura a její výhody.
+        \item Typy terénu a jejich vlastnosti.
+    \end{itemize}
+    \item Pohyb pouze ve čtyřech směrech
+\end{itemize}
+
+\subsection{Objects, Attributes, and States (Objekty, atributy a stavy)}
+\begin{itemize}
+    \item Herní entity a jejich stavy:
+    \begin{itemize}
+        \item Dlaždice (Typy terénů, Stavy dlaždic)
+        \begin{itemize}
+            \item Typy terénu a jejich vlastnosti
+            \item Stav dlaždice -- obsazená, zastavěná
+        \end{itemize}
+        \item Jednotky
+        \begin{itemize}
+            \item Typ jednotky -- vlastnosti (pohyb, útok, obrana, speciální schopnosti)
+            \item Stavy jednotek -- zraněná, pracuje, ...
+        \end{itemize}
+        \item Budovy (produkce, obranné stavby, speciální budovy).
+        \begin{itemize}
+            \item Vlastnosti budov -- cena, produkce
+            \item Speciální akce budov
+        \end{itemize}
     \end{itemize}
 \end{itemize}
 
+\subsection{Actions (Akce hráče)}
+\begin{itemize}
+    \item Možné akce hráče během tahu:
+    \begin{itemize}
+        \item Pohyb jednotek. (Použití speciálních schopností jednotek)
+        \item Útok a bojový systém. 
+        \item Stavba budov a infrastruktury. (Správa zdrojů a ekonomika)
+    \end{itemize}
+\end{itemize}
+
+\subsection{Rules (Pravidla hry)}
+\begin{itemize}
+    \item Základní pravidla:
+    \begin{itemize}
+        \item Podmínky vítězství (zničení nepřítele).
+        \item Struktura tahu (pořadí akcí).
+        \item Omezující pravidla (pohybové limity, ztráta jednotek, zničení budov).
+    \end{itemize}
+    \item Vyváženost a spravedlnost pravidel.
+\end{itemize}
+
+\subsection{Skill and Chance (Dovednost a náhoda)}
+\begin{itemize}
+    \item Jaký vliv má dovednost hráče na výsledek hry:
+    \begin{itemize}
+        \item Strategické plánování.
+        \item Správné rozhodování a reakce na situace.
+    \end{itemize}
+    \item Jaký vliv má náhoda:
+    \begin{itemize}
+        \item Procedurálně generovaná mapa jako faktor variabilních podmínek.
+    \end{itemize}
+    \item Vyvážení mezi dovedností a náhodou.
+\end{itemize}
+
+\subsection{Shrnutí}
+\begin{itemize}
+    \item Shrnutí hlavních bodů návrhu.
+    \item Vztah návrhu k procedurálnímu generování map.
+\end{itemize}
