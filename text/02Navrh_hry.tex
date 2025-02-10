@@ -55,12 +55,14 @@ Kniha \textit{The Art of Game Design: A Book of Lenses} rozděluje herní prosto
     \item Ohraničenost a propojení oblastí -- Prostor může být uzavřený, s pevně definovanými hranicemi, nebo otevřený, umožňující pohyb hráče nebo herních prvků mimo hranice. Rovněž je důležité zvážit, zda jsou jednotlivé části prostoru propojené, nebo zda jsou oddělené a nezávislé.
 \end{itemize}
 
-Příklad hry hrané na diskrétním dvou dimenzionálním poli je "piškvorky" (v rámci příkladu předpokládám herní plochu $3\times3$), kde herní plocha je rozdělená na devět oddělených políček. Herní deska je zobrazena jako souvislý prostor, ale z hlediska herních mechanik bereme v potaz pouze 9 specifických míst, která můžeme znázornit jako uzly v síti.
+Příklad hry hrané na diskrétním dvoudimenzionálním poli je "piškvorky" (v rámci příkladu předpokládám herní plochu $3\times3$), kde herní plocha je rozdělena na devět oddělených políček. Herní deska je zobrazena jako souvislý prostor, ale z hlediska herních mechanik bereme v potaz pouze těchto devět specifických míst, která můžeme znázornit jako uzly v síti. Tedy dokud je jednoznačně rozeznatelné, do kterého políčka zapadá, jsou si mechanicky ekvivalentní, jak je naznačeno na obrázku \ref{sudoku}.
 
-% TODO
-%OBRÁZEK UZLŮ? MOŽNÁ?
-%OBRÁZEK UZLŮ? MOŽNÁ?
-%OBRÁZEK UZLŮ? MOŽNÁ?
+\begin{figure}
+  \centering      % vycentrovat
+  \includegraphics[scale=0.3]{obr/sudoku.png} % soubor + měřítko (scale)
+  \caption{Ekvivalence různých značení sudoku.} % popis obrázku
+  \label{sudoku} % definice odkazu na obrázek (pro \ref{})
+\end{figure}
 
 Hru monopoly pak můžeme definovat jako příklad jednodimenzionální hry. I když je herní deska vizuálně uspořádána do tvaru čtverce, když odstraníme grafické prvky, můžeme vidět, že hra umožňuje pohyb po jediné řadě políček, propojených v cyklické smyčce. V tomto případě se každé políčko na desce chová jako bod nulové dimenze, ačkoliv vizuálně vypadají některé čtverce odlišně, jejich funkce se neliší.
 
