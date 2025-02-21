@@ -104,6 +104,122 @@ Herní pole tedy pro účely návrhu uvažuji jako abstraktní dvoudimenzionáln
     \end{itemize}
 \end{itemize}
 
+V herním prostoru se pak nacházejí objekty se kterými hráči v průběhu celé hry manipulují nebo s nimi interagují pomocí jiných objektů. Může se jednat například o herní figurky, postavy, karty, nebo samotné herní prostředí. Objekty lze chápat jako „podstatná jména“ herních mechanik. 
+
+Každý objekt má nějaké atributy, které popisují jeho vlastnosti. Atributy lze chápat jako "přídavná jména". Například auta v závodní hře mohou mít atributy jako \textit{maximální rychlost} a \textit{aktuální rychlost}. 
+
+Každý herní objekt má \textbf{stav}, který určuje jeho vlastnosti a chování ve hře. Stav objektu se skládá z jeho atributů, což jsou jednotlivé charakteristiky objektu. Například figurka v šachu má atribut „mód pohybu“, který může nabývat stavů jako „volně se pohybující“, „v šachu“ a „matovaná“. V Monopoly má každý pozemek atribut „počet domů“, jehož stav se může měnit mezi 0 až 4 domy nebo hotelem.
+
+Atributy mohou být statické nebo dynamické:
+
+\begin{itemize} \item Statické atributy – Nemění se v průběhu hry. Například barva figurky v dámě nebo maximální rychlost auta.
+\item Dynamické atributy – Mohou se měnit v závislosti na akcích hráčů či mechanikách hry. Například aktuální rychlost auta se mění podle řízení hráče, životy jednotky klesají při útoku. \end{itemize}
+
+Každý herní objekt tak může mít kombinaci statických a dynamických atributů. Například v šachu má figurka statický atribut „barva“, ale dynamický atribut „pozice na šachovnici“, který se mění během hry.
+
+Je důležité si uvědomit, že objekty ve hře často interagují mezi sebou. Například, jednotka může útočit na jinou jednotku, budova může produkovat suroviny, nebo terénní prvek může ovlivňovat pohyb jednotek. Tyto interakce by měly být navrženy tak, aby dávaly smysl a byly pro hráče srozumitelné.
+
+Zásadní změny ve stavu herních objektů, ať už se jedná o změnu atributů nebo interakce s jinými objekty, je potřeba hráči nějakým způsobem indikovat. Vizuální reprezentace stavů objektů by měla být hráčům srozumitelná a intuitivní.
+
+Stav objektu není nutně viditelný celý – některé atributy mohou být skryté nebo viditelné jen pro určité hráče.
+
+Důležitou součástí herního návrhu tedy je rozhodnout, kdo má přístup k jakým informacím. Pro jednoduchost rozlišíme informace na \textit{veřejné} \textit{částečně skryté} nebo \textit{zcela skryté}. 
+
+\begin{itemize}
+    \item Veřejné informace -- Všechny atributy a jejich stavy jsou viditelné pro všechny hráče. Například v šachu oba hráči vidí všechna pole a figurky na hrací desce, takže jediným tajemstvím je přemýšlení soupeře.
+    \item Částečně skryté informace -- Někteří hráči znají určitou informaci, ale jiní ne. Například ve hře poker někteří hráči viděli kartu, zatímco jiní ne.
+    \item Zcela skryté informace -- Existují atributy, které zná pouze samotná hra. Například v počítačových hrách mohou být některé části světa před hráčem skryté, dokud je neodhalí.
+\end{itemize}
+
+Rozhodnutí o tom, kdo má přístup k jakým informacím, zásadně ovlivňuje herní strategii a atmosféru. Hry jako poker jsou postavené na utajení a odhadu soupeřových karet, zatímco v šachu mají hráči k dispozici informace o stavu celé herní plochy, a jedinou neznámou je strategie protivníka. Změna dostupnosti informací může radikálně proměnit hratelnost, například když se dříve skrytá informace náhle odhalí a změní dynamiku hry.
+
+\subsubsection{Návrh herních objektů}
+
+V této části se podle probraných principů pokusím nastínit jednotlivé objekty a definovat atributy těchto objektů.
+
+Ve hře se nachází několik typů objektů, se kterými hráči mohou manipulovat nebo s nimi interagovat. Základním objektem ve hře jsou \textbf{políčka} ze kterých je složené herní pole a určují podmínky pro pohyb jednotek a stavbu budov. \textbf{Budovy}, produkují suroviny, případně poskytují další služby a plní jiné strategické funkce. Jako poslední jsou \textbf{jednotky} což jsou pohyblivé objekty ovládané hráčem, které hráč využívá k různým činnostem jako je boj, nebo těžba surovin. Každý z těchto objektů má své specifické atributy a stavy, které určují jejich vlastnosti a možnosti ve hře.
+
+Co se informací týče nakonec jsem se rozhodl, že hra nebude mít skryté informace, tedy hráči od začátku uvidí celý herní prostor a pohyby protivníka.
+
+
+\paragraph{Políčka}
+Políčka představují základní stavební jednotku mapy, na níž se odehrává hra. Každé políčko má několik atributů, popisujících jeho vlastnosti a interakce s ostatními objekty. Tyto atributy jsou:
+\begin{itemize}
+    \item Statické:
+    \begin{itemize}
+        \item \textbf{Pozice na mapě} -- Souřadnice určující umístění políčka v herním prostoru.
+        \item \textbf{Název} -- Název terénu.
+        \item \textbf{Zpomalení} -- Určité typy terénů mohou snižovat pohybovou rychlost jednotek. 
+        \item \textbf{Bonusová obrana} -- Některé terény mohou (např. Hory) mohou zvyšovat obranu jednotek na daném políčku.
+        \item \textbf{Získatelné suroviny} -- Typ surovin které je možné na políčku získat.
+    \end{itemize}
+    \item Dynamické:
+    \begin{itemize}
+        \item \textbf{Obsazenost jednotka} -- Na políčku se může nacházet pouze jedna jednotka, tento atribut tedy bude bránit vstupu jiné jednotky na políčko.
+    \item \textbf{Obsazenost budova} -- Na políčku může stát pouze jedna budova.
+    \end{itemize}
+%    \item \textbf{Možné zdroje} – některá políčka obsahují suroviny jako dřevo, kámen nebo jídlo. 
+%    \item \textbf{Zpomalení} – některé terény zpomalují pohyb jednotek.
+\end{itemize}
+
+Terén není jen grafický prvek, ale významně ovlivňuje hru. Správná volba umístění jednotek může znamenat rozdíl mezi vítězstvím a porážkou – například jednotka stojící na horách má lepší obranu, zatímco husté lesy mohou zpomalit postup nepřátel. Navíc různé druhy terénu určují, jaké budovy lze postavit a jaké suroviny lze těžit.
+
+
+
+\paragraph{Budovy}
+Budovy jsou struktury, které hráči staví na mapě za účelem generování zdrojů nebo poskytování jiných výhod. Každá budova má následující atributy:
+\begin{itemize}
+    \item Statické:
+    \begin{itemize}
+        \item \textbf{Pozice na mapě} -- Pozice budovy na herní mapě.
+        \item \textbf{Název} -- Označení budovy.
+        \item \textbf{Vlastník} -- Určuje hráče, kterému budova patří. Změna vlastníků během hry nebude možná, poze zničení nepřátelských budov.
+        \item \textbf{Typ terénu} -- Omezení, na kterých typech políček lze budovu postavit.
+        \item \textbf{Produkce za kolo} – množství surovin, které budova generuje za kolo.
+        \item \textbf{Životy max} -- Maximální počet životů budovy.
+        \item \textbf{Obrana} -- O se zredukuje poškození způsobené útokem.
+        \item \textbf{Cena} -- Množství surovin potřebných pro stavbu budovy.
+        \item \textbf{Bonusová obrana} -- Budova může zvyšovat obranu jednotek nacházejících se na stejném políčku.
+        \item \textbf{Speciální funkce} -- Budova může umožňovat provádění speciálních akcí jako generování nebo vylepšování jednotek.
+    \end{itemize}
+    \item Dynamické:
+    \begin{itemize}
+        \item \textbf{Životy} -- Aktuální počet životů budovy, pokud klesne na nulu budova je zničena.
+    \end{itemize}
+\end{itemize}
+Budovy kromě generování surovin poskytují hráči jiné strategické možnosti jako vylepšování jednotek, zvyšování obrany vlastních jednotek nebo blokování postupu nepřítele.
+
+\paragraph{Jednotky}
+Jednotky jsou pohyblivé objekty na mapě, které hráči ovládají a skrze které primární interagují se s herními mechanismy. Každá jednotka má své atributy, které určují její vlastnosti a schopnosti:
+\begin{itemize}
+    \item Statické:
+    \begin{itemize}
+        \item \textbf{Název} -- Název typu jednotky.
+        \item \textbf{Pozice na mapě} -- Kde na herním poli se jednotka nachází.
+        \item \textbf{Vlastník} – hráč, kterému jednotka patří.
+        \item \textbf{Cena} -- Množství surovin potřebné pro vytvoření jednotky.
+        \item \textbf{Cena za kolo} -- Náklady na udržování jednotky. Množství surovin které jednotka spotřebuje každé kolo.
+        \item \textbf{Životy max} -- Maximální počet životů jednotky.
+         \item \textbf{Základní obrana} -- Základní obrana jednotky. Redukuje poškození způsobené nepřátelským útokem.
+        \item \textbf{Útok} -- Síla útoku. Určuje o kolik se sníží životy nepřátelské jednotky při útoku. Poškození je redukované obranou. 
+        \item \textbf{Dosah} -- Vzdálenost, na kterou může jednotka útočit.
+        \item \textbf{Základní rychlost} – Maximální počet políček, která může jednotka urazit za kolo.
+    \end{itemize}
+    \item Dynamické:
+    \begin{itemize}
+        \item \textbf{Životy} -- Aktuální počet životů jednotky, pokud klesne na nulu jednotka zmizí.
+        \item \textbf{Obrana} -- Funkční obrana jednotky, po modifikaci prostředím (Typem terénu nebo budovou.).
+        \item \textbf{Rychlost} -- Skutečný počet políček přes který se jednotka může v daném tahu pohybovat, po modifikaci terénem.
+        \item \textbf{Zaměstnaná} -- Indikuje, zda jednotka vykonala akci v tomto tahu.
+        \item \textbf{V pohybu} -- Indikuje zda se jednotka v tahu pohybovala.
+        \item \textbf{Zkušenosti} -- Jednotka může být vylepšena v konkrétní budově po dosažení určitého počtu zkušeností, které získává prováděním akcí odpovídajících jejímu typu (válečníci získávají zkušenosti bojem, pracovníci těžbou surovin nebo opravami budov).
+    \end{itemize}
+\end{itemize}
+
+Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. Každá jednotka má specifickou roli – některé slouží k boji, jiné k těžbě surovin nebo stavbě budov. Postupem času mohou získávat zkušenosti a vylepšovat své schopnosti, což přidává další vrstvu strategického rozhodování. Kromě toho jednotky také každé kolo spotřebovávají množství surovin, tedy hráč musí zvážit zda si může dovolit postavit velkou armádu slabých jednotek.
+
+
+
 \subsection{Actions (Akce hráče)}
 \begin{itemize}
     \item Možné akce hráče během tahu:
