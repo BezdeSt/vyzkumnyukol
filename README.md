@@ -1,4 +1,12 @@
 # Výzkumný úkol
+
+## 25.2.
+### Uděláno:
+- Podkapitola Objekty
+- Podkapitola Akce -- teoretická část
+### Dotazy:
+- Dotazy z 10.2.
+
 ## 10.02.
 ### Uděláno:
 - Program:
