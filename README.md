@@ -1,11 +1,21 @@
 # Výzkumný úkol
 
+## Plán:
+- Opravit gradientní mapy -- zeptat se jestli můžu použít knihovnu / dát dohromady bez knihovny
+- Dopsat kapitolu Návrh
+- Podívat se na Monte Carlo (skripta: ZALG; Monte Carlo)
+- Rozmyslet co a jak budu implementovat
+
+## 14.3.
+### Uděláno:
+- 
+### Dotazy:
+- 
+
 ## 25.2.
 ### Uděláno:
 - Podkapitola Objekty
 - Podkapitola Akce -- teoretická část
-### Dotazy:
-- Dotazy z 10.2.
 
 ## 10.02.
 ### Uděláno:
@@ -24,6 +34,5 @@
         - Úvod kapitoly -- Nejsou doplněné citace
         - První podkapitola: "Prostor" -- Nejsou doplněné citace
 ### Dotazy:
-- Ověřit správnost (dostatečnost) citací v podkapitole Prostor
-- Můžu používat příklady z knížky když nemají přímý vliv? Jak to citovat?
-- Přeskládání kapitol? -- Prohodit durhou a třetí kapitolu 
+- Můžu používat příklady z knížky když nemají přímý vliv? Jak to citovat? -- Spíš ne?
+- Přeskládání kapitol? -- Prohodit durhou a třetí kapitolu -- Zatím není podstatný
