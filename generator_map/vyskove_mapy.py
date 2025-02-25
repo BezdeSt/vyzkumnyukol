@@ -4,6 +4,7 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+from noise import pnoise2
 
 def nahodne_pole(rows, cols, min_value=0, max_value=1):
     """
@@ -57,53 +58,21 @@ def cislo_na_policko(grid):
                 mapa[i][j] = "H"  # Hory
     return mapa
 
-def gradientni_pole(rows, cols, gradient_scale=1):
+
+def perlin_noise(rows, cols, scale=10):
     """
-    Vytvoří výškovou mapu pomocí gradientového šumu.
-
+    Generuje výškovou mapu pomocí Perlinova šumu.
     """
-    # Hrubá mřížka gradientů
-    grad_rows = rows // gradient_scale
-    grad_cols = cols // gradient_scale
 
-    # Náhodné gradienty na hrubé mřížce
-    gradients_x = np.random.uniform(-1, 1, (grad_rows, grad_cols))
-    gradients_y = np.random.uniform(-1, 1, (grad_rows, grad_cols))
+    seed_x = np.random.uniform(0, 1000)
+    seed_y = np.random.uniform(0, 1000)
 
-
-    # Řešení malých hodnot v poli škálováním
-    # scale_factor = 2.0
-    # gradients_x *= scale_factor
-    # gradients_y *= scale_factor
-
-    # Jemná mřížka pro výsledné hodnoty
     terrain = np.zeros((rows, cols))
-
-    # Výpočet výšek na jemné mřížce
     for y in range(rows):
         for x in range(cols):
-            # Určení čtyř sousedních gradientů na hrubé mřížce
-            x0 = x // gradient_scale
-            y0 = y // gradient_scale
-            x1 = min(x0 + 1, grad_cols - 1)
-            y1 = min(y0 + 1, grad_rows - 1)
+            terrain[y, x] = pnoise2((x+seed_x) / scale, (y+seed_y) / scale, octaves=4, persistence=0.5, lacunarity=2.0)
 
-            # Relativní pozice uvnitř buňky
-            dx = (x % gradient_scale) / gradient_scale
-            dy = (y % gradient_scale) / gradient_scale
-
-            # Výpočet příspěvků z gradientů
-            h00 = gradients_x[y0, x0] * dx + gradients_y[y0, x0] * dy
-            h01 = gradients_x[y0, x1] * (1 - dx) + gradients_y[y0, x1] * dy
-            h10 = gradients_x[y1, x0] * dx + gradients_y[y1, x0] * (1 - dy)
-            h11 = gradients_x[y1, x1] * (1 - dx) + gradients_y[y1, x1] * (1 - dy)
-
-            # Interpolace výšek
-            height_x0 = h00 * (1 - dx) + h01 * dx
-            height_x1 = h10 * (1 - dx) + h11 * dx
-            terrain[y, x] = height_x0 * (1 - dy) + height_x1 * dy
-
-    # Normalizace
+    # Normalizace na rozsah 0-1
     terrain = (terrain - terrain.min()) / (terrain.max() - terrain.min())
     return terrain
 
@@ -144,11 +113,11 @@ small_cols = 5
 min_value = 0
 max_value = 1
 
-random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-zobraz_mapu(cislo_na_policko(random_grid))
+#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+#zobraz_mapu(cislo_na_policko(random_grid))
 
-interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-zobraz_mapu(cislo_na_policko(interpolated_grid))
+#interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
+#zobraz_mapu(cislo_na_policko(interpolated_grid))
 
-gradient_terrain = gradientni_pole(big_rows, big_cols, gradient_scale=25)
-zobraz_mapu(cislo_na_policko(gradient_terrain))
+gradient_grid = perlin_noise(big_rows, big_cols, scale=25)
+zobraz_mapu(cislo_na_policko(gradient_grid))
