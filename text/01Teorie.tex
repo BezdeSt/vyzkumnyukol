@@ -87,7 +87,7 @@ Dělení prostoru je metoda, která rekurzivně rozděluje herní mapu na menš�
 
 Hlavním principem této metody je postupné dělení základního prostoru, dokud nejsou splněny předem stanovené podmínky, jako je například minimální velikost buňky nebo místnosti. Tento přístup nachází uplatnění nejen při generování herních map, ale také v grafických aplikacích, jako je ray-tracing, kde umožňuje efektivně organizovat a vykreslovat objekty ve scéně. \cite{PCGclanek}.
 
-Nejběžnější metoda pro rozdělování prostoru je \textit{binární dělení prostoru (BSP)}. Jde o proces, který opakovaně rozděluje prostor na dvě části, dokud nejsou splněny určité požadavky. Ukázka \textit{BSP} je zobrazena na obrázku \ref{BSP_ukazka}. Další často využívanou variantou je \textit{quadtree}, kde je prostor rozdělen na čtyři symetrické části. Hlavním rozdílem mezi \textit{quadtree} a \textit{BSP} je, že v \textit{BSP} nemusí být na rozdíl od \textit{quadtree} všechny buňky symetrické a buňky v \textit{BSP} navíc nemusí mít stejnou orientaci \cite{BSPclanek}.
+Nejběžnější metoda pro rozdělování prostoru je \textit{binární dělení prostoru (BSP)}. Jde o proces, který opakovaně rozděluje prostor na dvě části, dokud nejsou splněny určité požadavky. Ukázka \textit{BSP} je zobrazena na obrázku \vref{BSP_ukazka}. Další často využívanou variantou je \textit{quadtree}, kde je prostor rozdělen na čtyři symetrické části. Hlavním rozdílem mezi \textit{quadtree} a \textit{BSP} je, že v \textit{BSP} nemusí být na rozdíl od \textit{quadtree} všechny buňky symetrické a buňky v \textit{BSP} navíc nemusí mít stejnou orientaci \cite{BSPclanek}.
 
 Metoda je běžně využíváno při vykreslování grafických scén, kde se dělící roviny vybírají na základě polygonů, aby optimalizovaly výpočty. Pro renderování scény je například důležité zajistit, že každý uzel stromu obsahuje polygony, které lze vykreslit efektivně. \cite{BSPclanek}.
 
@@ -135,13 +135,13 @@ Tento přístup, využívající několik fází a různých typů agentů (pob�
 
 \subsection{Grammar Algorithms}
 
-\textit{Gramatiky} jsou obecně způsob, jak popsat strukturu a rozebrat její pod části. Například věta může obsahovat podmět a ten může obsahovat přídavná jména. \textit{Gramatiky} lze ale také aplikovat mimo mluvené jazyky. Jednoduchým příkladem je binární strom, který může být strukturován následovně \ref{gramStrom1}. \cite{GramFand} \cite{GramClanek}
+\textit{Gramatiky} jsou obecně způsob, jak popsat strukturu a rozebrat její pod části. Například věta může obsahovat podmět a ten může obsahovat přídavná jména. \textit{Gramatiky} lze ale také aplikovat mimo mluvené jazyky. Jednoduchým příkladem je binární strom, který může být strukturován následovně \vref{gramStrom1}. \cite{GramFand} \cite{GramClanek}
 \begin{lstlisting}[language=php, caption=Příklad gramatiky: Strom, label=gramStrom1]
     BRANCH ->
         node BRANCH BRANCH |
         leaf
 \end{lstlisting}
-Tento typ algoritmu však nemůžeme generovat nové struktury. Pro generování nového obsahu můžeme takový algoritmus upravit přidáním nějakých pravděpodobností. Algoritmus pak s určitou pravděpodobností generuje jednotlivé části struktury – například věty nebo jiné objekty. Můžeme naznačit na ukázce stromu, váhy nastavíme tak, že je dvakrát vyšší pravděpodobnost vygenerování listu než rozdělení uzlu \ref{gramStrom2}. \cite{GramClanek}
+Tento typ algoritmu však nemůžeme generovat nové struktury. Pro generování nového obsahu můžeme takový algoritmus upravit přidáním nějakých pravděpodobností. Algoritmus pak s určitou pravděpodobností generuje jednotlivé části struktury – například věty nebo jiné objekty. Můžeme naznačit na ukázce stromu, váhy nastavíme tak, že je dvakrát vyšší pravděpodobnost vygenerování listu než rozdělení uzlu \vref{gramStrom2}. \cite{GramClanek}
 \begin{lstlisting}[language=php, caption=Příklad gramatiky: Strom s váhami, label=gramStrom2]
     BRANCH ->
         node BRANCH BRANCH [weight=1] |
@@ -215,7 +215,7 @@ Konkrétně algoritmus funguje takto:
     \item Proces se opakuje, dokud není celá mřížka vyřešena.
 \end{enumerate}
 
-\textit{WFC} se využívá pro generování úrovní, textur a dalších prostorových uspořádání, protože umožňuje vytvářet složité a realistické struktury na základě jednoduchých vzorců. Přiklad vzorů a jejich výsledků je vidět na obrázku \ref{WFC_priklad}. \cite{waveClanek}
+\textit{WFC} se využívá pro generování úrovní, textur a dalších prostorových uspořádání, protože umožňuje vytvářet složité a realistické struktury na základě jednoduchých vzorců. Přiklad vzorů a jejich výsledků je vidět na obrázku \vref{WFC_priklad}. \cite{waveClanek}
 
 \begin{figure}
   \centering      % vycentrovat
@@ -242,7 +242,7 @@ Cílem je generovat herní mapu pro svět složený z políček nebo dlaždic pr
 
 Zároveň, jelikož pro každou hru bude generována nová unikátní mapa, by bylo vhodné aby generování probíhalo v rozumném čase, tedy metody s nízkou výpočetní náročností budou preferované.
 
-Následující tabulka \ref{tabulka_metod} popisuje výhody a nevýhody jednotlivých metod generování.
+Tabulka \vref{tabulka_metod} popisuje výhody a nevýhody jednotlivých metod generování.
 
 
 

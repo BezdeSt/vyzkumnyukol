@@ -34,6 +34,7 @@ Tento rámec poskytuje ucelený pohled na návrh hry a pomáhá zajistit, aby v�
 
 Ve zbytku kapitoly rozeberu podrobněji právě tyto herní prvky a konkretizuji herní návrh.
 
+%-------------------------------------------------------------------------
 \subsection{Prostor}
 \begin{itemize}
     \item Struktura herního světa a jeho reprezentace.
@@ -55,7 +56,7 @@ Kniha \textit{The Art of Game Design: A Book of Lenses} rozděluje herní prosto
     \item Ohraničenost a propojení oblastí -- Prostor může být uzavřený, s pevně definovanými hranicemi, nebo otevřený, umožňující pohyb hráče nebo herních prvků mimo hranice. Rovněž je důležité zvážit, zda jsou jednotlivé části prostoru propojené, nebo zda jsou oddělené a nezávislé.
 \end{itemize}
 
-Příklad hry hrané na diskrétním dvoudimenzionálním poli je "piškvorky" (v rámci příkladu předpokládám herní plochu $3\times3$), kde herní plocha je rozdělena na devět oddělených políček. Herní deska je zobrazena jako souvislý prostor, ale z hlediska herních mechanik bereme v potaz pouze těchto devět specifických míst, která můžeme znázornit jako uzly v síti. Tedy dokud je jednoznačně rozeznatelné, do kterého políčka zapadá, jsou si mechanicky ekvivalentní, jak je naznačeno na obrázku \ref{sudoku}.
+Příklad hry hrané na diskrétním dvoudimenzionálním poli je "piškvorky" (v rámci příkladu předpokládám herní plochu $3\times3$), kde herní plocha je rozdělena na devět oddělených políček. Herní deska je zobrazena jako souvislý prostor, ale z hlediska herních mechanik bereme v potaz pouze těchto devět specifických míst, která můžeme znázornit jako uzly v síti. Tedy dokud je jednoznačně rozeznatelné, do kterého políčka zapadá, jsou si mechanicky ekvivalentní, jak je naznačeno na obrázku \vref{sudoku}.
 
 \begin{figure}
   \centering      % vycentrovat
@@ -82,6 +83,7 @@ Z hlediska návrhu a pozdější implementace tedy herní prostor uvažuji jako 
 
 Herní pole tedy pro účely návrhu uvažuji jako abstraktní dvoudimenzionální diskrétní prostor složený z políček propojených na ose $x$ a $y$. Hráči tedy budou moci pohybovat jednotkami pouze ve vertikálním či horizontálním směru, ne diagonálně. Prostor bude jasně vymezen hranicemi (konec vygenerované mapy) a všechny interakce mezi hráči budou probíhat na herní ploše. 
 
+%-------------------------------------------------------------------------
 \subsection{Objects, Attributes, and States (Objekty, atributy a stavy)}
 \begin{itemize}
     \item Herní entity a jejich stavy:
@@ -219,7 +221,7 @@ Jednotky jsou pohyblivé objekty na mapě, které hráči ovládají a skrze kte
 Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. Každá jednotka má specifickou roli – některé slouží k boji, jiné k těžbě surovin nebo stavbě budov. Postupem času mohou získávat zkušenosti a vylepšovat své schopnosti, což přidává další vrstvu strategického rozhodování. Kromě toho jednotky také každé kolo spotřebovávají množství surovin, tedy hráč musí zvážit zda si může dovolit postavit velkou armádu slabých jednotek.
 
 
-
+%-------------------------------------------------------------------------
 \subsection{Actions (Akce hráče)}
 \begin{itemize}
     \item Možné akce hráče během tahu:
@@ -230,6 +232,108 @@ Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. K
     \end{itemize}
 \end{itemize}
 
+
+\begin{itemize}
+    \item Úvod  
+    \begin{itemize}
+        \item Definice a význam akcí ve hře.  
+        \item Rozdělení akcí na operační a výsledné.  
+    \end{itemize}
+    \item Operační akce  
+    \begin{itemize}
+        \item Základní interakce dostupné hráči.  
+        \item Příklad: ve hře dáma zahrnují operační akce posun, skok nebo pohyb zpět.  
+    \end{itemize}
+    \item Výsledné akce  
+    \begin{itemize}
+        \item Akce vznikající kombinací operačních akcí k dosažení strategického cíle.  
+        \item Příklad: v šachu může být výslednou akcí vynucení tahu soupeře či vytvoření pasti.  
+    \end{itemize}
+    \item Podmínky pro vznik emergentních akcí  
+    \begin{itemize}
+        \item Rozšíření množiny možných interakcí.  
+        \item Akce ovlivňující více objektů (např. zbraň s různými cíli).  
+        \item Možnost dosažení cíle různými způsoby.  
+        \item Více ovladatelných subjektů (např. jednotky v strategických hrách).  
+        \item Mechaniky vytvářející vedlejší efekty ovlivňující průběh hry.  
+    \end{itemize}
+    \item Návrh akčních mechanik  
+    \begin{itemize}
+        \item Struktura akcí v návrhu hry.  
+        \item Omezení a pravidla ovlivňující provádění akcí.  
+        \item Vztah akcí k objektům a atributům (např. některé akce dostupné jen pro určité jednotky).  
+        \item Dynamika akcí v průběhu hry (např. vývoj schopností jednotek skrze zkušenosti).  
+    \end{itemize}
+    \item Závěr  
+    \begin{itemize}
+        \item Shrnutí významu akcí jako klíčového prvku herního designu.  
+    \end{itemize}
+\end{itemize}
+
+
+Akce jsou jedním ze základních stavebních kamenů herní mechaniky. Lze je chápat jako "slovesa“ hry, jelikož definují, jak může hráč interagovat s herním světem. Rozdělujeme je do dvou hlavních kategorií: operační akce a výsledné (emergentní) akce.
+
+\begin{itemize}
+    \item \textbf{Operační akce} jsou základní činnosti, které může hráč přímo vykonat, například pohyb jednotky nebo útok.
+    \item \textbf{Výsledné akce} vycházejí z kombinace operačních akcí. Tyto emergentní akce často nejsou přímo definovány pravidly, ale vznikají přirozeně během hry a přispívají k její hloubce.
+\end{itemize}
+
+\textbf{Operační akce} jsou základní mechanismy, které hráč využívá pro interakci s herními mechanismy. V některých hrách je množství těchto akcí omezené, což vede k menší variabilitě herního stylu, zatímco v jiných hrách mají hráči širokou škálu možností, což umožňuje kreativní přístupy. Například ve hře dáma má hráč k dispozici tři základní operační akce:
+\begin{itemize}
+    \item Posun kamene vpřed.
+    \item Přeskok soupeřova kamene.
+    \item Pohyb zpět v případě dosažení úrovně krále.
+\end{itemize}
+
+\textbf{Výsledné akce} vznikají kombinací operačních akcí a přispívají ke strategické hloubce hry. Zatímco operační akce jsou pevně dané pravidly, výsledné akce se objevují jako důsledek interakcí mezi hráčem, herním prostředím a protivníky.Ve hře dáma mohou být výslednými akcemi například:
+\begin{itemize}
+    \item Ochrana kamene -- umístění jiného kamene za něj, aby zabránil zajetí.
+    \item Vynucení tahu soupeře -- postavení figurky tak, že soupeř musí provést nevýhodný tah.
+    \item Obětování kamene -- nabídnutí figurky soupeři s cílem získat lepší pozici na hrací ploše.
+\end{itemize}
+Výsledné akce přidávají hře hloubku a umožňují emergentní chování hráče. Čím větší je poměr výsledných akcí vůči operačním akcím, tím více hra podporuje kreativitu hráče.
+
+Zajímavé emergentní chování (výsledné akce) hry nevzniká náhodně, ale je to důsledek promyšleného návrhu herních mechanik. Existuje několik principů, jejichž aplikace může podpořit rozvoj interakce mezi herními prvky:
+
+\begin{itemize}
+    \item Rozšíření množiny operačních akcí -- Přidání nových základních akcí zvyšuje počet možných interakcí, čímž se rozšiřuje prostor pro emergentní chování.
+    \item Univerzální využitelnost akcí -- Pokud lze jednu operační akci aplikovat na více objektů v herním prostředí, významně se tím zvyšuje počet možných výsledných akcí. Například zbraň nemusí sloužit výhradně k boji, ale může být využit k ničení překážek nebo aktivaci spínačů.
+    \item Možnost dosažení cíle více způsoby – Hráči by měli mít možnost volit mezi různými strategiemi vedoucími k témuž cíli.
+    \item Zvýšení počtu interagujících subjektů -- Počet možných výsledných akcí je úměrný množství prvků, které mohou vzájemně interagovat. Například v šachách vyplývá strategická hloubka hry nejen z možností pohybu jednotlivých figurek, ale i z jejich vzájemné spolupráce, blokování soupeřových tahů a vytváření kombinací.
+    \item Vedlejší efekty herních akcí -- Pokud každá provedená akce kromě svého primárního účinku ovlivňuje i jiné aspekty hry, například mění dostupné možnosti pro soupeře či upravuje podmínky prostředí, dochází k tvorbě komplexnějších herních situací.
+\end{itemize}
+
+Akce hrají klíčovou roli v definování hratelnosti a interakce hráče s herním světem. I drobné úpravy v návrhu akcí mohou mít zásadní dopad na celkovou dynamiku hry, mohou buď poskytnout množství výsledných akcí, nebo naopak vést k repetitivní a předvídatelné hře. Z tohoto důvodu je třeba věnovat výběru a vyvážení herních akcí značnou pozornost.
+
+\subsubsection{Návrh herních akcí}
+
+V této části nastíním obecné operační akce, které bude hráč moci ve hře provádět, a následně zmíním vzniklé výsledné akce.
+
+V rámci tahového systému může hráč během svého tahu každou jednotkou provést pohyb a jednu další akci. Některé akce mohou proběhnout pouze pokud jsou splněny určité podmínky, například pozice jednotky v určité budově. Vzhledem k tahovému systému a interakci mezi jednotkami a terénem mohou vznikat nové strategie, které nelze vždy předvídat.
+
+\paragraph{Operační akce} jsou základní činnosti, které může hráč vykonávat, primárně interakcí se svými jednotkami.
+\begin{itemize}
+    \item Pohyb -- Jednotka se pohne o počet polí odpovídající jejímu typu a terénu.
+    \item Útok -- Jednotka zaútočí na nepřátelskou jednotku v dosahu, způsobí poškození (\textit{poškození = útok - obrana}) a pokud nepřítel přežije, provede protiútok.
+    \item Těžba surovin -- Pracovní jednotka získá určité množství surovin na základě toho na jakém terénu těžba proběhne.
+    \item Práce -- Pracovní jednotka v budově může získávat větší množství surovin, v budově která normálně generuje suroviny pasivně.
+    \item Stavba budovy -- Budovatelská jednotka postaví novou budovu na vhodném políčku.
+    \item Oprava budovy -- Pracovní nebo budovatelská jednotka obnoví část života poškozené budovy.
+    \item Vylepšení jednotky -- Pokud jednotka splní požadavky (např. bojové zkušenosti, existenci potřebné budovy, ...), může být vylepšena na silnější variantu.
+\end{itemize}
+
+\paragraph{Výsledné akce} vznikají kombinací operačních akcí a strategického uvažování hráče.
+\begin{itemize}
+    \item Obrana klíčových bodů -- Hráč umístí jednotky tak, aby blokovaly přístup k důležitým budovám nebo oblastem.
+    \item Napadání zásobování -- Cílený útok na pracovníky nebo budovy snižující zdroje nepřítele.
+    \item Taktický ústup -- Ústup jednotek do bezpečnější oblasti, například k opravám nebo pod ochranu budov.
+    \item Obklíčení -- Koordinovaný útok více jednotek k eliminaci klíčových nepřátel.
+    \item Zdržovací taktika -- Hráč strategicky obětuje jednotky nebo využívá terén, aby zpomalil postup nepřítele.
+    \item Ofenzivní opevnění -- Hráč staví budovy v nebo poblíž nepřátelské základy jako obranné pozice.
+\end{itemize}
+
+
+%-------------------------------------------------------------------------
 \subsection{Rules (Pravidla hry)}
 \begin{itemize}
     \item Základní pravidla:
@@ -241,6 +345,8 @@ Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. K
     \item Vyváženost a spravedlnost pravidel.
 \end{itemize}
 
+
+%-------------------------------------------------------------------------
 \subsection{Skill and Chance (Dovednost a náhoda)}
 \begin{itemize}
     \item Jaký vliv má dovednost hráče na výsledek hry:
@@ -255,6 +361,8 @@ Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. K
     \item Vyvážení mezi dovedností a náhodou.
 \end{itemize}
 
+
+%-------------------------------------------------------------------------
 \subsection{Shrnutí}
 \begin{itemize}
     \item Shrnutí hlavních bodů návrhu.
