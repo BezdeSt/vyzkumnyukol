@@ -59,7 +59,7 @@ def cislo_na_policko(grid):
     return mapa
 
 
-def perlin_noise(rows, cols, scale=10):
+def perlin_noise_lib(rows, cols, scale=10):
     """
     Generuje výškovou mapu pomocí Perlinova šumu.
     """
@@ -75,6 +75,71 @@ def perlin_noise(rows, cols, scale=10):
     # Normalizace na rozsah 0-1
     terrain = (terrain - terrain.min()) / (terrain.max() - terrain.min())
     return terrain
+
+# -------------------------------------------------------------------------------
+
+def fade(t):
+    """
+    Perlinova fade funkce pro hladkou interpolaci.
+    """
+    return 6*t**5 - 15*t**4 + 10*t**3
+
+def random_gradient_pole(rows, cols):
+    """
+    Vytvoří 2D mřížku náhodných gradientových vektorů.
+    """
+    angles = np.random.uniform(0, 2 * np.pi, (rows, cols))
+    grad_x = np.cos(angles)  # X komponenty gradientů
+    grad_y = np.sin(angles)  # Y komponenty gradientů
+    return grad_x, grad_y
+
+def skal_souc_gradient(ix, iy, x, y, grad_x, grad_y):
+    """
+    Skalární součin mezi gradientem v (ix, iy) a vektorem k bodu (x, y).
+    """
+    dx = x - ix
+    dy = y - iy
+    return dx * grad_x[iy, ix] + dy * grad_y[iy, ix]
+
+def perlin_noise_pole(rows, cols, scale=10):
+    """
+    Vygeneruje 2D Perlinův šum.
+    """
+    grad_rows, grad_cols = rows // scale + 1, cols // scale + 1
+    grad_x, grad_y = random_gradient_pole(grad_rows, grad_cols)
+
+    noise = np.zeros((rows, cols))
+
+    for y in range(rows):
+        for x in range(cols):
+            # Najde čtyři nejbližší body na gradientové mřížce
+            x0, y0 = x // scale, y // scale
+            x1, y1 = x0 + 1, y0 + 1
+
+            # Relativní souřadnice uvnitř buňky
+            sx = (x % scale) / scale
+            sy = (y % scale) / scale
+
+            # Skalární součiny gradientů s vektory k bodu
+            n00 = skal_souc_gradient(x0, y0, x / scale, y / scale, grad_x, grad_y)
+            n01 = skal_souc_gradient(x0, y1, x / scale, y / scale, grad_x, grad_y)
+            n10 = skal_souc_gradient(x1, y0, x / scale, y / scale, grad_x, grad_y)
+            n11 = skal_souc_gradient(x1, y1, x / scale, y / scale, grad_x, grad_y)
+
+            # Fade -- hladká interpolace
+            u, v = fade(sx), fade(sy)
+
+            # Interpolace mezi čtyřmi hodnotami
+            nx0 = (1 - u) * n00 + u * n10
+            nx1 = (1 - u) * n01 + u * n11
+            noise[y, x] = (1 - v) * nx0 + v * nx1
+
+    # Normalizace hodnot na rozsah 0–1
+    noise = (noise - noise.min()) / (noise.max() - noise.min())
+
+    return noise
+
+# -------------------------------------------------------------------------------
 
 def zobraz_mapu(mapa):
     """
@@ -101,10 +166,6 @@ def zobraz_mapu(mapa):
 
     plt.show()
 
-
-
-
-
 # Příklad použití
 big_rows = 50
 big_cols = 50
@@ -119,5 +180,8 @@ max_value = 1
 #interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
 #zobraz_mapu(cislo_na_policko(interpolated_grid))
 
-gradient_grid = perlin_noise(big_rows, big_cols, scale=25)
+gradient_grid = perlin_noise_lib(big_rows, big_cols, scale=10)
 zobraz_mapu(cislo_na_policko(gradient_grid))
+
+perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=10)
+zobraz_mapu(cislo_na_policko(perlin_grid))
