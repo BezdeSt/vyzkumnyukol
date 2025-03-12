@@ -307,7 +307,7 @@ Akce hrají klíčovou roli v definování hratelnosti a interakce hráče s her
 
 \subsubsection{Návrh herních akcí}
 
-V této části nastíním obecné operační akce, které bude hráč moci ve hře provádět, a následně zmíním vzniklé výsledné akce.
+V této části rozeberu obecné operační akce, které bude hráč moci ve hře provádět, a následně zmíním vzniklé výsledné akce.
 
 V rámci tahového systému může hráč během svého tahu každou jednotkou provést pohyb a jednu další akci. Některé akce mohou proběhnout pouze pokud jsou splněny určité podmínky, například pozice jednotky v určité budově. Vzhledem k tahovému systému a interakci mezi jednotkami a terénem mohou vznikat nové strategie, které nelze vždy předvídat.
 
@@ -345,6 +345,104 @@ V rámci tahového systému může hráč během svého tahu každou jednotkou p
     \item Vyváženost a spravedlnost pravidel.
 \end{itemize}
 
+Pravidla určují, jak se hra hraje, jaké akce může hráč provádět a jaké jsou jeho cíle. Bez jasně definovaných pravidel není možné vytvořit funkční a férové herní prostředí. Pravidla nejenže vymezují hranice hratelnosti, ale také zásadně ovlivňují herní zážitek, určují tempo hry a strategické možnosti, které hra nabízí.
+
+Špatně strukturovaná pravidla mohou vést k nevyváženosti, nechtěným exploatacím mechanik nebo dokonce ke ztrátě zábavnosti. Správně nastavená pravidla zároveň hráče motivují k objevování efektivních strategií a umožňují mu rozvíjet dovednosti potřebné k dosažení vítězství.
+
+
+Pravidla jsou soubor omezení a možností, které definují, jak hráči interagují s herním světem. V každé hře existují různé typy pravidel, která ovlivňují hratelnost:
+
+\begin{itemize}
+    \item Akce hráčů -- Co mohou hráči během hry dělat?
+    \item Stav hry -- Jak se hra mění v průběhu času?
+    \item Cíle hry -- Kdy hra končí a kdo vyhrává?
+\end{itemize}
+Tato pravidla společně vytvářejí herní mechaniky, které určují dynamiku hry a poskytují hráčům výzvy k řešení.
+
+David Parlett, britský herní teoretik, rozdělil pravidla do několika kategorií:
+
+\begin{itemize}
+    \item Operační pravidla -- Popisují základní akce hráčů, například „hráč se může pohnout o $n$ políček“.
+    \item Základní pravidla -- Definují matematický model hry, určují, jak se hra vyvíjí na základě akcí hráčů.
+    \item Chování hráčů -- Implicitní pravidla "fair play" a sportovního chování.
+    \item Psaná pravidla -- Formálně dokumentovaná pravidla hry.
+    \item Zákony -- Další pravidla, která mohou být zavedena například pro turnajovou hru.
+    \item Oficiální pravidla -- Spojují psaná pravidla a zákony do jednoho uceleného souboru.
+    \item Doporučená pravidla -- Tipy a strategie pro efektivní hraní.
+    \item Domácí pravidla -- Úpravy pravidel hráči pro přizpůsobení hry jejich preferencím.
+\end{itemize}
+
+Herní pravidla mohou být ovlivněna herním režimem, který může do hry přidávat komplexitu přidáním nebo odebráním pravidel. Případně úpravou podmínek vítězství.
+
+Nejdůležitějším pravidlem jsou cílové podmínky. Každá hra musí mít jasně definovaný cíl, který hráče motivuje a určuje, kdy hra končí. Dobrý cíl by měl splňovat:
+
+\begin{itemize}
+    \item Konkrétnost -- Je jasné, co musí hráči udělat.
+    \item Dosažitelnost -- Hráči mají reálnou možnost dosáhnout cíle.
+    \item Odměňující charakter -- Splnění cíle přináší uspokojení.
+\end{itemize}
+
+\subsubsection{Návrh pravidel}
+
+V této části shrnu dosavadní návrh do konkrétních pravidel. Pravidla definují podmínky vítězství, možné akce hráčů a interakce mezi herními objekty.
+
+Primárním cílem hry je poražení protivníka, což je dosaženo zničením všech jeho jednotek a budov. Hra tedy končí, když zůstane pouze jeden hráč.
+
+Sekundární cíle si hráč stanovuje sám, ale zahrnují:
+
+\begin{itemize}
+    \item Efektivní správa ekonomiky -- těžba surovin a stavba podpůrných budov.
+    \item Budování armády -- rekrutování a vylepšování jednotek.
+    \item Dobývání strategických bodů -- kontrola území s cennými zdroji nebo taktickými výhodami.
+\end{itemize}
+
+\paragraph{Objekty} Hra obsahuje tři typy herních objektů:
+
+\begin{itemize}
+    \item Jednotky
+    \begin{itemize}
+        \item Bojové -- primárně slouží k útoku a obraně (např. válečník).
+        \item Stavební -- mohou stavět nové budovy, opravovat poškozené budovy a těžit suroviny.
+    \end{itemize}
+    
+    \item Budovy
+    \begin{itemize}
+        \item Ekonomické -- pasivně produkují zdroje (např. důl).
+        \item Obranné -- poskytují ochranu a strategickou kontrolu území.
+        \item Vývojové -- umožňují vylepšovat jednotky na vyšší úroveň.
+    \end{itemize}
+    
+    \item Terén
+    \begin{itemize}
+        \item Ovlivňuje pohyb a bojové vlastnosti jednotek. (Např. hory zpomalují pohyb, lesy poskytují krytí, voda je nepřekročitelná.)
+    \end{itemize}
+    
+\end{itemize}
+
+\paragraph{Akce} V každém tahu může hráč provést s každou svou jednotkou jeden pohyb a jednu akci s tím, že některé akce vyžadují specifické podmínky, například vylepšení vyžadují určité budovy nebo sběr surovin má různý efekt podle terénu. Akce zahrnují:
+
+\begin{itemize}
+    \item Pohyb jednotek
+    \begin{itemize}
+        \item Každá jednotka se pohybuje pouze vertikálně a horizontálně, diagonální pohyb není možný.
+        \item Terén ovlivňuje pohyb jednotek (např. hory snižují jejich pohybovou vzdálenost).
+    \end{itemize}
+    
+    \item Útok
+    \begin{itemize}
+        \item Hráč vybere útočníka v dosahu.
+        \item Útok je vyhodnocen podle atributů jednotek (útok vs. obrana).
+        \item Pokud obránce přežije, provede protiútok.
+    \end{itemize}
+    
+    \item Výstavba a interakce s objekty
+    \begin{itemize}
+        \item Stavební jednotky mohou budovat budovy na určitých místech.
+        \item Pracovní jednotky mohou těžit suroviny, případně opravovat budovy
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Vynucování pravidel} Pravidla jsou automaticky vynucována herním systémem: Hráč může provádět pouze akce, které jsou v dané situaci povolené (např. jednotky nemohou cestovat přes políčka s vodou). Výsledky bojů jsou deterministické, hra tedy automaticky udělí způsobené poškození, případně zruší jednotku, pokud její životy klesnou na nulu. Hra automaticky končí, jakmile některý hráč přijde o všechny jednotky a budovy a tedy nemůže provést žádnou další akci.
 
 %-------------------------------------------------------------------------
 \subsection{Skill and Chance (Dovednost a náhoda)}
