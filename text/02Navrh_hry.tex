@@ -1,17 +1,5 @@
 \section{Návrh strategické hry}
 
-\begin{itemize}
-    \item Představení cíle kapitoly.
-    \item Vysvětlení, proč je důležité systematicky navrhnout jednotlivé prvky hry.
-    \item Úvodní představy
-    \begin{itemize}
-        \item Herní koncept (typ hry, pravidla, cíle hráče).
-        \item Popis mapy: Použití dlaždic a jejich vliv na herní mechaniky.
-    \end{itemize}
-    \item Odkaz na \textit{The Art of Game Design} a použitý rámec návrhu.
-    \item Přehled toho, co bude v kapitole popsáno.
-\end{itemize}
-
 Zpracováno na základě: \cite{} \cite{} \cite{}.
 
 V této kapitole rozeberu postup návrhu jednoduché strategické hry hrané na náhodně vygenerované mapě.
@@ -36,15 +24,6 @@ Ve zbytku kapitoly rozeberu podrobněji právě tyto herní prvky a konkretizuji
 
 %-------------------------------------------------------------------------
 \subsection{Prostor}
-\begin{itemize}
-    \item Struktura herního světa a jeho reprezentace.
-    \item Herní mapa:
-    \begin{itemize}
-        \item Dlaždicová struktura a její výhody.
-        \item Typy terénu a jejich vlastnosti.
-    \end{itemize}
-    \item Pohyb pouze ve čtyřech směrech
-\end{itemize}
 
 Každá hra obsahuje nějaký herní prostor, ve kterém se celá hra odehrává. Ten obecně vymezuje herní lokace a určuje, jak jsou mezi sebou propojeny. Z pohledu herních mechanik považujeme prostor za matematickou konstrukci, tedy je potřeba odfiltrovat veškeré vizuální prvky a zaměřit se pouze na abstraktní uspořádání prostoru.
 
@@ -85,26 +64,7 @@ Herní pole tedy pro účely návrhu uvažuji jako abstraktní dvoudimenzionáln
 
 %-------------------------------------------------------------------------
 \subsection{Objects, Attributes, and States (Objekty, atributy a stavy)}
-\begin{itemize}
-    \item Herní entity a jejich stavy:
-    \begin{itemize}
-        \item Dlaždice (Typy terénů, Stavy dlaždic)
-        \begin{itemize}
-            \item Typy terénu a jejich vlastnosti
-            \item Stav dlaždice -- obsazená, zastavěná
-        \end{itemize}
-        \item Jednotky
-        \begin{itemize}
-            \item Typ jednotky -- vlastnosti (pohyb, útok, obrana, speciální schopnosti)
-            \item Stavy jednotek -- zraněná, pracuje, ...
-        \end{itemize}
-        \item Budovy (produkce, obranné stavby, speciální budovy).
-        \begin{itemize}
-            \item Vlastnosti budov -- cena, produkce
-            \item Speciální akce budov
-        \end{itemize}
-    \end{itemize}
-\end{itemize}
+
 
 V herním prostoru se pak nacházejí objekty se kterými hráči v průběhu celé hry manipulují nebo s nimi interagují pomocí jiných objektů. Může se jednat například o herní figurky, postavy, karty, nebo samotné herní prostředí. Objekty lze chápat jako „podstatná jména“ herních mechanik. 
 
@@ -223,53 +183,6 @@ Jednotky představují hlavní způsob, jak hráč ovlivňuje dění na mapě. K
 
 %-------------------------------------------------------------------------
 \subsection{Actions (Akce hráče)}
-\begin{itemize}
-    \item Možné akce hráče během tahu:
-    \begin{itemize}
-        \item Pohyb jednotek. (Použití speciálních schopností jednotek)
-        \item Útok a bojový systém. 
-        \item Stavba budov a infrastruktury. (Správa zdrojů a ekonomika)
-    \end{itemize}
-\end{itemize}
-
-
-\begin{itemize}
-    \item Úvod  
-    \begin{itemize}
-        \item Definice a význam akcí ve hře.  
-        \item Rozdělení akcí na operační a výsledné.  
-    \end{itemize}
-    \item Operační akce  
-    \begin{itemize}
-        \item Základní interakce dostupné hráči.  
-        \item Příklad: ve hře dáma zahrnují operační akce posun, skok nebo pohyb zpět.  
-    \end{itemize}
-    \item Výsledné akce  
-    \begin{itemize}
-        \item Akce vznikající kombinací operačních akcí k dosažení strategického cíle.  
-        \item Příklad: v šachu může být výslednou akcí vynucení tahu soupeře či vytvoření pasti.  
-    \end{itemize}
-    \item Podmínky pro vznik emergentních akcí  
-    \begin{itemize}
-        \item Rozšíření množiny možných interakcí.  
-        \item Akce ovlivňující více objektů (např. zbraň s různými cíli).  
-        \item Možnost dosažení cíle různými způsoby.  
-        \item Více ovladatelných subjektů (např. jednotky v strategických hrách).  
-        \item Mechaniky vytvářející vedlejší efekty ovlivňující průběh hry.  
-    \end{itemize}
-    \item Návrh akčních mechanik  
-    \begin{itemize}
-        \item Struktura akcí v návrhu hry.  
-        \item Omezení a pravidla ovlivňující provádění akcí.  
-        \item Vztah akcí k objektům a atributům (např. některé akce dostupné jen pro určité jednotky).  
-        \item Dynamika akcí v průběhu hry (např. vývoj schopností jednotek skrze zkušenosti).  
-    \end{itemize}
-    \item Závěr  
-    \begin{itemize}
-        \item Shrnutí významu akcí jako klíčového prvku herního designu.  
-    \end{itemize}
-\end{itemize}
-
 
 Akce jsou jedním ze základních stavebních kamenů herní mechaniky. Lze je chápat jako "slovesa“ hry, jelikož definují, jak může hráč interagovat s herním světem. Rozdělujeme je do dvou hlavních kategorií: operační akce a výsledné (emergentní) akce.
 
@@ -335,15 +248,6 @@ V rámci tahového systému může hráč během svého tahu každou jednotkou p
 
 %-------------------------------------------------------------------------
 \subsection{Rules (Pravidla hry)}
-\begin{itemize}
-    \item Základní pravidla:
-    \begin{itemize}
-        \item Podmínky vítězství (zničení nepřítele).
-        \item Struktura tahu (pořadí akcí).
-        \item Omezující pravidla (pohybové limity, ztráta jednotek, zničení budov).
-    \end{itemize}
-    \item Vyváženost a spravedlnost pravidel.
-\end{itemize}
 
 Pravidla určují, jak se hra hraje, jaké akce může hráč provádět a jaké jsou jeho cíle. Bez jasně definovaných pravidel není možné vytvořit funkční a férové herní prostředí. Pravidla nejenže vymezují hranice hratelnosti, ale také zásadně ovlivňují herní zážitek, určují tempo hry a strategické možnosti, které hra nabízí.
 
