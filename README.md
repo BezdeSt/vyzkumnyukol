@@ -1,16 +1,20 @@
 # Výzkumný úkol
 
 ## Plán:
-- Opravit gradientní mapy -- zeptat se jestli můžu použít knihovnu / dát dohromady bez knihovny
-- Dopsat kapitolu Návrh
+- ~~Opravit gradientní mapy -- zeptat se jestli můžu použít knihovnu / dát dohromady bez knihovny~~
+- ~~Dopsat kapitolu Návrh~~
 - Podívat se na Monte Carlo (skripta: ZALG; Monte Carlo)
 - Rozmyslet co a jak budu implementovat
 
 ## 14.3.
 ### Uděláno:
-- 
+- Podkapitola Akce
+- Opravené gradientní generování
+- Podkapitola Pravidla
+- Kapitolu návrh už jen zkontrolovat gramaticky a zformátovat.
 ### Dotazy:
-- 
+- Má smysl přpisovat shrnutí, nebo závěr kapitoly Návrh?
+- Přeskládání kapitol. Může být Teorie; Implementace; Teorie; Implementace?
 
 ## 25.2.
 ### Uděláno:
