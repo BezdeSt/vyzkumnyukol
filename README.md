@@ -3,8 +3,16 @@
 ## Plán:
 - ~~Opravit gradientní mapy -- zeptat se jestli můžu použít knihovnu / dát dohromady bez knihovny~~
 - ~~Dopsat kapitolu Návrh~~
+- Doplnit do návrhu šanci / skill
+- Sepsat implementaci generování mapy
 - Podívat se na Monte Carlo (skripta: ZALG; Monte Carlo)
 - Rozmyslet co a jak budu implementovat
+
+## 28.3.
+### Uděláno:
+- 
+### Dotazy:
+- 
 
 ## 14.3.
 ### Uděláno:
