@@ -153,7 +153,7 @@ def zobraz_mapu(mapa):
         "H": "#4a4a48",  # Šedá - Hory
     }
 
-    # Převedení mapy na numerickou matici s indexy (0 = "V", 1 = "P", ...)
+    # Převedení mapy na numerickou matici s indexy
     text_to_index = {"V": 0, "P": 1, "L": 2, "H": 3}
     index_map = np.vectorize(text_to_index.get)(mapa)
 
@@ -174,11 +174,11 @@ small_cols = 5
 min_value = 0
 max_value = 1
 
-#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-#zobraz_mapu(cislo_na_policko(random_grid))
+random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+zobraz_mapu(cislo_na_policko(random_grid))
 
-#interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-#zobraz_mapu(cislo_na_policko(interpolated_grid))
+interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
+zobraz_mapu(cislo_na_policko(interpolated_grid))
 
 gradient_grid = perlin_noise_lib(big_rows, big_cols, scale=10)
 zobraz_mapu(cislo_na_policko(gradient_grid))

@@ -1,0 +1,182 @@
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}   % Barva pro stringy
+\definecolor{darkgray}{rgb}{0.3, 0.3, 0.3}    % Barva čísel řádků
+\definecolor{codeblue}{rgb}{0.0, 0.0, 0.6}    % Barva pro klíčová slova
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}    % Neutrální šedá
+\definecolor{commentgreen}{rgb}{0.0, 0.6, 0.0} % Barva pro komentáře
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{white}, % pozadí kódu
+    commentstyle=\color{commentgreen}\itshape,  % Celý komentář zeleně + kurzíva
+    keywordstyle=\color{codeblue}\bfseries,     % Klíčová slova modře a tučně
+    numberstyle=\tiny\color{darkgray},          % Čísla řádků šedě
+    stringstyle=\color{darkgreen},              % Řetězce tmavě zeleně
+    basicstyle=\ttfamily\footnotesize,          % Základní styl
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    extendedchars=true,
+    morecomment=[l]#,
+    literate=
+      {á}{{\'a}}1 {č}{{\v{c}}}1 {ď}{{\v{d}}}1 {é}{{\'e}}1 {ě}{{\v{e}}}1 {í}{{\'i}}1
+      {ň}{{\v{n}}}1 {ó}{{\'o}}1 {ř}{{\v{r}}}1 {š}{{\v{s}}}1 {ť}{{\v{t}}}1 {ú}{{\'u}}1
+      {ů}{{\r{u}}}1 {ý}{{\'y}}1 {ž}{{\v{z}}}1
+      {Á}{{\'A}}1 {Č}{{\v{C}}}1 {Ď}{{\v{D}}}1 {É}{{\'E}}1 {Ě}{{\v{E}}}1 {Í}{{\'I}}1
+      {Ň}{{\v{N}}}1 {Ó}{{\'O}}1 {Ř}{{\v{R}}}1 {Š}{{\v{S}}}1 {Ť}{{\v{T}}}1 {Ú}{{\'U}}1
+      {Ů}{{\r{U}}}1 {Ý}{{\'Y}}1 {Ž}{{\v{Z}}}1
+}
+\lstset{style=mystyle}
+
+% Změna textu "Listing" na "Ukázka"
+\renewcommand\lstlistingname{Ukázka}
+
+
+\section{Generování herního pole}
+
+Pro generování herního pole jsem zvolil metodu výškových map. Výšková mapa je dvourozměrná matice reálných čísel, kde každé číslo představuje výšku v daném bodě. Výškovou mapu následně převedu na konkrétní terénní typy, jako jsou voda, pláně, lesy a hory.
+
+V této kapitole popíšu implementaci generování výškových map třemi způsoby:
+
+\begin{itemize}
+    \item Náhodná výšková mapa -- nejjednodušší metoda, která však vytváří nerealistický terén.
+    \item Interpolace hrubé mřížky -- metoda, která vyhlazuje terén pomocí interpolace mezi body náhodné mřížky.
+    \item Gradientní šum -- generování přirozeně vypadajícího terénu pomocí Perlinova šumu.
+\end{itemize}
+
+\section{Použité technologie}
+
+
+
+\section{Implementované metody}
+
+Výškové mapy jsem, jak už bylo zmíněno, implementoval třemi různými způsoby.
+
+\subsection{Náhodná výšková mapa}
+
+Tuto metodu jsem implementoval především proto, že je velmi jednoduchá a může sloužit jako základní benchmark pro srovnání s ostatními metodami. Výsledky této metody nejsou příliš dobré, protože nevytváří realistické terénní struktury. Výsledné struktury nejsou realistické ani praktické pro hraní.
+
+Celá implementace spočívá v generování náhodných hodnot v a jejich uložení do dvourozměrného \textit{numpy} pole, které pak funkce vrací \ref{kod_nahodne_pole}.
+
+
+\begin{lstlisting}[language=Python, caption=Kód generující pole pro náhodnou mapu, label=kod_nahodne_pole]
+def nahodne_pole(rows, cols, min_value=0, max_value=1):
+    return np.random.uniform(low=min_value, high=max_value, size=(rows, cols))
+
+\end{lstlisting}
+
+
+\subsection{Interpolovaná výšková mapa}
+
+Lepšího výsledku lze dosáhnout interpolací náhodné mřížky. Tato metoda spočívá v tom, že vygeneruji menší náhodnou mřížku, tu rozmístím do větší a prázdné hodnoty získám interpolací hodnot z menší mřížky. Pro samotnou interpolaci využívám v kódu \ref{kod_interpolovane_pole} knihovnu \textit{scipy}. Funkce nakonec opět vrací matici čísel mezi nula a jedna.
+
+\begin{lstlisting}[language=Python, caption=Kód generující iterpolovanou výškovou mapu, label=kod_interpolovane_pole]
+def interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value=0, max_value=1):
+    # Vytvoření menší mřížky
+    small_grid = nahodne_pole(small_rows, small_cols, min_value, max_value)
+    # Indexy pro malou a velkou mřížku
+    small_x = np.linspace(0, big_cols - 1, small_cols)
+    small_y = np.linspace(0, big_rows - 1, small_rows)
+    big_x = np.arange(big_cols)
+    big_y = np.arange(big_rows)
+    # Vytvoření seznamu souřadnic
+    small_points = np.array([(x, y) for y in small_y for x in small_x])
+    small_values = small_grid.flatten()
+    big_points = np.array([(x, y) for y in big_y for x in big_x])
+    # Doplnění hodnot seznamu interpolací
+    big_list = griddata(small_points, small_values, big_points, method='cubic')
+    # Převedení na mřížku
+    big_grid = big_list.reshape(big_rows, big_cols)
+    return big_grid
+
+\end{lstlisting}
+
+Interpolace vytvoří plynulejší terén bez ostrých přechodů mezi výškami, ale nevytváří přirozené detaily, jako jsou útesy nebo rozmanitější svahy.
+
+\subsection{Gradientní šum}
+
+Gradientní šum je komplikovanější metoda, která vytváří přirozenější struktury terénu než předchozí dvě metody. Konkrétně se inspiruji metodou \textbf{Perlinův šum}, který generuje plynulé změny hodnot v prostoru, čímž vytváří realistické krajiny s kopečky, údolími a horami.
+
+Perlinův šum funguje na principu interpolace gradientních vektorů. Výsledkem je spojitá mapa hodnot, kde se výška plynule mění bez ostrých přechodů, ale vznikají přirozeně vypadající útvary. 
+
+Tuto metodu jsem prvně implementoval pomocí knihovny \textit{noise} jako vzorový výsledek a následně jsem si také napsal vlastní implementaci.
+
+\subsubsection{Vlastní implementace}
+
+Mnou napsaná funkce generuje Perlinův šum v několika krocích:
+
+\begin{enumerate}
+    \item Vytvoření mřížky gradientových vektorů -- Každému bodu v hrubé mřížce (menší ze dvou mřížek, vytvořené podle zvolené hodnoty \textit{scale}) je přiřazen náhodný gradientový vektor. Tento vektor určuje, jak se bude hodnota šumu měnit v okolí daného bodu.
+    \item Výpočet skalárních součinů -- Pro každý bod na jemné mřížce se vypočítá skalární součin mezi gradientními vektorem a vektorem k bodu, jehož hodnotu chceme určit.
+    \item Použití funkce fade -- Hodnoty jsou vyhlazeny pomocí speciální funkce fade, která zajišťuje plynulý přechod mezi body mřížky a zabraňuje vzniku ostrých přechodů.
+    \item Interpolace mezi sousedními hodnotami -- Hodnoty se interpolují mezi čtyřmi nejbližšími gradientními body, čímž vznikne plynulý přechod mezi oblastmi s různou výškou.
+    \item Normalizace -- Nakonec se hodnoty normalizují aby výsledné hodnoty dobře vycházeli mezi hodnoty nula a jedna.
+\end{enumerate}
+
+Použitím různých měřítek (\textit{scale}) je možné ovlivnit rozmanitost a velikost útvarů vygenerované krajiny.
+
+Výslednou matici hodnot, lze použít jako výškovou mapu pro tvorbu herního terénu. Výsledná mapa má plynulé přechody mezi různými výškami a vytváří přirozeně vypadající krajinu.
+
+\subsection{Přiřazení typů terénu}
+
+Po vygenerování výškové mapy je potřeba převést hodnoty na jednotlivé typy terénu, k tomu je použita funkce \texttt{cislo\_na\_policko} \ref{kod_cislo_na_policko}. 
+
+\begin{lstlisting}[language=Python, caption=Převádějící výškovou mapu na konkrétní terény, label=kod_cislo_na_policko]
+def cislo_na_policko(grid):
+    mapa = np.empty_like(grid, dtype='str')
+    for i in range(grid.shape[0]):  # Počet řádků
+        for j in range(grid.shape[1]):  # Počet sloupců
+            if grid[i][j] < 0.25:
+                mapa[i][j] = "V"  # Voda
+            elif grid[i][j] < 0.5:
+                mapa[i][j] = "P"  # Pláně
+            elif grid[i][j] < 0.75:
+                mapa[i][j] = "L"  # Les
+            else:
+                mapa[i][j] = "H"  # Hory
+    return mapa
+
+\end{lstlisting}
+
+Aktuální prahové hodnoty jsem zvolil experimentálně, ale mohou být upravovány po testování v simulaci, aby byl terén vyvážený a poskytoval vhodné herní prostředí.
+
+\subsection{Vizualizace mapy}
+
+Matici terénů vycházející z funkce \texttt{cislo\_na\_policko} pak zobrazuji pomocí \textit{matplotlib} pomocí funkce \texttt{zobraz\_mapu} \ref{kod_zobraz_mapu}.
+
+\begin{lstlisting}[language=Python, caption=Kód generující pole pro náhodnou mapu, label=kod_zobraz_mapu]
+def zobraz_mapu(mapa):
+    """
+    Barevně vykreslí terénní mapu.
+    """
+    # Definice barev pro jednotlivé typy terénu
+    barvy = {
+        "V": "#1f77b4",  # Modrá - Voda
+        "P": "#58d162",  # Světle zelená - Pláně
+        "L": "#0c3b10",  # Zelená - Les
+        "H": "#4a4a48",  # Šedá - Hory
+    }
+
+    # Převedení mapy na numerickou matici s indexy
+    text_to_index = {"V": 0, "P": 1, "L": 2, "H": 3}
+    index_map = np.vectorize(text_to_index.get)(mapa)
+
+    # Vytvoření barevné mapy
+    cmap = ListedColormap(barvy.values())
+
+    # Vykreslení mřížky
+    plt.figure(figsize=(8, 8))
+    plt.imshow(index_map, cmap=cmap, interpolation='nearest')
+
+    plt.show()
+
+\end{lstlisting}
+
+Výstupem je čtyřbarevný graf složený ze čtvercových dlaždic.
+
