@@ -53,6 +53,7 @@ class Jednotka:
 
         return mozne_pohyby
 
+    # Funkce pouze pro testování
     def pozice_na_matici(self, mozne_pohyby, sirka, vyska):
         """
         Převede seznam pozic na matici 1 a 0.
@@ -82,10 +83,9 @@ class Jednotka:
         """
 
         if cil in mozne_pohyby:
+            jednotky.pop(self.pozice)  # Odstranit starou pozici
             self.pozice = cil
-            return cil
-        else:
-            return self.pozice
+            jednotky[self.pozice] = self  # Přidat novou pozici
 
     # -------------------------------------------------------------------------------------------------------
     # BOJ
@@ -192,7 +192,6 @@ def pohyb():
 
     jednotka1.proved_pohyb((1, 0), mozne_pohyby)
     print("Nová pozice jednotky 1:", jednotka1.pozice)
-# TODO: Upravit funkce pohybu aby k pohybu opravdu došlo
 
 def boj():
     cile = jednotka1.najdi_cile_v_dosahu(mrizka, jednotky)
@@ -207,6 +206,7 @@ def boj():
         print(f"  Jednotka1 životy: {jednotka1.zivoty}")
         print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
 # TODO: Taky porovnat funkce
+# TODO: Funkce vyhodnoť souboj neřeší zda je napadený v dosahu
 
 pohyb()
 print("=====================")
