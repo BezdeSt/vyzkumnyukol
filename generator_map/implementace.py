@@ -1,87 +1,170 @@
-def vypocet_moznych_pohybu(pozice, vzdalenost, mrizka):
-    """
-    Vypočítá možné pohyby z dané pozice s ohledem na terén a omezením vzdálenosti.
+class Jednotka:
+    def __init__(self, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, tym=True):
+        self.pozice = pozice
+        self.rychlost = rychlost
+        self.dosah = dosah
+        self.utok = utok
+        self.obrana = obrana
+        self.zivoty = zivoty
+        self.tym = tym  # True pro tým 1, False pro tým 2
 
-    Args:
-        pozice: Aktuální pozice (x, y).
-        vzdalenost: Maximální povolená vzdálenost pohybu.
-        mrizka (list[list]): 2D mřížka s terény (V, P, L, H).
+    # -------------------------------------------------------------------------------------------------------
+    # POHYB
+    # -------------------------------------------------------------------------------------------------------
+    def vypocet_moznych_pohybu(self, mrizka):
+        """
+        Vypočítá možné pohyby jednotky s ohledem na terén a omezením vzdálenosti.
 
-    Returns: Seznam možných pozic pro pohyb.
-    """
+        Args:
+            mrizka (list[list]): 2D mřížka s terény (V, P, L, H).
 
-    x, y = pozice
-    mozne_pohyby = []
-    navstivene = {pozice}  # Sledování navštívených pozic
-    fronta = [(pozice, vzdalenost)]  # Fronta pro prohledávání
+        Returns: Seznam možných pozic pro pohyb.
+        """
 
-    while fronta:
-        aktualni_pozice, zbyvajici_vzdalenost = fronta.pop(0)
-        x, y = aktualni_pozice
+        x, y = self.pozice
+        mozne_pohyby = []
+        navstivene = {self.pozice}
+        fronta = [(self.pozice, self.rychlost)]
 
-        mozne_pohyby.append(aktualni_pozice)
+        while fronta:
+            aktualni_pozice, zbyvajici_vzdalenost = fronta.pop(0)
+            x, y = aktualni_pozice
 
-        if zbyvajici_vzdalenost <= 0:
-            continue
+            mozne_pohyby.append(aktualni_pozice)
 
-        sousedni_pohyby = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+            if zbyvajici_vzdalenost <= 0:
+                continue
 
-        for nova_x, nova_y in sousedni_pohyby:
-            if 0 <= nova_x < len(mrizka[0]) and 0 <= nova_y < len(mrizka) and (nova_x, nova_y) not in navstivene:
-                teren = mrizka[nova_y][nova_x]
-                if teren == 'V':
-                    continue  # Voda je neprůchodná
+            sousedni_pohyby = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
 
-                navstivene.add((nova_x, nova_y))
-                if teren == 'P':
-                    fronta.append(((nova_x, nova_y), zbyvajici_vzdalenost - 1))
-                elif teren == 'L':
-                    fronta.append(((nova_x, nova_y), zbyvajici_vzdalenost - 2))
-                elif teren == 'H':
-                    fronta.append(((nova_x, nova_y), 0)) # pohyb končí na hoře.
+            for nova_x, nova_y in sousedni_pohyby:
+                if 0 <= nova_x < len(mrizka[0]) and 0 <= nova_y < len(mrizka) and (nova_x, nova_y) not in navstivene:
+                    teren = mrizka[nova_y][nova_x]
+                    if teren == 'V':
+                        continue
 
-    return mozne_pohyby
+                    navstivene.add((nova_x, nova_y))
+                    if teren == 'P':
+                        fronta.append(((nova_x, nova_y), zbyvajici_vzdalenost - 1))
+                    elif teren == 'L':
+                        fronta.append(((nova_x, nova_y), zbyvajici_vzdalenost - 2))
+                    elif teren == 'H':
+                        fronta.append(((nova_x, nova_y), 0))
+
+        return mozne_pohyby
+
+    def pozice_na_matici(self, mozne_pohyby, sirka, vyska):
+        """
+        Převede seznam pozic na matici 1 a 0.
+
+        Args:
+            mozne_pohyby: Seznam povolených pozic.
+            sirka: Šířka mřížky.
+            vyska: Výška mřížky.
+
+        Returns: Matice 1 a 0.
+        """
+
+        matice = [[0 for _ in range(sirka)] for _ in range(vyska)]
+        for x, y in mozne_pohyby:
+            matice[y][x] = 1
+        return matice
+
+    def proved_pohyb(self, cil, mozne_pohyby):
+        """
+        Provádí pohyb jednotky na cíl.
+
+        Args:
+            cil: Cílová pozice.
+            mozne_pohyby: Seznam možných pozic.
+
+        Returns: Nová pozice nebo původní pozice.
+        """
+
+        if cil in mozne_pohyby:
+            self.pozice = cil
+            return cil
+        else:
+            return self.pozice
+
+    # -------------------------------------------------------------------------------------------------------
+    # BOJ
+    # -------------------------------------------------------------------------------------------------------
+
+    def najdi_cile_v_dosahu(self, mrizka, jednotky):
+        """
+        Najde cíle v dosahu útoku, pouze nepřátelské jednotky.
+
+        Args:
+            mrizka: 2D mřížka.
+            jednotky: Slovník s instancemi Jednotka.
+
+        Returns: Seznam cílů v dosahu.
+        """
+
+        x, y = self.pozice
+        cile = []
+
+        for dx in range(-self.dosah, self.dosah + 1):
+            for dy in range(-self.dosah, self.dosah + 1):
+                if abs(dx) + abs(dy) <= self.dosah and (dx != 0 or dy != 0):
+                    cil_x, cil_y = x + dx, y + dy
+
+                    if 0 <= cil_x < len(mrizka[0]) and 0 <= cil_y < len(mrizka) and (cil_x, cil_y) in jednotky:
+                        cilova_jednotka = jednotky[(cil_x, cil_y)] # Nalezená jednotka
+                        if cilova_jednotka.tym != self.tym:  # Kontrola týmu jednotky
+                            cile.append(cilova_jednotka)
+
+        return cile
+
+    def proved_utok(self, napadeny):
+        """
+        Provádí útok na napadeného.
+
+        Args: napadeny: Instance Jednotka napadeného.
+        """
+
+        poskozeni = self.utok - napadeny.obrana
+        if poskozeni > 0:
+            napadeny.zivoty -= poskozeni
+
+    def proved_protiutok(self, utocnik):
+        """
+        Provádí protiútok, pokud je v dosahu.
+
+        Args: utocnik: Instance Jednotka útočníka.
+        """
+
+        if self.zivoty > 0 and abs(utocnik.pozice[0] - self.pozice[0]) + abs(utocnik.pozice[1] - self.pozice[1]) <= self.dosah:
+            poskozeni = self.utok - utocnik.obrana
+            if poskozeni > 0:
+                utocnik.zivoty -= poskozeni
+
+    def vyhodnot_souboj(self, napadeny, jednotky):
+        """
+        Vyhodnocuje souboj s protiútokem a odstraňuje mrtvé jednotky.
+
+        Args:
+            napadeny: Instance Jednotka napadeného.
+            jednotky: Slovník s instancemi Jednotka.
+        """
+
+        self.proved_utok(napadeny)
+        if napadeny.zivoty <= 0:
+            # Odstranění napadeného ze slovníku jednotky
+            jednotky.pop(napadeny.pozice)
+        else:
+            napadeny.proved_protiutok(self)
+            if self.zivoty <= 0:
+                # Odstranění útočníka ze slovníku jednotky
+                jednotky.pop(self.pozice)
+
+    # -------------------------------------------------------------------------------------------------------
+    # EKONOMIKA
+    # -------------------------------------------------------------------------------------------------------
 
 
-def pozice_na_matici(pozice_seznam, sirka, vyska):
-    """
-    Převede seznam pozic (x, y) na matici 1 a 0.
 
-    Args:
-        pozice_seznam: Seznam povolených pozic.
-        sirka: Šířka mřížky.
-        vyska: Výška mřížky.
-
-    Returns: Matice 1 a 0, kde 1 označuje povolenou pozici.
-    """
-
-    matice = [[0 for _ in range(sirka)] for _ in range(vyska)]
-    for x, y in pozice_seznam:
-        matice[y][x] = 1
-    return matice
-
-def proved_pohyb(pozice, cil, mozne_pohyby):
-    """
-    Provádí pohyb z pozice na cíl, pokud je to možné.
-
-    Args:
-        pozice: Aktuální pozice (x, y).
-        cil: Cílová pozice (x, y).
-        mozne_pohyby: Seznam možných pozic pro pohyb.
-        mrizka: 2D mřížka s terény (V, P, L, H).
-
-    Returns: Nová pozice po pohybu nebo původní pozice, pokud je pohyb neplatný.
-    """
-
-    x, y = pozice
-    cil_x, cil_y = cil
-
-    if cil in mozne_pohyby:
-        return cil
-    else:
-        return pozice
-
-# Příklad použití
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
     ['L', 'P', 'L', 'H', 'P'],
@@ -90,22 +173,41 @@ mrizka = [
     ['P', 'P', 'P', 'P', 'P'],
 ]
 
-pozice = (0, 0)
-vzdalenost = 3
-cil = (1, 0)
+jednotka1 = Jednotka(pozice=(0, 0), rychlost=3, dosah=3, utok=8, obrana=1, zivoty=10, tym=True)
+jednotka2 = Jednotka(pozice=(0, 2), rychlost=1, dosah=5, utok=1, obrana=2, zivoty=10, tym=False)
 
-mozne_pohyby = vypocet_moznych_pohybu(pozice, vzdalenost, mrizka)
-print("Možné pohyby:", mozne_pohyby)
+jednotky = {jednotka1.pozice: jednotka1, jednotka2.pozice: jednotka2}
 
-# Příklad použití (pokračování z předchozího příkladu)
-vyska = len(mrizka)
-sirka = len(mrizka[0])
+def pohyb():
+    mozne_pohyby = jednotka1.vypocet_moznych_pohybu(mrizka)
+    print("Možné pohyby:", mozne_pohyby)
 
-matice_pohybu = pozice_na_matici(mozne_pohyby, sirka, vyska)
+    vyska = len(mrizka)
+    sirka = len(mrizka[0])
 
-# Výpis matice pro vizualizaci
-for radek in matice_pohybu:
-    print(radek)
+    matice_pohybu = jednotka1.pozice_na_matici(mozne_pohyby, sirka, vyska)
 
-nova_pozice = proved_pohyb(pozice, cil, mozne_pohyby)
-print("Nová pozice:", nova_pozice)
+    for radek in matice_pohybu:
+        print(radek)
+
+    jednotka1.proved_pohyb((1, 0), mozne_pohyby)
+    print("Nová pozice jednotky 1:", jednotka1.pozice)
+# TODO: Upravit funkce pohybu aby k pohybu opravdu došlo
+
+def boj():
+    cile = jednotka1.najdi_cile_v_dosahu(mrizka, jednotky)
+    print("Cíle v dosahu:")
+    for cilova_jednotka in cile:
+        print(f"  Pozice: {cilova_jednotka.pozice}")
+
+        print(f"  Jednotka1 životy: {jednotka1.zivoty}")
+        print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
+        jednotka1.vyhodnot_souboj(jednotka2, jednotky)
+        print("--------")
+        print(f"  Jednotka1 životy: {jednotka1.zivoty}")
+        print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
+# TODO: Taky porovnat funkce
+
+pohyb()
+print("=====================")
+boj()
