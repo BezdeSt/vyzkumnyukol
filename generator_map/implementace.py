@@ -53,7 +53,7 @@ class Jednotka:
 
         return mozne_pohyby
 
-    # Funkce pouze pro testování
+    # Funkce pouze pro testování TODO: V nějakém bodě odstranit
     def pozice_na_matici(self, mozne_pohyby, sirka, vyska):
         """
         Převede seznam pozic na matici 1 a 0.
@@ -165,7 +165,19 @@ class Jednotka:
     # EKONOMIKA
     # -------------------------------------------------------------------------------------------------------
 
+    def tezba(self, mrizka):
+        return
+        # TODO: Nalezení na jakém terénu jednotka je.
+        #   Zkontrolovat jestli je na pozici budova která by modifikovala množství
+        #   Přidat zdroje s modifikovaným množství.
 
+    def postavit(self, mrizka, zdroje):
+        return
+        # TODO: Stavění budov.
+
+
+# TODO: Bude potřeba udělat class: hráč. Potřeba pro verbování a ukládání zdrojů.
+#   def verbovani()
 
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
@@ -208,6 +220,6 @@ def boj():
         print(f"  Jednotka1 životy: {jednotka1.zivoty}")
         print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
 
-#pohyb()
-#print("=====================")
+pohyb()
+print("=====================")
 boj()
