@@ -149,15 +149,17 @@ class Jednotka:
             jednotky: Slovník s instancemi Jednotka.
         """
 
-        self.proved_utok(napadeny)
-        if napadeny.zivoty <= 0:
-            # Odstranění napadeného ze slovníku jednotky
-            jednotky.pop(napadeny.pozice)
-        else:
-            napadeny.proved_protiutok(self)
-            if self.zivoty <= 0:
-                # Odstranění útočníka ze slovníku jednotky
-                jednotky.pop(self.pozice)
+        if napadeny in self.najdi_cile_v_dosahu(mrizka, jednotky):
+            self.proved_utok(napadeny)
+            if napadeny.zivoty <= 0:
+                # Odstranění napadeného ze slovníku jednotky
+                jednotky.pop(napadeny.pozice)
+            else:
+                print("Jsem tady, měl by se provést protiútok")
+                napadeny.proved_protiutok(self)
+                if self.zivoty <= 0:
+                    # Odstranění útočníka ze slovníku jednotky
+                    jednotky.pop(self.pozice)
 
     # -------------------------------------------------------------------------------------------------------
     # EKONOMIKA
@@ -174,7 +176,7 @@ mrizka = [
 ]
 
 jednotka1 = Jednotka(pozice=(0, 0), rychlost=3, dosah=3, utok=8, obrana=1, zivoty=10, tym=True)
-jednotka2 = Jednotka(pozice=(0, 2), rychlost=1, dosah=5, utok=1, obrana=2, zivoty=10, tym=False)
+jednotka2 = Jednotka(pozice=(0, 2), rychlost=1, dosah=5, utok=2, obrana=2, zivoty=10, tym=False)
 
 jednotky = {jednotka1.pozice: jednotka1, jednotka2.pozice: jednotka2}
 
@@ -205,9 +207,7 @@ def boj():
         print("--------")
         print(f"  Jednotka1 životy: {jednotka1.zivoty}")
         print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
-# TODO: Taky porovnat funkce
-# TODO: Funkce vyhodnoť souboj neřeší zda je napadený v dosahu
 
-pohyb()
-print("=====================")
+#pohyb()
+#print("=====================")
 boj()
