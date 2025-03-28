@@ -8,14 +8,16 @@
     - Doplnit použité technologie
 - Podívat se na Monte Carlo (skripta: ZALG; Monte Carlo)
 - ~~Rozmyslet co a jak budu implementovat~~
+- Kapitola Mechaniky
+- Kapitola Simulace
 
 ## 28.3.
 ### Uděláno:
 - Kapitola implementace generování herního pole
 - Hrubá osnova implementace herních mechanik a simulace
 - Prototyp implementace pohybu
-### Dotazy:
-- 
+- Prototyp implementace boje
+
 
 ## 14.3.
 ### Uděláno:
