@@ -53,3 +53,7 @@
 ### Dotazy:
 - Můžu používat příklady z knížky když nemají přímý vliv? Jak to citovat? -- Spíš ne?
 - Přeskládání kapitol? -- Prohodit durhou a třetí kapitolu -- Zatím není podstatný
+
+# Myšlenky diplomka:
+- v prototypu budou jednotky jen objekty s různými hodnotami atributů
+    - do funkčního projektu bude potřeba dělat děděné classy s různými metodamy (pro speciální schopnosti jednotek -- teoreticky bude stačit class stavitel a class valecnik ?)
