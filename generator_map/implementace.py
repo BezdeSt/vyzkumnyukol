@@ -1,5 +1,7 @@
 import jednotka
-
+#TODO: class Hráč
+#TODO: class Budova
+#   hradby zatím nebudu řešit
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
     ['L', 'P', 'L', 'H', 'P'],
