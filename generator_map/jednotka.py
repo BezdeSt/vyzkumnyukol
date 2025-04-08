@@ -1,12 +1,14 @@
 class Jednotka:
-    def __init__(self, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, tym=True):
+    def __init__(self, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, vlastnik=None):
         self.pozice = pozice
         self.rychlost = rychlost
         self.dosah = dosah
         self.utok = utok
         self.obrana = obrana
         self.zivoty = zivoty
-        self.tym = tym  # True pro tým 1, False pro tým 2
+        self.vlastnik = vlastnik
+
+        self.vlastnik.jednotky.append(self)
 
     # -------------------------------------------------------------------------------------------------------
     # POHYB
@@ -84,9 +86,9 @@ class Jednotka:
         """
 
         if cil in mozne_pohyby:
-            jednotky.pop(self.pozice)  # Odstranit starou pozici
+            jednotky.pop(self.pozice)
             self.pozice = cil
-            jednotky[self.pozice] = self  # Přidat novou pozici
+            jednotky[self.pozice] = self
 
     # -------------------------------------------------------------------------------------------------------
     # BOJ
@@ -113,7 +115,7 @@ class Jednotka:
 
                     if 0 <= cil_x < len(mrizka[0]) and 0 <= cil_y < len(mrizka) and (cil_x, cil_y) in jednotky:
                         cilova_jednotka = jednotky[(cil_x, cil_y)] # Nalezená jednotka
-                        if cilova_jednotka.tym != self.tym:  # Kontrola týmu jednotky
+                        if cilova_jednotka.vlastnik != self.vlastnik:  # Kontrola týmu jednotky
                             cile.append(cilova_jednotka)
 
         return cile
@@ -153,11 +155,14 @@ class Jednotka:
         if napadeny in self.najdi_cile_v_dosahu(mrizka, jednotky):
             self.proved_utok(napadeny)
             if napadeny.zivoty <= 0:
-                # Odstranění napadeného ze slovníku jednotky
-                jednotky.pop(napadeny.pozice)
+                napadeny.zemri(jednotky)
             else:
-                print("Jsem tady, měl by se provést protiútok")
                 napadeny.proved_protiutok(self)
                 if self.zivoty <= 0:
-                    # Odstranění útočníka ze slovníku jednotky
-                    jednotky.pop(self.pozice)
+                    self.zemri(jednotky)
+
+    def zemri(self, jednotky):
+        """Odstraňuje jednotku z herní plochy i ze seznamu hráče."""
+        jednotky.pop(self.pozice, None)
+        if self in self.vlastnik.jednotky:
+            self.vlastnik.jednotky.remove(self)
