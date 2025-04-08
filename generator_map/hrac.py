@@ -55,3 +55,10 @@ class Hrac:
           budova: instance třídy Budova
         """
         self.budovy.append(budova)
+
+    def pridej_suroviny(self, nove_suroviny):
+        for typ, mnozstvi in nove_suroviny.items():
+            if typ in self.suroviny:
+                self.suroviny[typ] += mnozstvi
+            else:
+                self.suroviny[typ] = mnozstvi

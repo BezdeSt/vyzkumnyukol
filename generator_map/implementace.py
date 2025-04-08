@@ -1,5 +1,6 @@
 import jednotka
 import hrac
+import budova
 #TODO: class Hráč
 #TODO: class Budova
 #   hradby zatím nebudu řešit
@@ -30,6 +31,15 @@ jednotka2 = nova_jednotka(jednotky, pozice=(0, 2), rychlost=1, dosah=5, utok=2, 
 # Zapsání jednotek do mapy
 jednotky[jednotka1.pozice] = jednotka1
 jednotky[jednotka2.pozice] = jednotka2
+
+dul = budova.Budova(
+        typ="Důl",
+        pozice=(2, 3),
+        vlastnik=hrac1,
+        zivoty=30,
+        obrana=2,
+        produkce={"kámen": 3}
+    )
 
 # Funkce pro testování pohybu
 def pohyb():
@@ -62,7 +72,17 @@ def boj():
         print(f"  Jednotka1 životy: {jednotka1.zivoty}")
         print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
 
+def ekonomika():
+    souhrn = {}
+    for budova in hrac1.budovy:
+        produkce = budova.generuj_suroviny()
+        for typ, mnozstvi in produkce.items():
+            souhrn[typ] = souhrn.get(typ, 0) + mnozstvi
+    hrac1.pridej_suroviny(souhrn)
+    print(f"{hrac1.jmeno} získal: {souhrn}")
+    print(f"{hrac1.jmeno} má: {hrac1.suroviny}")
 # Spuštění testů
 #pohyb()
 print("=====================")
-boj()
+#boj()
+ekonomika()
