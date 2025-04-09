@@ -2,13 +2,7 @@ import jednotka
 
 def ziskani_surovin(hraci):
     for hrac in hraci:
-        souhrn = {}
-        for budova in hrac.budovy:
-            produkce = budova.generuj_suroviny()
-            for typ, mnozstvi in produkce.items():
-                souhrn[typ] = souhrn.get(typ, 0) + mnozstvi
-        hrac.pridej_suroviny(souhrn)
-        print(f"{hrac.jmeno} získal: {souhrn}")
+        hrac.zisk_z_budov()
 
 def verbovani(jednotky, typ, pozice, vlastnik):
     """
@@ -32,7 +26,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'utok': 5,
             'obrana': 3,
             'zivoty': 15,
-            'cena': {'jidlo': 10, 'drevo': 2},
+            'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
         'lucisnik': {
@@ -41,7 +35,16 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'utok': 5,
             'obrana': 1,
             'zivoty': 8,
-            'cena': {'jidlo': 10, 'drevo': 10},
+            'cena': {'jidlo': 10, 'drevo': 10, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 2}
+        },
+        'testovaci': {
+            'rychlost': 2,
+            'dosah': 2,
+            'utok': 2,
+            'obrana': 2,
+            'zivoty': 1,
+            'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
     }
@@ -53,7 +56,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
     sablona = sablony[typ]
 
     # Pokusíme se zaplatit cenu
-    if not vlastnik.zaplat_cenu(sablona['cena']):
+    if not vlastnik.odecti_suroviny(sablona['cena']):
         print(f"{vlastnik.jmeno} nemá dost surovin na verbování jednotky typu {typ}.")
         return None
 

@@ -67,34 +67,37 @@ class Hrac:
         else:
             self.suroviny["jidlo"] -= potrebne_jidlo
 
-    def zaplat_cenu(self, cena):
-        """
-        Pokusí se odečíst cenu (suroviny) z hráčových zásob.
+    def zisk_z_budov(self):
+        souhrn = {}
+        for budova in self.budovy:
+            produkce = budova.generuj_suroviny()
+            for typ, mnozstvi in produkce.items():
+                souhrn[typ] = souhrn.get(typ, 0) + mnozstvi
+        self.pridej_suroviny(souhrn)
+        print(f"{self.jmeno} získal: {souhrn}")
 
-        Args:
-            cena: Slovník obsahující typy surovin a jejich množství.
-
-        Returns:
-            True, pokud má hráč dostatek surovin a cena byla zaplacena; jinak False.
-        """
-        for surovina, mnozstvi in cena.items():
-            if self.suroviny.get(surovina, 0) < mnozstvi:
-                return False
-        for surovina, mnozstvi in cena.items():
-            self.suroviny[surovina] -= mnozstvi
-        return True
-
-    def zpracuj_udrzbu(self):
+    def zpracuj_udrzbu(self, jednotky):
         """
         Vypočítá celkovou údržbu všech jednotek hráče. Pokud hráč nemá dostatek
         surovin k údržbě, všechny jednotky ztratí 1 život.
+
+        Pokud není dostatek surovin, odečítají se všechny až na nulu.
         """
         celkova_udrzba = {}
         for jednotka in self.jednotky:
-            for surovina, mnozstvi in jednotka.udrzba.items():
+            for surovina, mnozstvi in jednotka.cena_za_kolo.items():
                 celkova_udrzba[surovina] = celkova_udrzba.get(surovina, 0) + mnozstvi
 
-        if not self.zaplat_cenu(celkova_udrzba):
+        nedostatek = False
+        for surovina, mnozstvi in celkova_udrzba.items():
+            aktualni = self.suroviny.get(surovina, 0)
+            if aktualni < mnozstvi:
+                nedostatek = True
+            self.suroviny[surovina] = max(0, aktualni - mnozstvi)
+
+        if nedostatek:
             print(f"{self.jmeno} nemá dost surovin na údržbu! Všechny jednotky ztrácí životy.")
             for jednotka in self.jednotky:
-                jednotka.zivoty -= 1  # nebo víc – dá se upravit
+                jednotka.zivoty -= 1  # Lze upravit podle pravidel
+                if jednotka.zivoty <= 0:
+                    jednotka.zemri(jednotky)

@@ -10,11 +10,6 @@ mrizka = [
     ['P', 'P', 'P', 'P', 'P'],
 ]
 
-def nova_jednotka(jednotky, pozice, rychlost, dosah, utok, obrana, zivoty, cena, cena_za_kolo, vlastnik):
-    nova_jednotka = jednotka.Jednotka(pozice, rychlost, dosah, utok, obrana, zivoty, cena, cena_za_kolo, vlastnik)
-    jednotky[pozice] = nova_jednotka
-    return nova_jednotka
-
 # Vytvoření hráčů
 hrac1 = hrac.Hrac(jmeno="Modrý")
 hrac2 = hrac.Hrac(jmeno="Červený")
@@ -23,12 +18,8 @@ hrac2 = hrac.Hrac(jmeno="Červený")
 jednotky = {}
 
 # Vytvoření jednotek a jejich registrace
-jednotka1 = nova_jednotka(jednotky, pozice=(0, 0), rychlost=3,
-                          dosah=3, utok=12, obrana=1, zivoty=10,
-                          cena=None, cena_za_kolo=None, vlastnik=hrac1)
-jednotka2 = nova_jednotka(jednotky, pozice=(0, 2), rychlost=1,
-                          dosah=5, utok=2, obrana=2, zivoty=10,
-                          cena=None, cena_za_kolo=None, vlastnik=hrac2)
+jednotka1 = ekonomika.verbovani(jednotky, 'testovaci', (0,2), hrac1)
+jednotka2 = ekonomika.verbovani(jednotky, 'testovaci', (0,2), hrac2)
 
 dul = budova.Budova(
         typ="Důl",
@@ -98,4 +89,14 @@ def test_verbovani():
 print("=====================")
 #boj()
 #ekonomika_basic()
-test_verbovani()
+#test_verbovani()
+hrac1.pridej_suroviny({'jidlo': 1})
+hrac1.zisk_z_budov()
+print(hrac1.jednotky)
+print(hrac1.jednotky[0].zivoty)
+print(hrac1.suroviny)
+hrac1.zpracuj_udrzbu(jednotky)
+print('---')
+print(hrac1.jednotky)
+#print(hrac1.jednotky[0].zivoty)
+print(hrac1.suroviny)
