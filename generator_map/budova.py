@@ -1,5 +1,5 @@
 class Budova:
-    def __init__(self, typ, pozice, vlastnik, zivoty = 50, obrana = 5, produkce=None):
+    def __init__(self, typ, pozice, vlastnik, zivoty = 50, obrana = 5, produkce=None, cena={'drevo': 20}):
         """
         Inicializuje budovu.
 
@@ -18,6 +18,8 @@ class Budova:
         self.max_zivoty = zivoty
         self.obrana = obrana
         self.produkce = produkce  # slovník {"typ_suroviny": množství}
+
+        self.cena = cena
 
         self.vlastnik.budovy.append(self)  # Automatická registrace hráči
 

@@ -1,9 +1,7 @@
 import jednotka
 import hrac
 import budova
-#TODO: class Hráč
-#TODO: class Budova
-#   hradby zatím nebudu řešit
+import ekonomika
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
     ['L', 'P', 'L', 'H', 'P'],
@@ -12,8 +10,8 @@ mrizka = [
     ['P', 'P', 'P', 'P', 'P'],
 ]
 
-def nova_jednotka(jednotky, pozice, rychlost, dosah, utok, obrana, zivoty, vlastnik):
-    nova_jednotka = jednotka.Jednotka(pozice, rychlost, dosah, utok, obrana, zivoty, vlastnik)
+def nova_jednotka(jednotky, pozice, rychlost, dosah, utok, obrana, zivoty, cena, cena_za_kolo, vlastnik):
+    nova_jednotka = jednotka.Jednotka(pozice, rychlost, dosah, utok, obrana, zivoty, cena, cena_za_kolo, vlastnik)
     jednotky[pozice] = nova_jednotka
     return nova_jednotka
 
@@ -25,12 +23,12 @@ hrac2 = hrac.Hrac(jmeno="Červený")
 jednotky = {}
 
 # Vytvoření jednotek a jejich registrace
-jednotka1 = nova_jednotka(jednotky, pozice=(0, 0), rychlost=3, dosah=3, utok=12, obrana=1, zivoty=10, vlastnik=hrac1)
-jednotka2 = nova_jednotka(jednotky, pozice=(0, 2), rychlost=1, dosah=5, utok=2, obrana=2, zivoty=10, vlastnik=hrac2)
-
-# Zapsání jednotek do mapy
-jednotky[jednotka1.pozice] = jednotka1
-jednotky[jednotka2.pozice] = jednotka2
+jednotka1 = nova_jednotka(jednotky, pozice=(0, 0), rychlost=3,
+                          dosah=3, utok=12, obrana=1, zivoty=10,
+                          cena=None, cena_za_kolo=None, vlastnik=hrac1)
+jednotka2 = nova_jednotka(jednotky, pozice=(0, 2), rychlost=1,
+                          dosah=5, utok=2, obrana=2, zivoty=10,
+                          cena=None, cena_za_kolo=None, vlastnik=hrac2)
 
 dul = budova.Budova(
         typ="Důl",
@@ -72,7 +70,7 @@ def boj():
         print(f"  Jednotka1 životy: {jednotka1.zivoty}")
         print(f"  Jednotka2 životy: {cilova_jednotka.zivoty}")
 
-def ekonomika():
+def ekonomika_basic():
     souhrn = {}
     for budova in hrac1.budovy:
         produkce = budova.generuj_suroviny()
@@ -81,8 +79,23 @@ def ekonomika():
     hrac1.pridej_suroviny(souhrn)
     print(f"{hrac1.jmeno} získal: {souhrn}")
     print(f"{hrac1.jmeno} má: {hrac1.suroviny}")
+
+def test_verbovani():
+
+    print(hrac2.jednotky)
+    ekonomika.verbovani(jednotky, 'lucisnik', (3,3), hrac2)
+    print(hrac2.jednotky)
+    print('-----------')
+    hrac2.pridej_suroviny({"jidlo": 10,"drevo": 10,"kamen": 0})
+    print(hrac2.suroviny)
+    print(hrac2.jednotky)
+    ekonomika.verbovani(jednotky, 'lucisnik', (3, 3), hrac2)
+    print(hrac2.jednotky)
+    print(hrac2.suroviny)
+
 # Spuštění testů
 #pohyb()
 print("=====================")
 #boj()
-ekonomika()
+#ekonomika_basic()
+test_verbovani()
