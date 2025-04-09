@@ -18,7 +18,7 @@ hrac2 = hrac.Hrac(jmeno="Červený")
 jednotky = {}
 
 # Vytvoření jednotek a jejich registrace
-jednotka1 = ekonomika.verbovani(jednotky, 'testovaci', (0,2), hrac1)
+jednotka1 = ekonomika.verbovani(jednotky, 'testovaci', (0,0), hrac1)
 jednotka2 = ekonomika.verbovani(jednotky, 'testovaci', (0,2), hrac2)
 
 dul = budova.Budova(
@@ -84,19 +84,22 @@ def test_verbovani():
     print(hrac2.jednotky)
     print(hrac2.suroviny)
 
+def test_cena_za_kolo():
+    hrac1.pridej_suroviny({'jidlo': 1})
+    hrac1.zisk_z_budov()
+    print(hrac1.jednotky)
+    print(hrac1.jednotky[0].zivoty)
+    print(hrac1.suroviny)
+    hrac1.zpracuj_udrzbu(jednotky)
+    print('---')
+    print(hrac1.jednotky)
+    # print(hrac1.jednotky[0].zivoty)
+    print(hrac1.suroviny)
+
 # Spuštění testů
 #pohyb()
 print("=====================")
 #boj()
 #ekonomika_basic()
 #test_verbovani()
-hrac1.pridej_suroviny({'jidlo': 1})
-hrac1.zisk_z_budov()
-print(hrac1.jednotky)
-print(hrac1.jednotky[0].zivoty)
-print(hrac1.suroviny)
-hrac1.zpracuj_udrzbu(jednotky)
-print('---')
-print(hrac1.jednotky)
-#print(hrac1.jednotky[0].zivoty)
-print(hrac1.suroviny)
+#test_cena_za_kolo()

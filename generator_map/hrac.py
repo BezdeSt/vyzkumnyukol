@@ -83,6 +83,7 @@ class Hrac:
 
         Pokud není dostatek surovin, odečítají se všechny až na nulu.
         """
+        #TODO: Zvážit jestli by suroviny neměli jít do mínusu?
         celkova_udrzba = {}
         for jednotka in self.jednotky:
             for surovina, mnozstvi in jednotka.cena_za_kolo.items():
