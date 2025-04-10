@@ -16,6 +16,9 @@ class Hrac:
         self.budovy = []    # Seznam instancí budov patřících hráči
         self.stavitelske_body = 0  # Počet dostupných stavebních bodů (volitelné použití)
 
+    # -------------------------------------------------------------------------------------------------------
+    # SUROVINY
+    # -------------------------------------------------------------------------------------------------------
     def pridej_suroviny(self, nove_suroviny):
         """
         Přičte zadané suroviny k aktuálním zásobám hráče.
@@ -46,6 +49,9 @@ class Hrac:
             self.suroviny[typ] -= mnozstvi
         return True
 
+    # -------------------------------------------------------------------------------------------------------
+    # EKONOMIKA
+    # -------------------------------------------------------------------------------------------------------
     def zpracuj_nedostatek_jidla(self, jednotky_na_poli, potrebne_jidlo=1, ztrata_zivotu=1):
         """
         Zpracuje následky nedostatku jídla. Pokud hráč nemá dostatek jídla,
@@ -81,7 +87,7 @@ class Hrac:
         Vypočítá celkovou údržbu všech jednotek hráče. Pokud hráč nemá dostatek
         surovin k údržbě, všechny jednotky ztratí 1 život.
 
-        Pokud není dostatek surovin, odečítají se všechny až na nulu.
+        Pokud není dostatek surovin, odečítají se na nulu.
         """
         #TODO: Zvážit jestli by suroviny neměli jít do mínusu?
         celkova_udrzba = {}

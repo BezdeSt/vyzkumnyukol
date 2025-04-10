@@ -1,5 +1,5 @@
 class Budova:
-    def __init__(self, typ, pozice, vlastnik, zivoty = 50, obrana = 5, produkce=None, cena={'drevo': 20}):
+    def __init__(self, typ, pozice, vlastnik, zivoty = 50, obrana = 5, produkce={'drevo': 0}, cena={'drevo': 20}):
         """
         Inicializuje budovu.
 
