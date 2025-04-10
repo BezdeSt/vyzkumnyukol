@@ -1,3 +1,5 @@
+# TODO: Potřeba doplnit logiku blokování vstupu na obsazená políčka.
+
 class Jednotka:
     def __init__(self, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None):
         """

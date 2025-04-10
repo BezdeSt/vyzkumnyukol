@@ -1,3 +1,14 @@
+# TODO: Základna kde se budou objevovat nové jednotky
+#  (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
+# TODO: Začít řešit AI
+#   (základní herní akce, rozhodování jaká se provede)
+#   Primitivní varianta:
+#   * zkontroluje suroviny
+#   * pokud může, naverbuje jednotku
+#   * pokusí se jednotku náhodně pohnout / zaútočit
+#   * jinak nic nedělá
+# TODO: Ukládání výsledků hry/kola
+
 class SpravceHry:
     """
     Spravuje průběh hry, včetně sledování kol, hráčů a vyhodnocení jejich tahů.
