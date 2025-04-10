@@ -43,7 +43,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'dosah': 2,
             'utok': 2,
             'obrana': 2,
-            'zivoty': 1,
+            'zivoty': 10,
             'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },

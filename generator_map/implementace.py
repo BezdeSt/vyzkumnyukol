@@ -2,6 +2,7 @@ import jednotka
 import hrac
 import budova
 import ekonomika
+import hra
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
     ['L', 'P', 'L', 'H', 'P'],
@@ -96,6 +97,13 @@ def test_cena_za_kolo():
     # print(hrac1.jednotky[0].zivoty)
     print(hrac1.suroviny)
 
+hra = hra.SpravceHry([hrac1, hrac2], mrizka, jednotky, [hrac1.budovy, hrac2.budovy])
+def tah():
+    hrac1.pridej_suroviny({'jidlo': 5})
+    hrac2.pridej_suroviny({'jidlo': 15})
+    for _ in range(10):
+        hra.proved_tah()
+
 # Spuštění testů
 #pohyb()
 print("=====================")
@@ -103,3 +111,4 @@ print("=====================")
 #ekonomika_basic()
 #test_verbovani()
 #test_cena_za_kolo()
+tah()
