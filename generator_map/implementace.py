@@ -97,14 +97,15 @@ def test_cena_za_kolo():
     # print(hrac1.jednotky[0].zivoty)
     print(hrac1.suroviny)
 
-hra = hra.SpravceHry([hrac1, hrac2], mrizka, jednotky, [hrac1.budovy, hrac2.budovy])
+# TODO: V plné verzi tohle bude taky slovník s pozicema jako jednotky
+budovy = hrac1.budovy + hrac2.budovy
+hra = hra.SpravceHry([hrac1, hrac2], mrizka, jednotky, budovy)
 def tah():
     hrac1.pridej_suroviny({'jidlo': 5})
     hrac2.pridej_suroviny({'jidlo': 15})
     for _ in range(10):
         hra.proved_tah()
 
-budovy = [hrac1.budovy, hrac2.budovy]
 def test_budovy():
     print(hrac2.budovy)
     print(hrac2.suroviny)
