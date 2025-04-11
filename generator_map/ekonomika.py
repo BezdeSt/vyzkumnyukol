@@ -1,4 +1,5 @@
 import jednotka
+import budova
 
 # TODO: Časem asi zabalit do hra.py
 # TODO: Vypadá, že není funkce na stavbu budov (mělo by být podobné jako verbovani())
@@ -81,3 +82,51 @@ def verbovani(jednotky, typ, pozice, vlastnik):
     return nova
 
 
+def stavba_budovy(budovy, typ, pozice, vlastnik):
+    """
+    Stavba nové budovy určitého typu.
+
+    Args:
+        budovy: Seznam všech budov na mapě.
+        typ: Název typu budovy ('domek', 'sberna', ...).
+        pozice: Pozice, kde má být budova postavena.
+        vlastnik: Instance hráče, který budovu staví.
+
+    Returns:
+        Nová budova nebo None, pokud hráč nemá dost surovin.
+    """
+
+    sablony = {
+        'domek': {
+            'typ': 'domek',
+            'zivoty': 10,
+            'obrana': 1,
+            'cena': {'drevo': 5},
+            'produkce': {'jidlo': 1}
+        },
+    }
+
+    if typ not in sablony:
+        print(f"Neznámý typ budovy: {typ}")
+        return None
+
+    sablona = sablony[typ]
+
+    # Zaplacení ceny
+    if not vlastnik.odecti_suroviny(sablona['cena']):
+        print(f"{vlastnik.jmeno} nemá dost surovin na stavbu budovy typu {typ}.")
+        return None
+
+    # Vytvoření budovy
+    nova = budova.Budova(
+        typ=sablona['typ'],
+        pozice=pozice,
+        vlastnik=vlastnik,
+        zivoty=sablona['zivoty'],
+        obrana=sablona['obrana'],
+        produkce=sablona['produkce'],
+        cena=sablona['cena'],
+    )
+
+    print(f"{vlastnik.jmeno} postavil budovu typu {typ} na pozici {pozice}.")
+    return nova

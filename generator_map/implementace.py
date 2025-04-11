@@ -104,6 +104,17 @@ def tah():
     for _ in range(10):
         hra.proved_tah()
 
+budovy = [hrac1.budovy, hrac2.budovy]
+def test_budovy():
+    print(hrac2.budovy)
+    print(hrac2.suroviny)
+    domek = ekonomika.stavba_budovy(budovy, 'domek', (0, 0), hrac2)
+    print(hrac2.budovy)
+    hrac2.pridej_suroviny({'drevo': 6})
+    domek2 = ekonomika.stavba_budovy(budovy, 'domek', (0, 0), hrac2)
+    print(hrac2.budovy)
+    print(hrac2.suroviny)
+
 # Spuštění testů
 #pohyb()
 print("=====================")
@@ -111,4 +122,6 @@ print("=====================")
 #ekonomika_basic()
 #test_verbovani()
 #test_cena_za_kolo()
-tah()
+#tah()
+test_budovy()
+
