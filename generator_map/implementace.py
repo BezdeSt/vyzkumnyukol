@@ -107,14 +107,18 @@ def tah():
         hra.proved_tah()
 
 def test_budovy():
+    print(budovy)
+    print('-')
     print(hrac2.budovy)
-    print(hrac2.suroviny)
+    #print(hrac2.suroviny)
     domek = ekonomika.stavba_budovy(budovy, 'domek', (0, 0), hrac2)
     print(hrac2.budovy)
     hrac2.pridej_suroviny({'drevo': 6})
     domek2 = ekonomika.stavba_budovy(budovy, 'domek', (0, 0), hrac2)
     print(hrac2.budovy)
-    print(hrac2.suroviny)
+    #print(hrac2.suroviny)
+    print('-')
+    print(budovy)
 
 # Spuštění testů
 #pohyb()

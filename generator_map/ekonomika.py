@@ -129,4 +129,5 @@ def stavba_budovy(budovy, typ, pozice, vlastnik):
     )
 
     print(f"{vlastnik.jmeno} postavil budovu typu {typ} na pozici {pozice}.")
+    budovy.append(nova)
     return nova
