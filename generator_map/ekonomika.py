@@ -20,6 +20,9 @@ def verbovani(jednotky, typ, pozice, vlastnik):
     Returns:
         Nová jednotka nebo None, pokud hráč nemá dost surovin.
     """
+    if pozice in jednotky:
+        print("Pozice je obsazená, jednotku není možné naverbovat.")
+        return None
 
     # Předdefinované šablony jednotek
     sablony = {
@@ -80,7 +83,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
     print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
     return nova
 
-
+# TODO: V plné verzi tady bude muset být kontrola, že se pozicie nepřekrývají
 def stavba_budovy(budovy, typ, pozice, vlastnik):
     """
     Stavba nové budovy určitého typu.
