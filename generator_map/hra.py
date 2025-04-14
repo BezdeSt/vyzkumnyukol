@@ -35,6 +35,7 @@ class SpravceHry:
         self.budovy = budovy
         self.aktualni_hrac_index = 0
         self.kolo = 1
+        self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
     def aktualni_hrac(self):
         """
@@ -78,11 +79,11 @@ class SpravceHry:
     def inicializace_hry(self):
         hrac1 = hrac.Hrac(jmeno="Modrý")
         hrac2 = hrac.Hrac(jmeno="Červený")
-        ekonomika.verbovani(jednotky=self.jednotky, typ='zakladna',vlastnik=hrac1,
+        self.verbovani(typ='zakladna',vlastnik=hrac1,
                             pozice=(1,1), spravce_hry=self)
         pocet_radku = len(self.mrizka)
         pocet_sloupcu = len(self.mrizka[0])
-        ekonomika.verbovani(jednotky=self.jednotky, typ='zakladna', vlastnik=hrac2,
+        self.verbovani(typ='zakladna', vlastnik=hrac2,
                             pozice=(pocet_radku-2, pocet_sloupcu-2), spravce_hry=self)
 
     def vyhodnot_souboj(self, utocnik, napadeny):
@@ -109,9 +110,9 @@ class SpravceHry:
     def konce(self, porazeny):
         #TODO: Uloží informace o výslekdu hry/simulace.
         print(f"{porazeny} prohrál! Hra končí.")
-        return
+        self.stav_hry = 0
 
-    def verbovani(self, typ, pozice, vlastnik):
+    def verbovani(self, typ, pozice, vlastnik, spravce_hry):
         """
         Verbování nové jednotky určitého typu.
 
@@ -201,7 +202,8 @@ class SpravceHry:
             zivoty=sablona['zivoty'],
             cena=sablona['cena'],
             cena_za_kolo=sablona['cena_za_kolo'],
-            vlastnik=vlastnik
+            vlastnik=vlastnik,
+            spravce_hry=spravce_hry,
         )
 
         self.jednotky[pozice] = nova
