@@ -9,23 +9,27 @@
 - Podívat se na Monte Carlo (skripta: ZALG; Monte Carlo)
 - ~~Rozmyslet co a jak budu implementovat~~
 - Kapitola Mechaniky
+- Implementace mechanik:
     - Jednotky
-        - Pohyb po mapě
+        - ~~Pohyb po mapě~~
         - Vyhledávání cílů v dosahu
-        - Boj (útok a obrana)
+        - ~~Boj (útok a obrana)~~
     - Budovy
-        - Generování surovin na konci kola
+        - ~~Generování surovin na konci kola~~
     - Hráč
-        - Správa surovin (přidávání, odebírání)
-        - Zpracování údržby jednotek (cena za kolo)
-        - Evidence vlastněných jednotek a budov
+        - ~~Správa surovin (přidávání, odebírání)~~
+        - ~~Zpracování údržby jednotek (cena za kolo)~~
+        - ~~Evidence vlastněných jednotek a budov~~
     - Herní kolo
-        - Střídání aktuálního hráče
+        - ~~Střídání aktuálního hráče~~
         - Průběh tahu hráče
-        - Verbování jednotek
-        - Stavba budov
-        - Produkcesurovin z budov
-        - Zpracování údržby jednotek
+            - Verbování jednotek
+            - Stavba budov
+            - Produkcesurovin z budov
+            - Zpracování údržby jednotek
+    - AI / Simulace
+        - Jednoduché AI
+        - Výpis údajů o stavu hry
 - Kapitola Simulace
 
 ## 28.3.
