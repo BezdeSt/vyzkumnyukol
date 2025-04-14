@@ -1,5 +1,5 @@
 class Jednotka:
-    def __init__(self, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None):
+    def __init__(self, typ=None, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None):
         """
         Inicializuje jednotku s danými parametry a přidá ji do seznamu jednotek vlastníka.
 
@@ -14,6 +14,7 @@ class Jednotka:
             cena_za_kolo: Cena za kolo (udržovací náklady).
             vlastnik: Instance hráče, kterému jednotka patří.
         """
+        self.typ = typ
         self.pozice = pozice
         self.rychlost = rychlost
         self.dosah = dosah
@@ -190,6 +191,10 @@ class Jednotka:
         Args:
             jednotky: Slovník všech jednotek na mapě.
         """
+        if self.typ == 'zakladna':
+            print(f"{self.vlastnik.jmeno} přišel o základnu! Hra končí.")
+            #TODO: Doplnit nějaké ukončení hry
+
         jednotky.pop(self.pozice, None)
         if self in self.vlastnik.jednotky:
             self.vlastnik.jednotky.remove(self)

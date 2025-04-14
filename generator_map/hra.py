@@ -8,6 +8,10 @@
 #   * pokusí se jednotku náhodně pohnout / zaútočit
 #   * jinak nic nedělá
 # TODO: Ukládání výsledků hry/kola
+import hrac
+import ekonomika
+from implementace import mrizka
+
 
 class SpravceHry:
     """
@@ -69,3 +73,11 @@ class SpravceHry:
         print(hrac.suroviny)
         # Ukončení tahu a posun na dalšího hráče
         self.dalsi_hrac()
+
+    def inicializace_hry(self):
+        hrac1 = hrac.Hrac(jmeno="Modrý")
+        hrac2 = hrac.Hrac(jmeno="Červený")
+        ekonomika.verbovani(jednotky=self.jednotky, typ='zakladna',vlastnik=hrac1,pozice=(1,1))
+        pocet_radku = len(self.mrizka)
+        pocet_sloupcu = len(self.mrizka[0])
+        ekonomika.verbovani(jednotky=self.jednotky, typ='zakladna', vlastnik=hrac1, pozice=(pocet_radku-2, pocet_sloupcu-2))

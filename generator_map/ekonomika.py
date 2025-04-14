@@ -24,9 +24,17 @@ def verbovani(jednotky, typ, pozice, vlastnik):
         print("Pozice je obsazená, jednotku není možné naverbovat.")
         return None
 
+    # TODO: Základna je udělaná jako jednotka pouze v prototypu
+    if typ == 'zakladna':
+        for jedn in vlastnik.jednotky:
+            if jedn.typ == 'zakladna':
+                print(f"{vlastnik.jmeno} už má základnu, nelze vytvořit další.")
+                return None
+
     # Předdefinované šablony jednotek
     sablony = {
         'bojovnik': {
+            'typ': 'bojovnik',
             'rychlost': 3,
             'dosah': 1,
             'utok': 5,
@@ -36,6 +44,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'cena_za_kolo': {'jidlo': 2}
         },
         'lucisnik': {
+            'typ': 'lucisnik',
             'rychlost': 2,
             'dosah': 5,
             'utok': 5,
@@ -45,6 +54,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'cena_za_kolo': {'jidlo': 2}
         },
         'testovaci': {
+            'typ': 'testovaci',
             'rychlost': 2,
             'dosah': 2,
             'utok': 2,
@@ -53,6 +63,16 @@ def verbovani(jednotky, typ, pozice, vlastnik):
             'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
+        'zakladna': {
+            'typ': 'zakladna',
+            'rychlost': 0,
+            'dosah': 0,
+            'utok': 0,
+            'obrana': 5,
+            'zivoty': 50,
+            'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 0}
+        }
     }
 
     if typ not in sablony:
@@ -68,6 +88,7 @@ def verbovani(jednotky, typ, pozice, vlastnik):
 
     # Vytvoření jednotky
     nova = jednotka.Jednotka(
+        typ = sablona['typ'],
         pozice=pozice,
         rychlost=sablona['rychlost'],
         dosah=sablona['dosah'],
