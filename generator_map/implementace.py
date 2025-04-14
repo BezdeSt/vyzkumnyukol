@@ -5,7 +5,7 @@ import ekonomika
 import hra
 mrizka = [
     ['H', 'H', 'P', 'P', 'P'],
-    ['L', 'P', 'L', 'H', 'P'],
+    ['P', 'P', 'L', 'H', 'P'],
     ['P', 'P', 'P', 'P', 'P'],
     ['P', 'H', 'L', 'V', 'P'],
     ['P', 'P', 'P', 'P', 'P'],
@@ -20,7 +20,7 @@ jednotky = {}
 
 # Vytvoření jednotek a jejich registrace
 jednotka1 = ekonomika.verbovani(jednotky, 'testovaci', (0,0), hrac1)
-jednotka2 = ekonomika.verbovani(jednotky, 'testovaci', (0,2), hrac2)
+jednotka2 = ekonomika.verbovani(jednotky, 'testovaci', (0,3), hrac2)
 
 dul = budova.Budova(
         typ="Důl",
@@ -33,7 +33,7 @@ dul = budova.Budova(
 
 # Funkce pro testování pohybu
 def pohyb():
-    mozne_pohyby = jednotka1.vypocet_moznych_pohybu(mrizka)
+    mozne_pohyby = jednotka1.vypocet_moznych_pohybu(mrizka, jednotky)
     print("Možné pohyby:", mozne_pohyby)
 
     vyska = len(mrizka)
@@ -121,12 +121,12 @@ def test_budovy():
     print(budovy)
 
 # Spuštění testů
-#pohyb()
+pohyb()
 print("=====================")
 #boj()
 #ekonomika_basic()
 #test_verbovani()
 #test_cena_za_kolo()
 #tah()
-test_budovy()
+#test_budovy()
 

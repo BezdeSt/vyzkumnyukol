@@ -33,7 +33,7 @@ class Jednotka:
     # -------------------------------------------------------------------------------------------------------
     # POHYB
     # -------------------------------------------------------------------------------------------------------
-    def vypocet_moznych_pohybu(self, mrizka):
+    def vypocet_moznych_pohybu(self, mrizka, jednotky):
         """
         Vypočítá možné pohyby jednotky na základě terénu a její rychlosti.
 
@@ -64,6 +64,10 @@ class Jednotka:
                     teren = mrizka[nova_y][nova_x]
                     if teren == 'V':
                         continue  # voda je neprostupná
+
+                    # kontrola, jestli tam není jiná jednotka
+                    if (nova_x, nova_y) in jednotky:
+                        continue  # obsazeno jinou jednotkou
 
                     navstivene.add((nova_x, nova_y))
                     if teren == 'P':

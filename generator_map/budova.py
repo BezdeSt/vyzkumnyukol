@@ -1,5 +1,3 @@
-# TODO: Asi vlastně není nikde vyřešené stavění nových budov?
-
 class Budova:
     def __init__(self, typ, pozice, vlastnik, zivoty = 50, obrana = 5, produkce={'drevo': 0}, cena={'drevo': 20}):
         """

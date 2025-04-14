@@ -2,7 +2,6 @@ import jednotka
 import budova
 
 # TODO: Časem asi zabalit do hra.py
-# TODO: Vypadá, že není funkce na stavbu budov (mělo by být podobné jako verbovani())
 
 def ziskani_surovin(hraci):
     for hrac in hraci:
