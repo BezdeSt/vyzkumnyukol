@@ -139,3 +139,18 @@ def herni_cyklus():
     Hra = hra.SpravceHry(hraci=[],mrizka=mrizka,jednotky={},budovy=[])
 
     Hra.inicializace_hry()
+    hrac1 = Hra.hraci[0]
+    hrac2 = Hra.hraci[1]
+
+    print('---')
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    Hra.verbovani('testovaci', hrac1, Hra)
+    print('---')
+    Hra.verbovani('testovaci', hrac2, Hra)
+
+herni_cyklus()

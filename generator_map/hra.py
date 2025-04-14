@@ -8,6 +8,8 @@
 #   * pokusí se jednotku náhodně pohnout / zaútočit
 #   * jinak nic nedělá
 # TODO: Ukládání výsledků hry/kola
+from random import randint
+
 import hrac
 import ekonomika
 import jednotka
@@ -78,7 +80,10 @@ class SpravceHry:
 
     def inicializace_hry(self):
         hrac1 = hrac.Hrac(jmeno="Modrý")
+        self.hraci.append(hrac1)
         hrac2 = hrac.Hrac(jmeno="Červený")
+        self.hraci.append(hrac2)
+
         self.verbovani(typ='zakladna',vlastnik=hrac1,
                             pozice=(1,1), spravce_hry=self)
         pocet_radku = len(self.mrizka)
@@ -112,7 +117,7 @@ class SpravceHry:
         print(f"{porazeny} prohrál! Hra končí.")
         self.stav_hry = 0
 
-    def verbovani(self, typ, pozice, vlastnik, spravce_hry):
+    def verbovani(self, typ, vlastnik, spravce_hry, pozice=None):
         """
         Verbování nové jednotky určitého typu.
 
@@ -125,16 +130,36 @@ class SpravceHry:
         Returns:
             Nová jednotka nebo None, pokud hráč nemá dost surovin.
         """
-        if pozice in self.jednotky:
-            print("Pozice je obsazená, jednotku není možné naverbovat.")
-            return None
-
         # TODO: Základna je udělaná jako jednotka pouze v prototypu
         if typ == 'zakladna':
             for jedn in vlastnik.jednotky:
                 if jedn.typ == 'zakladna':
                     print(f"{vlastnik.jmeno} už má základnu, nelze vytvořit další.")
                     return None
+
+        # TODO: Zkontrolovat, že tenhle paskvil na kontrolu místa okolo základny funguje.
+        if not vlastnik.jednotky == []:
+            pozice_zakladna = vlastnik.jednotky[0].pozice
+            smery = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+            prvni_pokus = smery[randint(0, 3)]
+            vybrana_pozice = (pozice_zakladna[0] + prvni_pokus[0], pozice_zakladna[1] + prvni_pokus[1])
+
+            if vybrana_pozice in self.jednotky:
+                nalezeno = False
+                for smer in smery:
+                    nova_pozice = (pozice_zakladna[0] + smer[0], pozice_zakladna[1] + smer[1])
+                    if nova_pozice not in self.jednotky:
+                        vybrana_pozice = nova_pozice
+                        nalezeno = True
+                        break
+                if not nalezeno:
+                    print("Není místo pro naverbování jednotky.")
+                    return None
+            pozice = vybrana_pozice
+        else:
+            if pozice in self.jednotky:
+                print("Tady nemůžeš postavi Základnu.")
+                return None
 
         # Předdefinované šablony jednotek
         sablony = {
