@@ -129,4 +129,6 @@ test_verbovani()
 #test_cena_za_kolo()
 #tah()
 #test_budovy()
-
+# TODO: Testovat:
+#   Inicializaci hry
+#   Ukončení hry zničením základny

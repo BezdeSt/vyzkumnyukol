@@ -1,5 +1,5 @@
 class Jednotka:
-    def __init__(self, typ=None, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None):
+    def __init__(self, typ=None, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None, spravce_hry=None):
         """
         Inicializuje jednotku s danými parametry a přidá ji do seznamu jednotek vlastníka.
 
@@ -26,6 +26,7 @@ class Jednotka:
 
         self.cena = cena
         self.cena_za_kolo = cena_za_kolo
+        self.spravce_hry = spravce_hry
 
         self.vlastnik.jednotky.append(self)
 
@@ -166,24 +167,6 @@ class Jednotka:
             if poskozeni > 0:
                 utocnik.zivoty -= poskozeni
 
-    def vyhodnot_souboj(self, napadeny, jednotky, mrizka):
-        """
-        Vyhodnotí souboj s nepřátelskou jednotkou včetně protiútoku a odstranění padlých.
-
-        Args:
-            napadeny: Jednotka, která má být napadena.
-            jednotky: Slovník všech jednotek na mapě.
-            mrizka: Herní mřížka (kvůli ověření dosahu).
-        """
-        if napadeny in self.najdi_cile_v_dosahu(mrizka, jednotky):
-            self.proved_utok(napadeny)
-            if napadeny.zivoty <= 0:
-                napadeny.zemri(jednotky)
-            else:
-                napadeny.proved_protiutok(self)
-                if self.zivoty <= 0:
-                    self.zemri(jednotky)
-
     def zemri(self, jednotky):
         """
         Odstraní jednotku z herní plochy i ze seznamu hráče.
@@ -191,9 +174,6 @@ class Jednotka:
         Args:
             jednotky: Slovník všech jednotek na mapě.
         """
-        if self.typ == 'zakladna':
-            print(f"{self.vlastnik.jmeno} přišel o základnu! Hra končí.")
-            #TODO: Doplnit nějaké ukončení hry
 
         jednotky.pop(self.pozice, None)
         if self in self.vlastnik.jednotky:
