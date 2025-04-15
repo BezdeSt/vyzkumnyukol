@@ -149,8 +149,9 @@ def herni_cyklus():
     Hra.verbovani('testovaci', hrac1, Hra)
     Hra.verbovani('testovaci', hrac1, Hra)
     Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
     print('---')
     Hra.verbovani('testovaci', hrac2, Hra)
+    hrac1.jednotky[1].zemri(Hra.jednotky)
+    Hra.verbovani('testovaci', hrac1, Hra)
 
 herni_cyklus()
