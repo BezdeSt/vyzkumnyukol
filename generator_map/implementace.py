@@ -171,7 +171,7 @@ def test_ai():
     hrac2.pridej_suroviny({'drevo': 10})
     Hra.verbovani('testovaci', hrac1, Hra)
     mozne_pohyby = hrac1.jednotky[1].vypocet_moznych_pohybu(Hra.mrizka, Hra.jednotky)
-    hrac1.jednotky[1].proved_pohyb((3,4), mozne_pohyby, Hra.jednotky)
+    #hrac1.jednotky[1].proved_pohyb((3,4), mozne_pohyby, Hra.jednotky)
     print('===')
     #TODO: Nereaguje když je vedle nepřítel
     while Hra.stav_hry:
