@@ -64,13 +64,21 @@ class SpravceHry:
         hrac = self.aktualni_hrac()
         print(f"Kolo {self.kolo}, tah hráče: {hrac.jmeno}")
 
-        # Vyhodnocení údržby jednotek (může způsobit ztrátu životů)
-        hrac.zpracuj_udrzbu(self.jednotky)
-
         # Generování surovin ze všech budov vlastněných hráčem
+        celkovi_zisk = {}
         for budova in hrac.budovy:
             zisk = budova.generuj_suroviny()
+
+            for surovina, mnozstvi in zisk.items():
+                celkovi_zisk[surovina] = celkovi_zisk.get(surovina, 0) + mnozstvi
+
             hrac.pridej_suroviny(zisk)
+
+        # Vyhodnocení údržby jednotek (může způsobit ztrátu životů)
+        celkove_naklady = hrac.zpracuj_udrzbu(self.jednotky)
+
+        print(f"Clekový zisk: {celkovi_zisk}")
+        print(f"Clekové náklady: {celkove_naklady}")
 
         # Zde by probíhala simulace akcí hráče nebo AI
         # (např. náhodné akce, skripty, apod.)
@@ -352,8 +360,8 @@ class SpravceHry:
 
 
         # TODO: Verbovat jednotky
-
         # TODO: Stavět budovy
+
 
     def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
         min_zivoty = 1000

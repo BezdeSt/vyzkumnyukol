@@ -108,3 +108,5 @@ class Hrac:
                 jednotka.zivoty -= 1  # Lze upravit podle pravidel
                 if jednotka.zivoty <= 0:
                     jednotka.zemri(jednotky)
+
+        return celkova_udrzba
