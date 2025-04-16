@@ -140,7 +140,6 @@ def puvodni():
 # Spuštění testů
 
 # TODO: Testovat:
-#   Inicializaci hry
 #   Ukončení hry zničením základny
 def herni_cyklus():
     Hra = hra.SpravceHry(hraci=[],mrizka=mrizka,jednotky={},budovy=[])
@@ -173,7 +172,7 @@ def test_ai():
     mozne_pohyby = hrac1.jednotky[1].vypocet_moznych_pohybu(Hra.mrizka, Hra.jednotky)
     #hrac1.jednotky[1].proved_pohyb((3,4), mozne_pohyby, Hra.jednotky)
     print('===')
-    #TODO: Nereaguje když je vedle nepřítel
+
     while Hra.stav_hry:
         Hra.proved_tah()
         if Hra.kolo > 1:
