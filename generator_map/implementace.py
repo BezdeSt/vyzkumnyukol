@@ -3,11 +3,18 @@ import hrac
 import budova
 import ekonomika
 import hra
-mrizka = [
+mrizka0 = [
     ['H', 'H', 'P', 'P', 'P'],
     ['P', 'P', 'L', 'H', 'P'],
     ['P', 'P', 'P', 'P', 'P'],
     ['P', 'H', 'L', 'V', 'P'],
+    ['P', 'P', 'P', 'P', 'P'],
+]
+mrizka = [
+    ['P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P'],
     ['P', 'P', 'P', 'P', 'P'],
 ]
 def puvodni():
@@ -154,4 +161,37 @@ def herni_cyklus():
     hrac1.jednotky[1].zemri(Hra.jednotky)
     Hra.verbovani('testovaci', hrac1, Hra)
 
-herni_cyklus()
+def test_ai():
+    Hra = hra.SpravceHry(hraci=[], mrizka=mrizka, jednotky={}, budovy=[])
+    Hra.inicializace_hry()
+
+    hrac1 = Hra.hraci[0]
+    hrac2 = Hra.hraci[1]
+    hrac1.pridej_suroviny({'drevo': 10})
+    hrac2.pridej_suroviny({'drevo': 10})
+    Hra.verbovani('testovaci', hrac1, Hra)
+    mozne_pohyby = hrac1.jednotky[1].vypocet_moznych_pohybu(Hra.mrizka, Hra.jednotky)
+    hrac1.jednotky[1].proved_pohyb((3,4), mozne_pohyby, Hra.jednotky)
+    print('===')
+    #TODO: Nereaguje když je vedle nepřítel
+    while Hra.stav_hry:
+        Hra.proved_tah()
+        if Hra.kolo > 1:
+            break
+
+    print("--- Po tazích ---")
+    for h in Hra.hraci:
+        print(f"{h.jmeno}: suroviny: {h.suroviny}, jednotky: {[(j.typ, j.pozice, j.zivoty) for j in h.jednotky]}")
+
+    # Stav pole na konci hry
+    print('Stav pole na konci hry:')
+    matice = [[0 for _ in range(len(Hra.mrizka[0]))] for _ in range(len(Hra.mrizka))]
+    for y in range(len(Hra.mrizka)):
+        for x in range(len(Hra.mrizka[0])):
+            if (x, y) in Hra.jednotky:
+                matice[y][x] = 1
+
+    for radek in matice:
+        print(radek)
+test_ai()
+#herni_cyklus()

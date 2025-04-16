@@ -1,5 +1,4 @@
-# TODO: Dodělat verbování tak aby se jednotky objevovali okolo základny
-#  (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
+# TODO: (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
 # TODO: Začít řešit AI
 #   (základní herní akce, rozhodování jaká se provede)
 #   Primitivní varianta:
@@ -9,6 +8,7 @@
 #   * jinak nic nedělá
 # TODO: Ukládání výsledků hry/kola
 from random import randint
+import random
 
 import hrac
 import ekonomika
@@ -33,7 +33,7 @@ class SpravceHry:
         """
         self.hraci = hraci
         self.mrizka = mrizka
-        self.jednotky = jednotky
+        self.jednotky = jednotky # {(pozice): Jednotka}
         self.budovy = budovy
         self.aktualni_hrac_index = 0
         self.kolo = 1
@@ -74,6 +74,8 @@ class SpravceHry:
 
         # Zde by probíhala simulace akcí hráče nebo AI
         # (např. náhodné akce, skripty, apod.)
+        self.ai_tah(hrac)
+
         print(hrac.suroviny)
         # Ukončení tahu a posun na dalšího hráče
         self.dalsi_hrac()
@@ -90,6 +92,12 @@ class SpravceHry:
         pocet_sloupcu = len(self.mrizka[0])
         self.verbovani(typ='zakladna', vlastnik=hrac2,
                             pozice=(pocet_radku-2, pocet_sloupcu-2), spravce_hry=self)
+
+        hrac1.pridej_suroviny({'drevo': 5})
+        hrac2.pridej_suroviny({'drevo': 5})
+        self.stavba_budovy(self.budovy, 'domek', (0,0), hrac1)
+        self.stavba_budovy(self.budovy, 'domek', (0,0), hrac2)
+
 
     def vyhodnot_souboj(self, utocnik, napadeny):
         """
@@ -185,9 +193,9 @@ class SpravceHry:
             },
             'testovaci': {
                 'typ': 'testovaci',
-                'rychlost': 2,
-                'dosah': 2,
-                'utok': 2,
+                'rychlost': 5,
+                'dosah': 1,
+                'utok': 15,
                 'obrana': 2,
                 'zivoty': 10,
                 'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
@@ -256,7 +264,7 @@ class SpravceHry:
                 'zivoty': 10,
                 'obrana': 1,
                 'cena': {'drevo': 5},
-                'produkce': {'jidlo': 1}
+                'produkce': {'jidlo': 2}
             },
         }
 
@@ -285,3 +293,99 @@ class SpravceHry:
         print(f"{vlastnik.jmeno} postavil budovu typu {typ} na pozici {pozice}.")
         budovy.append(nova)
         return nova
+
+    def ai_tah(spravce_hry, hrac):
+        """Provede tah AI hráče.
+
+        AI nejprve zkontroluje jednotky:
+            - Pokud jednotka sousedí s nepřátelskou jednotkou, zaútočí na ni.
+            - Pokud má základna dostatek surovin, verbuje jednotky.
+
+        Poté zkontroluje budovy:
+            - Pokud má dost surovin, staví budovy na volných polích u základny.
+
+        Args:
+            spravce_hry (SpravceHry): Instance správce hry.
+            hrac (Hrac): AI hráč.
+        """
+        # Tah jednotek
+        for jednotka in hrac.jednotky:
+            x, y = jednotka.pozice
+            #print(f"Jednotka {jednotka.typ} má rychlost {jednotka.rychlost}")
+
+            # Všechny nepřátelské jednotky (pro každou jednotku znovu protože můžou umřít)
+            nepratelske_jednotky = protivnici = {pozice: j for pozice, j in spravce_hry.jednotky.items() if j.vlastnik != hrac}
+
+            # Hledání sousedních nepřátel
+            nepratele_v_dosahu = jednotka.najdi_cile_v_dosahu(spravce_hry.mrizka, nepratelske_jednotky)
+            if nepratele_v_dosahu: # IDEA: Existuje nepřítel v dosahu
+                nejslabsi = spravce_hry.nejslabsi_z_nepratel_v_dosahu(nepratele_v_dosahu)
+                print(f"Jednotka na pozici {jednotka.pozice} provedla útok na nepřítele vedle sebe.")
+                spravce_hry.vyhodnot_souboj(jednotka, nejslabsi)
+            else:  # IDEA: Nepřítel není v dosahu bez pohybu.
+                mozne_pohyby = jednotka.vypocet_moznych_pohybu(spravce_hry.mrizka, spravce_hry.jednotky)
+
+                #print(f"Možné pohyby jednotky hráče {hrac.jmeno} z pozice {jednotka.pozice} jsou:")
+                #for radek in jednotka.pozice_na_matici(mozne_pohyby, len(spravce_hry.mrizka[0]), len(spravce_hry.mrizka)):
+                #    print(radek)
+
+                # IDEA: Nepřítel je v dosahu po pohybu
+                neni_nepritel_v_dosahu = True
+                for moznost in mozne_pohyby: # posouvám dočaně jednotku na novou pozici a testuju jestli na někoho dosáhne
+
+                    nepratele_v_dosahu = jednotka.najdi_cile_v_dosahu_z_pozice(moznost, spravce_hry.mrizka,
+                                                                               nepratelske_jednotky)
+                    if nepratele_v_dosahu:  # Existuje nepřítel v dosahu
+                        neni_nepritel_v_dosahu = False
+                        print(nepratele_v_dosahu)
+                        nejslabsi = spravce_hry.nejslabsi_z_nepratel_v_dosahu(nepratele_v_dosahu)
+                        jednotka.proved_pohyb(moznost, mozne_pohyby, spravce_hry.jednotky)
+                        spravce_hry.vyhodnot_souboj(jednotka, nejslabsi)
+                        break
+
+                # IDEA: V okolí není nepřítel, posunout se k základně nepřítele
+                if neni_nepritel_v_dosahu:
+                    jednotka.proved_pohyb((x,y), (x,y), spravce_hry.jednotky)
+                    print(f"Jednotka na {jednotka.pozice} by se měla začít pohybovat k základně nepřítele.")
+                    continue
+                    # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
+
+
+
+        #TODO: Není vůbec potřeba procházet existenci budov,
+        # respektive je to správně ale pro plnou verzi, ale rozhodně ne takhle
+
+        # Verbování jednotek ze základen
+        for budova in spravce_hry.budovy:
+            if budova.typ == "zakladna" and budova.hrac == hrac:
+                if hrac.suroviny["zlato"] >= 10:
+                    # Najdi volné sousední pole pro verbování
+                    x, y = budova.pozice
+                    sousedi = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+                    for sx, sy in sousedi:
+                        if 0 <= sx < len(spravce_hry.herni_deska) and 0 <= sy < len(spravce_hry.herni_deska[0]):
+                            if (sx, sy) not in spravce_hry.jednotky:
+                                spravce_hry.verbovani("bojovnik", hrac, spravce_hry, (sx, sy))
+                                break  # Verbuj jen jednu jednotku za tah
+        #TODO: Blbost, budovy nejsou na ničem závislé
+
+        # Stavba budov okolo základen
+        for budova in spravce_hry.budovy:
+            if budova.typ == "zakladna" and budova.hrac == hrac:
+                x, y = budova.pozice
+                sousedi = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+                for sx, sy in sousedi:
+                    if 0 <= sx < len(spravce_hry.herni_deska) and 0 <= sy < len(spravce_hry.herni_deska[0]):
+                        if (sx, sy) not in spravce_hry.jednotky:
+                            if hrac.suroviny["drevo"] >= 5:
+                                spravce_hry.stavba_budovy(spravce_hry.budovy, "dum", (sx, sy), hrac)
+                                break  # Postav jen jednu budovu za tah
+
+    def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
+        min_zivoty = 1000
+        nejslabsi = None
+        for nepritel in nepratele:
+            if nepritel.zivoty < min_zivoty:
+                min_zivoty = nepritel.zivoty
+                nejslabsi = nepritel
+        return nejslabsi

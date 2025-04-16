@@ -29,6 +29,7 @@ class Jednotka:
         self.spravce_hry = spravce_hry
 
         self.vlastnik.jednotky.append(self)
+        print(f"Jednotka {self.typ} se připsala k {self.vlastnik.jmeno}. Nachází se na pozici {self.pozice}")
 
     # -------------------------------------------------------------------------------------------------------
     # POHYB
@@ -113,6 +114,34 @@ class Jednotka:
             jednotky.pop(self.pozice)
             self.pozice = cil
             jednotky[self.pozice] = self
+
+
+    def najdi_cile_v_dosahu_z_pozice(self, pozice, mrizka, jednotky):
+        """
+        Najde nepřátelské jednotky v dosahu útoku z dané pozice.
+
+        Args:
+            pozice: Pozice, ze které se počítá dosah.
+            mrizka: 2D seznam reprezentující herní mapu.
+            jednotky: Slovník všech jednotek na mapě.
+
+        Returns:
+            Seznam jednotek, které může jednotka z dané pozice napadnout.
+        """
+        x, y = pozice
+        cile = []
+
+        for dx in range(-self.dosah, self.dosah + 1):
+            for dy in range(-self.dosah, self.dosah + 1):
+                if abs(dx) + abs(dy) <= self.dosah and (dx != 0 or dy != 0):
+                    cil_x, cil_y = x + dx, y + dy
+
+                    if 0 <= cil_x < len(mrizka[0]) and 0 <= cil_y < len(mrizka) and (cil_x, cil_y) in jednotky:
+                        cilova_jednotka = jednotky[(cil_x, cil_y)]
+                        if cilova_jednotka.vlastnik != self.vlastnik:
+                            cile.append(cilova_jednotka)
+
+        return cile
 
     # -------------------------------------------------------------------------------------------------------
     # BOJ
