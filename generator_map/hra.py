@@ -458,7 +458,7 @@ class SpravceHry:
                 return:
                     Náklady za kolo po naverbování jednotky.
                 """
-        if budova is None:
+        if jednotka is None:
             print("Jednotku se nepodařilo naverbovat.")
             return naklady
         else:
