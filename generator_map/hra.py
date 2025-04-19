@@ -1,11 +1,5 @@
-# TODO: (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
 # TODO: Začít řešit AI
-#   (základní herní akce, rozhodování jaká se provede)
-#   Primitivní varianta:
-#   * zkontroluje suroviny
-#   * pokud může, naverbuje jednotku
-#   * pokusí se jednotku náhodně pohnout / zaútočit
-#   * jinak nic nedělá
+#  (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
 # TODO: Ukládání výsledků hry/kola
 from random import randint
 import random
@@ -417,20 +411,57 @@ class SpravceHry:
         pocet_pokusu = 0
         while pocet_pokusu < 11:
             if naklady.get('jidlo', 0) >= zisk.get('jidlo', 0):
-                zisk = spravce_hry.postav_budovu(hrac, 'jidlo', zisk)
+                zisk = spravce_hry.postav_budovu_pro_surovinu(hrac, 'jidlo', zisk)
             elif naklady.get('drevo', 0) >= zisk.get('drevo', 0):
-                zisk = spravce_hry.postav_budovu(hrac, 'drevo', zisk)
+                zisk = spravce_hry.postav_budovu_pro_surovinu(hrac, 'drevo', zisk)
             elif naklady.get('kamen', 0) >= zisk.get('kamen', 0):
-                zisk = spravce_hry.postav_budovu(hrac, 'kamen', zisk)
+                zisk = spravce_hry.postav_budovu_pro_surovinu(hrac, 'kamen', zisk)
             else:
-                print("Verbování jednotky")
-                break
+                # IDEA: Dostatek suroin, můžeme budovat nové věci.
+                verbovani_nebo_stvba = random.random()
+                if verbovani_nebo_stvba < 0.1:
+                    # IDEA: Staba náhodné budovy
+                    print("Stavba náhodné budovy")
+                    budovy = list(spravce_hry.BUDOVY_SABLONY.keys())
+                    zisk = spravce_hry.postav_budovu(hrac, budovy, zisk)
+                else:
+                    # TODO: Verbování jednotek
+                    print("Verbování jednotky")
+                    spravce_hry.naverj_jednotku(hrac, naklady)
+
             pocet_pokusu += 1
         return zisk
 
-    def postav_budovu(spravce_hry, hrac, surovina, zisk):
+    def postav_budovu_pro_surovinu(spravce_hry, hrac, surovina, zisk):
         print(f"Stavím budovu pro {surovina}")
         budovy = list(spravce_hry.budovy_pro_surovinu(surovina).keys())
+        return spravce_hry.postav_budovu(hrac, budovy, zisk)
+
+    def postav_budovu(spravce_hry, hrac, budovy, zisk):
         nahodne_cislo = randint(0, len(budovy) - 1)
         temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
         return spravce_hry.aktualizace_zisku(temp_budova, zisk)
+
+    def naverj_jednotku(spravce_hry, hrac, naklady):
+        #jednotky = list(spravce_hry.JEDNOTKY_SABLONY.keys())
+        jednotky = [j for j in spravce_hry.JEDNOTKY_SABLONY.keys() if j != 'zakladna']
+        nahodne_cislo = randint(0, len(jednotky) - 1)
+        temp_jednotka = spravce_hry.verbovani(jednotky[nahodne_cislo], hrac, spravce_hry.jednotky)
+        return spravce_hry.aktualizace_nakladu(temp_jednotka, naklady)
+
+    def aktualizace_nakladu(spravce_hry, jednotka, naklady):
+        """
+                Aktualizuje nákladů po naverbování jednotky.
+                Args:
+                    jednotka: Instance nově naverbované jednotky.
+                    naklady: Aktuální náklady za kolo.
+                return:
+                    Náklady za kolo po naverbování jednotky.
+                """
+        if budova is None:
+            print("Jednotku se nepodařilo naverbovat.")
+            return naklady
+        else:
+            for surovina, hodnota in jednotka.cena_za_kolo.items():
+                naklady[surovina] = naklady.get(surovina, 0) + hodnota
+            return naklady
