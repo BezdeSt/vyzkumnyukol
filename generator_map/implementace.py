@@ -138,8 +138,7 @@ def puvodni():
 
 # Spuštění testů
 
-# TODO: Testovat:
-#   Ukončení hry zničením základny
+
 def herni_cyklus():
     Hra = hra.SpravceHry(hraci=[],mrizka=mrizka,jednotky={},budovy=[])
 
@@ -175,7 +174,7 @@ def test_ai():
     while Hra.stav_hry:
         Hra.proved_tah()
         print('-')
-        if Hra.kolo > 4:
+        if Hra.kolo > 15:
             break
 
     print("--- Po tazích ---")

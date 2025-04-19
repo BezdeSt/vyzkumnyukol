@@ -193,7 +193,9 @@ class SpravceHry:
 
     def konce(self, porazeny):
         #TODO: Uloží informace o výslekdu hry/simulace.
-        print(f"{porazeny} prohrál! Hra končí.")
+        print("!!!!!!!!!!!!!!!!!!!")
+        print(f"{porazeny.jmeno} prohrál! Hra končí.")
+        print("!!!!!!!!!!!!!!!!!!!")
         self.stav_hry = 0
 
     def verbovani(self, typ, vlastnik, spravce_hry, pozice=None):
@@ -406,10 +408,12 @@ class SpravceHry:
                     print(f"Jednotka na {jednotka.pozice} by se měla začít pohybovat k základně nepřítele.")
                     continue
                     # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
+            if not spravce_hry.stav_hry:
+                break
 
     def stavba_a_verbovani_ai(spravce_hry, hrac, zisk, naklady):
         pocet_pokusu = 0
-        while pocet_pokusu < 11:
+        while pocet_pokusu < 11 and spravce_hry.stav_hry:
             if naklady.get('jidlo', 0) >= zisk.get('jidlo', 0):
                 zisk = spravce_hry.postav_budovu_pro_surovinu(hrac, 'jidlo', zisk)
             elif naklady.get('drevo', 0) >= zisk.get('drevo', 0):
