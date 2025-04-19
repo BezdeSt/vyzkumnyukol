@@ -84,13 +84,28 @@ class SpravceHry:
     }
 
     BUDOVY_SABLONY = {
-        'domek': {
-            'typ': 'domek',
+        'farma': {
+            'typ': 'farma',
             'zivoty': 10,
             'obrana': 1,
             'cena': {'drevo': 5},
             'produkce': {'jidlo': 2}
         },
+        'pila': {
+            'typ': 'pila',
+            'zivoty': 10,
+            'obrana': 1,
+            'cena': {'drevo': 5},
+            'produkce': {'drevo': 2}
+        },
+        'dul': {
+            'typ': 'dul',
+            'zivoty': 10,
+            'obrana': 1,
+            'cena': {'drevo': 5},
+            'produkce': {'kamen': 2}
+        },
+
     }
 
     def aktualni_hrac(self):
@@ -119,7 +134,7 @@ class SpravceHry:
         print(f"Kolo {self.kolo}, tah hráče: {hrac.jmeno}")
 
         # Generování surovin ze všech budov vlastněných hráčem
-        celkovi_zisk = {}
+        celkovi_zisk = {'jidlo': 0, 'drevo': 0, 'kamen': 0}
         for budova in hrac.budovy:
             zisk = budova.generuj_suroviny()
 
@@ -360,22 +375,36 @@ class SpravceHry:
                     continue
                     # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
 
+        # TODO: Když dojdou suroviny na celou dobu se zasekne ve snaze stavět ty samé budovy
         pocet_pokusu = 0
         while pocet_pokusu < 11:
-            if naklady.get('jidlo', 0) > zisk.get('jidlo', 0):
-                # TODO: Budovy produkující jídlo
+            # IDEA: Stavění nebo Verbování
+            if naklady.get('jidlo', 0) >= zisk.get('jidlo', 0):
+                # IDEA: Budovy produkující jídlo
                 print("Stavím farmu")
-                break
+                budovy = list(spravce_hry.budovy_pro_surovinu('jidlo').keys())
+                nahodne_cislo = randint(0, len(budovy) - 1)
+                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
+                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
 
-            elif naklady.get('drevo', 0) > zisk.get('drevo', 0):
-                # TODO: Budovy produkující dřevo
+
+            elif naklady.get('drevo', 0) >= zisk.get('drevo', 0):
+                # IDEA: Budovy produkující dřevo
                 print("Stavím pilu")
-                break
+                budovy = list(spravce_hry.budovy_pro_surovinu('drevo').keys())
+                nahodne_cislo = randint(0, len(budovy) - 1)
+                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
+                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
 
-            elif naklady.get('kamen', 0) > zisk.get('kamen', 0):
-                # TODO: Budovy produkující kámen
+
+            elif naklady.get('kamen', 0) >= zisk.get('kamen', 0):
+                # IDEA: Budovy produkující kámen
                 print("Stavím důl")
-                break
+                budovy = list(spravce_hry.budovy_pro_surovinu('kamen').keys())
+                nahodne_cislo = randint(0, len(budovy) - 1)
+                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
+                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
+
 
             else:
                 # TODO: Verbování jednotek
@@ -393,3 +422,15 @@ class SpravceHry:
                 min_zivoty = nepritel.zivoty
                 nejslabsi = nepritel
         return nejslabsi
+
+    def budovy_pro_surovinu(self, surovina):
+        return {nazev: data for nazev, data in self.BUDOVY_SABLONY.items() if surovina in data['produkce']}
+
+    def aktualizace_zisku(spravce_hry, budova, zisk):
+        if budova is None:
+            print("Budova se nepostavila.")
+            return zisk
+        else:
+            for surovina, hodnota in budova.produkce.items():
+                zisk[surovina] = zisk.get(surovina, 0) + hodnota
+            return zisk

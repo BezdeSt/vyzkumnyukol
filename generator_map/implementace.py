@@ -175,12 +175,14 @@ def test_ai():
 
     while Hra.stav_hry:
         Hra.proved_tah()
-        if Hra.kolo > 1:
+        print('-')
+        if Hra.kolo > 4:
             break
 
     print("--- Po tazích ---")
     for h in Hra.hraci:
         print(f"{h.jmeno}: suroviny: {h.suroviny}, jednotky: {[(j.typ, j.pozice, j.zivoty) for j in h.jednotky]}")
+        print(f"  budovy:  {[(b.typ, b.zivoty) for b in h.budovy]}")
 
     # Stav pole na konci hry
     print('Stav pole na konci hry:')
