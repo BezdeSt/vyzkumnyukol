@@ -1,8 +1,6 @@
 import jednotka
 import budova
 
-# TODO: Časem asi zabalit do hra.py
-
 def ziskani_surovin(hraci):
     for hrac in hraci:
         hrac.zisk_z_budov()
@@ -24,7 +22,6 @@ def verbovani(jednotky, typ, pozice, vlastnik):
         print("Pozice je obsazená, jednotku není možné naverbovat.")
         return None
 
-    # TODO: Základna je udělaná jako jednotka pouze v prototypu
     if typ == 'zakladna':
         for jedn in vlastnik.jednotky:
             if jedn.typ == 'zakladna':
@@ -104,7 +101,6 @@ def verbovani(jednotky, typ, pozice, vlastnik):
     print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
     return nova
 
-# TODO: V plné verzi tady bude muset být kontrola, že se pozicie nepřekrývají
 def stavba_budovy(budovy, typ, pozice, vlastnik):
     """
     Stavba nové budovy určitého typu.

@@ -209,7 +209,7 @@ class SpravceHry:
         Returns:
             Nová jednotka nebo None, pokud hráč nemá dost surovin.
         """
-        # TODO: Základna je udělaná jako jednotka pouze v prototypu
+        # NEXT: Základna je udělaná jako jednotka pouze v prototypu
         if typ == 'zakladna':
             for jedn in vlastnik.jednotky:
                 if jedn.typ == 'zakladna':
@@ -269,7 +269,7 @@ class SpravceHry:
         print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
         return nova
 
-    # TODO: V plné verzi tady bude muset být kontrola, že se pozicie nepřekrývají
+    # NEXT: V plné verzi tady bude muset být kontrola, že se pozicie nepřekrývají
     def stavba_budovy(self, budovy, typ, pozice, vlastnik):
         """
         Stavba nové budovy určitého typu.

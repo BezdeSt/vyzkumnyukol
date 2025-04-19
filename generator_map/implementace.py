@@ -104,7 +104,6 @@ def puvodni():
         # print(hrac1.jednotky[0].zivoty)
         print(hrac1.suroviny)
 
-    # TODO: V plné verzi tohle bude taky slovník s pozicema jako jednotky
     budovy = hrac1.budovy + hrac2.budovy
     hra0 = hra.SpravceHry([hrac1, hrac2], mrizka, jednotky, budovy)
 
