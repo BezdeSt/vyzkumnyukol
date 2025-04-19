@@ -39,6 +39,60 @@ class SpravceHry:
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
+    # Předdefinované šablony jednotek
+    JEDNOTKY_SABLONY = {
+        'bojovnik': {
+            'typ': 'bojovnik',
+            'rychlost': 3,
+            'dosah': 1,
+            'utok': 5,
+            'obrana': 3,
+            'zivoty': 15,
+            'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 2}
+        },
+        'lucisnik': {
+            'typ': 'lucisnik',
+            'rychlost': 2,
+            'dosah': 5,
+            'utok': 5,
+            'obrana': 1,
+            'zivoty': 8,
+            'cena': {'jidlo': 10, 'drevo': 10, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 2}
+        },
+        'testovaci': {
+            'typ': 'testovaci',
+            'rychlost': 5,
+            'dosah': 1,
+            'utok': 15,
+            'obrana': 2,
+            'zivoty': 10,
+            'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 2}
+        },
+        'zakladna': {
+            'typ': 'zakladna',
+            'rychlost': 0,
+            'dosah': 0,
+            'utok': 0,
+            'obrana': 5,
+            'zivoty': 50,
+            'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 0}
+        }
+    }
+
+    BUDOVY_SABLONY = {
+        'domek': {
+            'typ': 'domek',
+            'zivoty': 10,
+            'obrana': 1,
+            'cena': {'drevo': 5},
+            'produkce': {'jidlo': 2}
+        },
+    }
+
     def aktualni_hrac(self):
         """
         Vrátí hráče, který je aktuálně na tahu.
@@ -82,7 +136,7 @@ class SpravceHry:
 
         # Zde by probíhala simulace akcí hráče nebo AI
         # (např. náhodné akce, skripty, apod.)
-        self.ai_tah(hrac)
+        self.ai_tah(hrac, celkovi_zisk, celkove_naklady)
 
         print(hrac.suroviny)
         # Ukončení tahu a posun na dalšího hráče
@@ -177,55 +231,15 @@ class SpravceHry:
                 print("Tady nemůžeš postavi Základnu.")
                 return None
 
-        # Předdefinované šablony jednotek
-        sablony = {
-            'bojovnik': {
-                'typ': 'bojovnik',
-                'rychlost': 3,
-                'dosah': 1,
-                'utok': 5,
-                'obrana': 3,
-                'zivoty': 15,
-                'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
-                'cena_za_kolo': {'jidlo': 2}
-            },
-            'lucisnik': {
-                'typ': 'lucisnik',
-                'rychlost': 2,
-                'dosah': 5,
-                'utok': 5,
-                'obrana': 1,
-                'zivoty': 8,
-                'cena': {'jidlo': 10, 'drevo': 10, 'kamen': 0},
-                'cena_za_kolo': {'jidlo': 2}
-            },
-            'testovaci': {
-                'typ': 'testovaci',
-                'rychlost': 5,
-                'dosah': 1,
-                'utok': 15,
-                'obrana': 2,
-                'zivoty': 10,
-                'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
-                'cena_za_kolo': {'jidlo': 2}
-            },
-            'zakladna': {
-                'typ': 'zakladna',
-                'rychlost': 0,
-                'dosah': 0,
-                'utok': 0,
-                'obrana': 5,
-                'zivoty': 50,
-                'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
-                'cena_za_kolo': {'jidlo': 0}
-            }
-        }
 
-        if typ not in sablony:
+        # IDEA: Tady byla původně šablona
+
+
+        if typ not in self.JEDNOTKY_SABLONY:
             print(f"Neznámý typ jednotky: {typ}")
             return None
 
-        sablona = sablony[typ]
+        sablona = self.JEDNOTKY_SABLONY[typ]
 
         # Pokusíme se zaplatit cenu
         if not vlastnik.odecti_suroviny(sablona['cena']):
@@ -265,22 +279,11 @@ class SpravceHry:
         Returns:
             Nová budova nebo None, pokud hráč nemá dost surovin.
         """
-
-        sablony = {
-            'domek': {
-                'typ': 'domek',
-                'zivoty': 10,
-                'obrana': 1,
-                'cena': {'drevo': 5},
-                'produkce': {'jidlo': 2}
-            },
-        }
-
-        if typ not in sablony:
+        if typ not in self.BUDOVY_SABLONY:
             print(f"Neznámý typ budovy: {typ}")
             return None
 
-        sablona = sablony[typ]
+        sablona = self.BUDOVY_SABLONY[typ]
 
         # Zaplacení ceny
         if not vlastnik.odecti_suroviny(sablona['cena']):
@@ -302,7 +305,7 @@ class SpravceHry:
         budovy.append(nova)
         return nova
 
-    def ai_tah(spravce_hry, hrac):
+    def ai_tah(spravce_hry, hrac, zisk, naklady):
         """Provede tah AI hráče.
 
         AI nejprve zkontroluje jednotky:
@@ -357,11 +360,30 @@ class SpravceHry:
                     continue
                     # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
 
+        pocet_pokusu = 0
+        while pocet_pokusu < 11:
+            if naklady.get('jidlo', 0) > zisk.get('jidlo', 0):
+                # TODO: Budovy produkující jídlo
+                print("Stavím farmu")
+                break
 
+            elif naklady.get('drevo', 0) > zisk.get('drevo', 0):
+                # TODO: Budovy produkující dřevo
+                print("Stavím pilu")
+                break
 
-        # TODO: Verbovat jednotky
-        # TODO: Stavět budovy
+            elif naklady.get('kamen', 0) > zisk.get('kamen', 0):
+                # TODO: Budovy produkující kámen
+                print("Stavím důl")
+                break
 
+            else:
+                # TODO: Verbování jednotek
+                nahodne_cislo = randint(0, 10)
+                print("Verbování jednotky")
+                break
+
+            pocet_pokusu += 1
 
     def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
         min_zivoty = 1000
