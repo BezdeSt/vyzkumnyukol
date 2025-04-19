@@ -222,7 +222,6 @@ class SpravceHry:
                     print(f"{vlastnik.jmeno} už má základnu, nelze vytvořit další.")
                     return None
 
-        # TODO: Zkontrolovat, že tenhle paskvil na kontrolu místa okolo základny funguje.
         if not vlastnik.jednotky == []:
             pozice_zakladna = vlastnik.jednotky[0].pozice
             smery = [(-1, 0), (0, -1), (1, 0), (0, 1)]
@@ -245,10 +244,6 @@ class SpravceHry:
             if pozice in self.jednotky:
                 print("Tady nemůžeš postavi Základnu.")
                 return None
-
-
-        # IDEA: Tady byla původně šablona
-
 
         if typ not in self.JEDNOTKY_SABLONY:
             print(f"Neznámý typ jednotky: {typ}")
@@ -335,6 +330,49 @@ class SpravceHry:
             hrac (Hrac): AI hráč.
         """
         # Tah jednotek
+        spravce_hry.pohyb_jednotek_ai(hrac)
+
+        # Stavba budov a verbování jednotek
+        spravce_hry.stavba_a_verbovani_ai(hrac, zisk, naklady)
+
+
+    def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
+        min_zivoty = 1000
+        nejslabsi = None
+        for nepritel in nepratele:
+            if nepritel.zivoty < min_zivoty:
+                min_zivoty = nepritel.zivoty
+                nejslabsi = nepritel
+        return nejslabsi
+
+    def budovy_pro_surovinu(self, surovina):
+        """
+        Vrací budovy které generují danou surovinu.
+        Args:
+            surovina: Typ suroviny
+        return:
+             Budovy generující danou surovinu.
+        """
+        return {nazev: data for nazev, data in self.BUDOVY_SABLONY.items() if surovina in data['produkce']}
+
+    def aktualizace_zisku(spravce_hry, budova, zisk):
+        """
+        Aktualizuje zisk po postavení nové budvy.
+        Args:
+            budova: Instance nově postavené budovy.
+            zisk: Aktuální zisk za kolo.
+        return:
+            Zisk za kolo po postavení nové budovy.
+        """
+        if budova is None:
+            print("Budova se nepostavila.")
+            return zisk
+        else:
+            for surovina, hodnota in budova.produkce.items():
+                zisk[surovina] = zisk.get(surovina, 0) + hodnota
+            return zisk
+
+    def pohyb_jednotek_ai(spravce_hry, hrac):
         for jednotka in hrac.jednotky:
             x, y = jednotka.pozice
 
@@ -375,62 +413,24 @@ class SpravceHry:
                     continue
                     # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
 
-        # TODO: Když dojdou suroviny na celou dobu se zasekne ve snaze stavět ty samé budovy
+    def stavba_a_verbovani_ai(spravce_hry, hrac, zisk, naklady):
         pocet_pokusu = 0
         while pocet_pokusu < 11:
-            # IDEA: Stavění nebo Verbování
             if naklady.get('jidlo', 0) >= zisk.get('jidlo', 0):
-                # IDEA: Budovy produkující jídlo
-                print("Stavím farmu")
-                budovy = list(spravce_hry.budovy_pro_surovinu('jidlo').keys())
-                nahodne_cislo = randint(0, len(budovy) - 1)
-                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
-                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
-
-
+                zisk = spravce_hry.postav_budovu(hrac, 'jidlo', zisk)
             elif naklady.get('drevo', 0) >= zisk.get('drevo', 0):
-                # IDEA: Budovy produkující dřevo
-                print("Stavím pilu")
-                budovy = list(spravce_hry.budovy_pro_surovinu('drevo').keys())
-                nahodne_cislo = randint(0, len(budovy) - 1)
-                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
-                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
-
-
+                zisk = spravce_hry.postav_budovu(hrac, 'drevo', zisk)
             elif naklady.get('kamen', 0) >= zisk.get('kamen', 0):
-                # IDEA: Budovy produkující kámen
-                print("Stavím důl")
-                budovy = list(spravce_hry.budovy_pro_surovinu('kamen').keys())
-                nahodne_cislo = randint(0, len(budovy) - 1)
-                temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
-                zisk = spravce_hry.aktualizace_zisku(temp_budova, zisk)
-
-
+                zisk = spravce_hry.postav_budovu(hrac, 'kamen', zisk)
             else:
-                # TODO: Verbování jednotek
-                nahodne_cislo = randint(0, 10)
                 print("Verbování jednotky")
                 break
-
             pocet_pokusu += 1
+        return zisk
 
-    def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
-        min_zivoty = 1000
-        nejslabsi = None
-        for nepritel in nepratele:
-            if nepritel.zivoty < min_zivoty:
-                min_zivoty = nepritel.zivoty
-                nejslabsi = nepritel
-        return nejslabsi
-
-    def budovy_pro_surovinu(self, surovina):
-        return {nazev: data for nazev, data in self.BUDOVY_SABLONY.items() if surovina in data['produkce']}
-
-    def aktualizace_zisku(spravce_hry, budova, zisk):
-        if budova is None:
-            print("Budova se nepostavila.")
-            return zisk
-        else:
-            for surovina, hodnota in budova.produkce.items():
-                zisk[surovina] = zisk.get(surovina, 0) + hodnota
-            return zisk
+    def postav_budovu(spravce_hry, hrac, surovina, zisk):
+        print(f"Stavím budovu pro {surovina}")
+        budovy = list(spravce_hry.budovy_pro_surovinu(surovina).keys())
+        nahodne_cislo = randint(0, len(budovy) - 1)
+        temp_budova = spravce_hry.stavba_budovy(spravce_hry.budovy, budovy[nahodne_cislo], (0, 0), hrac)
+        return spravce_hry.aktualizace_zisku(temp_budova, zisk)
