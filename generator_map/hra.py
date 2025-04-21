@@ -166,6 +166,14 @@ class SpravceHry:
         self.startovni_domek(hrac1)
         #self.startovni_domek(hrac2)
 
+        # TODO: Kontrolovat že je herní pole použitelné
+        pruchodnost, cena = self.existuje_cesta_mezi_zakladnami((1,1), (pocet_radku-2, pocet_sloupcu-2), self.mrizka)
+        if not pruchodnost:
+            self.stav_hry = 0
+            print("!!! V herním poly neexistuje cesta mezi zakladnami.")
+        else:
+            print(f'Cena nejkratší cesty je {cena}')
+
     def startovni_domek(self, hrac):
         hrac.pridej_suroviny({'drevo': 5})
         self.stavba_budovy(self.budovy, 'domek', (0, 0), hrac)
@@ -436,7 +444,6 @@ class SpravceHry:
                     budovy = list(spravce_hry.BUDOVY_SABLONY.keys())
                     zisk = spravce_hry.postav_budovu(hrac, budovy, zisk)
                 else:
-                    # TODO: Verbování jednotek
                     print("Verbování jednotky")
                     spravce_hry.naverj_jednotku(hrac, naklady)
 
@@ -498,6 +505,55 @@ class SpravceHry:
                 nejlepsi_pozice = pozice
 
         return nejlepsi_pozice
+
+    def existuje_cesta_mezi_zakladnami(spravce_hry, start, cil, mrizka):
+        """
+        Zjistí, jestli existuje cesta mezi dvěma základnami a pokud ano, jak drahá.
+
+        Args:
+            start: (x, y) pozice začátku (např. tvoje základna)
+            cil: (x, y) cílová pozice (nepřátelská základna)
+            mrizka: herní mřížka
+
+        Returns:
+            (True/False, cena_cesty) pokud existuje cesta, nebo (False, None)
+        """
+        # Definice cen podle terénu
+        cena_terenu = {
+            'P': 1,
+            'L': 3,
+            'H': 5,
+            'W': float('inf')  # nepřístupné
+        }
+
+        sirka, vyska = len(mrizka[0]), len(mrizka)
+        navstiveno = set()
+        fronta = [(0, start)]  # (cena_doposud, pozice)
+
+        while fronta:
+            # Najdeme prvek s nejnižší cenou (nejlevnější zatím nalezený bod)
+            fronta.sort()  # seřadíme podle ceny
+            cena, pozice = fronta.pop(0)  # vezmeme nejlevnější
+
+            if pozice == cil:
+                return True, cena  # našli jsme cestu
+
+            if pozice in navstiveno:
+                continue
+            navstiveno.add(pozice)
+
+            x, y = pozice
+            sousedi = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+
+            for nx, ny in sousedi:
+                if 0 <= nx < sirka and 0 <= ny < vyska:
+                    typ_terenu = mrizka[ny][nx]
+                    cena_pohybu = cena_terenu.get(typ_terenu, float('inf'))
+
+                    if cena_pohybu < float('inf') and (nx, ny) not in navstiveno:
+                        fronta.append((cena + cena_pohybu, (nx, ny)))
+
+        return False, None  # žádná cesta neexistuje
 
 
 

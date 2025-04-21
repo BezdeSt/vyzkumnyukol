@@ -11,9 +11,9 @@ mrizka0 = [
     ['P', 'P', 'P', 'P', 'P'],
 ]
 mrizka = [
-    ['P', 'P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'H', 'P', 'P', 'P'],
+    ['P', 'P', 'V', 'P', 'P', 'P'],
+    ['V', 'V', 'P', 'P', 'P', 'P'],
     ['P', 'P', 'P', 'P', 'P', 'P'],
     ['P', 'P', 'P', 'P', 'P', 'P'],
     ['P', 'P', 'P', 'P', 'P', 'P'],
@@ -173,7 +173,7 @@ def test_ai():
         print(radek)
 
 def test_ai_pohyb():
-    Hra = hra.SpravceHry(hraci=[], mrizka=mrizka0, jednotky={}, budovy=[])
+    Hra = hra.SpravceHry(hraci=[], mrizka=mrizka, jednotky={}, budovy=[])
     Hra.inicializace_hry()
     hrac1 = Hra.hraci[0]
     hrac2 = Hra.hraci[1]
