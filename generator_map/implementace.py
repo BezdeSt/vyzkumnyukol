@@ -11,11 +11,12 @@ mrizka0 = [
     ['P', 'P', 'P', 'P', 'P'],
 ]
 mrizka = [
-    ['P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P'],
-    ['P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P'],
 ]
 def puvodni():
     # Vytvoření hráčů
@@ -136,28 +137,6 @@ def puvodni():
     # tah()
     # test_budovy()
 
-# Spuštění testů
-
-
-def herni_cyklus():
-    Hra = hra.SpravceHry(hraci=[],mrizka=mrizka,jednotky={},budovy=[])
-
-    Hra.inicializace_hry()
-    hrac1 = Hra.hraci[0]
-    hrac2 = Hra.hraci[1]
-
-    print('---')
-    Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
-    Hra.verbovani('testovaci', hrac1, Hra)
-    print('---')
-    Hra.verbovani('testovaci', hrac2, Hra)
-    hrac1.jednotky[1].zemri(Hra.jednotky)
-    Hra.verbovani('testovaci', hrac1, Hra)
-
 def test_ai():
     Hra = hra.SpravceHry(hraci=[], mrizka=mrizka, jednotky={}, budovy=[])
     Hra.inicializace_hry()
@@ -192,5 +171,36 @@ def test_ai():
 
     for radek in matice:
         print(radek)
-test_ai()
-#herni_cyklus()
+
+def test_ai_pohyb():
+    Hra = hra.SpravceHry(hraci=[], mrizka=mrizka0, jednotky={}, budovy=[])
+    Hra.inicializace_hry()
+    hrac1 = Hra.hraci[0]
+    hrac2 = Hra.hraci[1]
+
+    hrac1.pridej_suroviny({'jidlo': 10, 'drevo': 2})
+    Hra.verbovani('bojovnik', hrac1, Hra)
+    print('===')
+
+    while Hra.stav_hry:
+        Hra.proved_tah()
+        if Hra.kolo > 2:
+            break
+
+    print("--- Po tazích ---")
+    for h in Hra.hraci:
+        print(f"{h.jmeno}: suroviny: {h.suroviny}, jednotky: {[(j.typ, j.pozice, j.zivoty) for j in h.jednotky]}")
+        print(f"  budovy:  {[(b.typ, b.zivoty) for b in h.budovy]}")
+
+    # Stav pole na konci hry
+    print('Stav pole na konci hry:')
+    matice = [[0 for _ in range(len(Hra.mrizka[0]))] for _ in range(len(Hra.mrizka))]
+    for y in range(len(Hra.mrizka)):
+        for x in range(len(Hra.mrizka[0])):
+            if (x, y) in Hra.jednotky:
+                matice[y][x] = 1
+
+    for radek in matice:
+        print(radek)
+
+test_ai_pohyb()

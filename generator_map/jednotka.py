@@ -111,9 +111,12 @@ class Jednotka:
             Nová pozice, pokud pohyb proběhl, jinak zůstává původní pozice.
         """
         if cil in mozne_pohyby:
+            print(f"Jednotka {self.typ} se pohybuje na pozici {cil}")
             jednotky.pop(self.pozice)
             self.pozice = cil
             jednotky[self.pozice] = self
+        else:
+            print(f"Cíl {cil}, není v možných pohybech {mozne_pohyby}!")
 
 
     def najdi_cile_v_dosahu_z_pozice(self, pozice, mrizka, jednotky):

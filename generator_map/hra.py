@@ -1,5 +1,4 @@
-# TODO: Začít řešit AI
-#  (bude potřeba řešit navigování jednotek k nějakému cíli (boj/útok na základu))
+# TODO: Kontrolovat že je herní pole použitelné
 # TODO: Ukládání výsledků hry/kola
 from random import randint
 import random
@@ -39,7 +38,7 @@ class SpravceHry:
             'typ': 'bojovnik',
             'rychlost': 3,
             'dosah': 1,
-            'utok': 5,
+            'utok': 6,
             'obrana': 3,
             'zivoty': 15,
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
@@ -62,7 +61,7 @@ class SpravceHry:
             'utok': 15,
             'obrana': 2,
             'zivoty': 10,
-            'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
+            'cena': {'jidlo': 1, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
         'zakladna': {
@@ -164,10 +163,12 @@ class SpravceHry:
         self.verbovani(typ='zakladna', vlastnik=hrac2,
                             pozice=(pocet_radku-2, pocet_sloupcu-2), spravce_hry=self)
 
-        hrac1.pridej_suroviny({'drevo': 5})
-        hrac2.pridej_suroviny({'drevo': 5})
-        self.stavba_budovy(self.budovy, 'domek', (0,0), hrac1)
-        self.stavba_budovy(self.budovy, 'domek', (0,0), hrac2)
+        self.startovni_domek(hrac1)
+        #self.startovni_domek(hrac2)
+
+    def startovni_domek(self, hrac):
+        hrac.pridej_suroviny({'drevo': 5})
+        self.stavba_budovy(self.budovy, 'domek', (0, 0), hrac)
 
 
     def vyhodnot_souboj(self, utocnik, napadeny):
@@ -203,7 +204,6 @@ class SpravceHry:
         Verbování nové jednotky určitého typu.
 
         Args:
-            jednotky: Slovník aktuálních jednotek na mapě.
             typ: Název typu jednotky ('bojovnik', 'lucisnik', ...).
             pozice: Pozice, kde má být jednotka vytvořena.
             vlastnik: Instance hráče, který jednotku verbuje.
@@ -404,10 +404,17 @@ class SpravceHry:
 
                 # IDEA: V okolí není nepřítel, posunout se k základně nepřítele
                 if neni_nepritel_v_dosahu:
-                    jednotka.proved_pohyb((x,y), (x,y), spravce_hry.jednotky)
                     print(f"Jednotka na {jednotka.pozice} by se měla začít pohybovat k základně nepřítele.")
-                    continue
-                    # TODO: Nějaký A* k pohybu směrem k nepřátelské základně.
+                    # IDEA: Najde základnu nepřítele
+                    zakladna_nepritele = {pozice: j for pozice, j in spravce_hry.jednotky.items() if j.vlastnik != hrac and j.typ == 'zakladna'}
+                    pozice_zakladna = list(zakladna_nepritele.keys())[0]
+                    cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice_zakladna, spravce_hry.mrizka)
+                    if cesta:
+                        print(f"Cesta z: {jednotka.pozice} na: {cesta}")
+                        jednotka.proved_pohyb(cesta, [cesta], spravce_hry.jednotky)
+                    else:
+                        print(f"Pro jednotku na pozici {jednotka.pozice}, nexistuje cesta.")
+
             if not spravce_hry.stav_hry:
                 break
 
@@ -469,3 +476,28 @@ class SpravceHry:
             for surovina, hodnota in jednotka.cena_za_kolo.items():
                 naklady[surovina] = naklady.get(surovina, 0) + hodnota
             return naklady
+
+    def pohyb_smerem_na(spravce_hry, jednotka, cilove_pozice, mrizka):
+        """
+        Vybírá pozici která ho nejvíce přihližuje základně nepřítele.
+
+        Args:
+            jednotka: Jednotka která nemá v dosahu nepřítele.
+            cilove_pozice: Pozice ke které se jednotka snaží dostat.
+            mrizka: Herní pole.
+        return: (x, y) krok který se nejvíce blíží cílové pozici.
+
+        """
+        mozne_pozice = jednotka.vypocet_moznych_pohybu(mrizka, spravce_hry.jednotky)
+        vzdalenost = float('inf')
+        nejlepsi_pozice = None
+        for pozice in mozne_pozice:
+            vzdalenost_temp = abs(cilove_pozice[0] - pozice[0]) + abs(cilove_pozice[1] - pozice[1])
+            if vzdalenost_temp < vzdalenost:
+                vzdalenost = vzdalenost_temp
+                nejlepsi_pozice = pozice
+
+        return nejlepsi_pozice
+
+
+
