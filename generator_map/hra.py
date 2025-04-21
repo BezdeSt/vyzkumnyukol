@@ -189,14 +189,14 @@ class SpravceHry:
         """
         # zkontrolujeme jestli jsou v dosahu
         if napadeny in utocnik.najdi_cile_v_dosahu(self.mrizka, self.jednotky):
-            utocnik.proved_utok(napadeny)
+            utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
                 napadeny.zemri(self.jednotky)
                 if napadeny.typ == 'zakladna':
                     print(f"{napadeny.vlastnik.jmeno} přišel o základnu! Hra končí.")
                     self.konce(napadeny.vlastnik)
             else:
-                napadeny.proved_protiutok(utocnik)
+                napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
                     utocnik.zemri(self.jednotky)
 

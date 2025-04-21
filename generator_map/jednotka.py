@@ -176,26 +176,32 @@ class Jednotka:
 
         return cile
 
-    def proved_utok(self, napadeny):
+    def proved_utok(self, napadeny, mrizka):
         """
         Útočí na cílovou jednotku a snižuje jí životy podle síly útoku a obrany cíle.
 
         Args:
             napadeny: Instance jednotky, která je napadena.
         """
-        poskozeni = self.utok - napadeny.obrana
+        modifikace = 0
+        if mrizka[napadeny.pozice[1]][napadeny.pozice[0]] == 'H':
+            modifikace += 2
+        poskozeni = self.utok - (napadeny.obrana + modifikace)
         if poskozeni > 0:
             napadeny.zivoty -= poskozeni
 
-    def proved_protiutok(self, utocnik):
+    def proved_protiutok(self, utocnik, mrizka):
         """
         Provádí protiútok na útočníka, pokud je v dosahu.
 
         Args:
             utocnik: Instance jednotky, která provedla útok.
         """
+        modifikace = 0
+        if mrizka[utocnik.pozice[1]][utocnik.pozice[0]] == 'H':
+            modifikace += 2
         if self.zivoty > 0 and abs(utocnik.pozice[0] - self.pozice[0]) + abs(utocnik.pozice[1] - self.pozice[1]) <= self.dosah:
-            poskozeni = self.utok - utocnik.obrana
+            poskozeni = self.utok - (utocnik.obrana + modifikace)
             if poskozeni > 0:
                 utocnik.zivoty -= poskozeni
 
