@@ -1,4 +1,3 @@
-# TODO: Kontrolovat že je herní pole použitelné
 # TODO: Ukládání výsledků hry/kola
 from random import randint
 import random
@@ -7,6 +6,7 @@ import hrac
 import ekonomika
 import jednotka
 import budova
+import simulace
 
 
 class SpravceHry:
@@ -14,7 +14,7 @@ class SpravceHry:
     Spravuje průběh hry, včetně sledování kol, hráčů a vyhodnocení jejich tahů.
     """
 
-    def __init__(self, hraci, mrizka, jednotky, budovy):
+    def __init__(self, hraci, mrizka, jednotky, budovy, Simulace = None):
         """
         Inicializuje správce hry.
 
@@ -31,6 +31,9 @@ class SpravceHry:
         self.aktualni_hrac_index = 0
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
+
+        # TODO: Inicializace ukládání herních statistik
+        self.simulace = simulace.Logger(self)
 
     # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {
@@ -116,6 +119,8 @@ class SpravceHry:
         """
         self.aktualni_hrac_index = (self.aktualni_hrac_index + 1) % len(self.hraci)
         if self.aktualni_hrac_index == 0:
+            # IDEA: Uložení stavu na konci kola
+            self.simulace.log_kola()
             self.kolo += 1
             print("-------")
 
@@ -166,7 +171,7 @@ class SpravceHry:
         self.startovni_domek(hrac1)
         #self.startovni_domek(hrac2)
 
-        # TODO: Kontrolovat že je herní pole použitelné
+        # Kontrolovat že je herní pole použitelné
         pruchodnost, cena = self.existuje_cesta_mezi_zakladnami((1,1), (pocet_radku-2, pocet_sloupcu-2), self.mrizka)
         if not pruchodnost:
             self.stav_hry = 0
@@ -192,19 +197,26 @@ class SpravceHry:
             utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
                 napadeny.zemri(self.jednotky)
+                self.kontrola_bojeschopnosti(napadeny.vlastnik, utocnik.vlastnik)
                 if napadeny.typ == 'zakladna':
                     print(f"{napadeny.vlastnik.jmeno} přišel o základnu! Hra končí.")
-                    self.konce(napadeny.vlastnik)
+                    self.konec(utocnik.vlastnik, napadeny.vlastnik)
             else:
                 napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
                     utocnik.zemri(self.jednotky)
+                    self.kontrola_bojeschopnosti(utocnik.vlastnik, napadeny.vlastnik)
 
-    def konce(self, porazeny):
-        #TODO: Uloží informace o výslekdu hry/simulace.
+    def kontrola_bojeschopnosti(self, poskozeny_hrac, poskozujici_hrac):
+        # TODO: Testovat jestli to funguje
+        if poskozeny_hrac.jednotky == None:
+            self.konec(poskozujici_hrac, poskozeny_hrac)
+
+    def konec(self, vitez, porazeny, poznamka = "Vyhrál: "):
         print("!!!!!!!!!!!!!!!!!!!")
         print(f"{porazeny.jmeno} prohrál! Hra končí.")
         print("!!!!!!!!!!!!!!!!!!!")
+        self.simulace.uloz_vysledek(poznamka + vitez.jmeno)
         self.stav_hry = 0
 
     def verbovani(self, typ, vlastnik, spravce_hry, pozice=None):

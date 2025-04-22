@@ -146,8 +146,6 @@ def test_ai():
     hrac1.pridej_suroviny({'drevo': 10})
     hrac2.pridej_suroviny({'drevo': 10})
     Hra.verbovani('testovaci', hrac1, Hra)
-    mozne_pohyby = hrac1.jednotky[1].vypocet_moznych_pohybu(Hra.mrizka, Hra.jednotky)
-    #hrac1.jednotky[1].proved_pohyb((3,4), mozne_pohyby, Hra.jednotky)
     print('===')
 
     while Hra.stav_hry:
@@ -171,6 +169,11 @@ def test_ai():
 
     for radek in matice:
         print(radek)
+
+    print("XXXXXXXXXXXXXXXXXXXX")
+    Hra.simulace.vypis_vysledky()
+
+    Hra.simulace.vypis_prubeh()
 
 def test_ai_pohyb():
     Hra = hra.SpravceHry(hraci=[], mrizka=mrizka, jednotky={}, budovy=[])
@@ -203,4 +206,12 @@ def test_ai_pohyb():
     for radek in matice:
         print(radek)
 
-test_ai_pohyb()
+
+    print("XXXXXXXXXXXXXXXXXXXX")
+
+    Hra.simulace.vypis_vysledky()
+
+    Hra.simulace.vypis_prubeh()
+
+#test_ai_pohyb()
+test_ai()
