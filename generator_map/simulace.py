@@ -51,7 +51,8 @@ class Logger:
         print(f"\n=== Kolo {zaznam['kolo']} ===")
         for hrac in [k for k in zaznam.keys() if k != 'kolo']:
             print(f"\nHráč: {hrac}")
-            print(" Jednotky:")
+            celkem_jednotek = sum(zaznam[hrac]['jednotky'].values())
+            print(f" Jednotky: (celkem {celkem_jednotek})")
             for typ, pocet in zaznam[hrac]['jednotky'].items():
                 print(f"  - {typ}: {pocet}")
             print(" Budovy:")

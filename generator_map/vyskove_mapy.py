@@ -149,7 +149,7 @@ def zobraz_mapu(mapa):
     barvy = {
         "V": "#1f77b4",  # Modrá - Voda
         "P": "#58d162",  # Světle zelená - Pláně
-        "L": "#0c3b10",  # Zelená - Les
+        "L": "green",  # Zelená - Les
         "H": "#4a4a48",  # Šedá - Hory
     }
 
@@ -174,14 +174,15 @@ small_cols = 5
 min_value = 0
 max_value = 1
 
-random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-zobraz_mapu(cislo_na_policko(random_grid))
+#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
+#zobraz_mapu(cislo_na_policko(random_grid))
 
-interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-zobraz_mapu(cislo_na_policko(interpolated_grid))
+#interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
+#zobraz_mapu(cislo_na_policko(interpolated_grid))
 
-gradient_grid = perlin_noise_lib(big_rows, big_cols, scale=10)
-zobraz_mapu(cislo_na_policko(gradient_grid))
+#gradient_grid = perlin_noise_lib(big_rows, big_cols, scale=10)
+#zobraz_mapu(cislo_na_policko(gradient_grid))
 
-perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=10)
-zobraz_mapu(cislo_na_policko(perlin_grid))
+#perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=10)
+#print(cislo_na_policko(perlin_grid))
+#zobraz_mapu(cislo_na_policko(perlin_grid))

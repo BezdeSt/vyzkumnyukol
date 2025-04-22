@@ -1,9 +1,7 @@
-# TODO: Ukládání výsledků hry/kola
 from random import randint
 import random
 
 import hrac
-import ekonomika
 import jednotka
 import budova
 import simulace
@@ -32,7 +30,6 @@ class SpravceHry:
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
-        # TODO: Inicializace ukládání herních statistik
         self.simulace = simulace.Logger(self)
 
     # Předdefinované šablony jednotek
@@ -169,7 +166,7 @@ class SpravceHry:
                             pozice=(pocet_radku-2, pocet_sloupcu-2), spravce_hry=self)
 
         self.startovni_domek(hrac1)
-        #self.startovni_domek(hrac2)
+        self.startovni_domek(hrac2)
 
         # Kontrolovat že je herní pole použitelné
         pruchodnost, cena = self.existuje_cesta_mezi_zakladnami((1,1), (pocet_radku-2, pocet_sloupcu-2), self.mrizka)
@@ -208,7 +205,7 @@ class SpravceHry:
                     self.kontrola_bojeschopnosti(utocnik.vlastnik, napadeny.vlastnik)
 
     def kontrola_bojeschopnosti(self, poskozeny_hrac, poskozujici_hrac):
-        # TODO: Testovat jestli to funguje
+        # TODO: Testovat jestli test bojeschopnosti funguje
         if poskozeny_hrac.jednotky == None:
             self.konec(poskozujici_hrac, poskozeny_hrac)
 
