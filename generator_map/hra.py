@@ -38,42 +38,82 @@ class SpravceHry:
             'typ': 'bojovnik',
             'rychlost': 3,
             'dosah': 1,
-            'utok': 6,
+            'utok': 5,
             'obrana': 3,
             'zivoty': 15,
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
+        'valecnik': {
+            'typ': 'valecnik',
+            'rychlost': 3,
+            'dosah': 1,
+            'utok': 8,
+            'obrana': 5,
+            'zivoty': 22,
+            'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 3}
+        },
+        'rytir': {
+            'typ': 'rytir',
+            'rychlost': 2,
+            'dosah': 1,
+            'utok': 10,
+            'obrana': 7,
+            'zivoty': 30,
+            'cena': {'jidlo': 120, 'drevo': 50, 'kamen': 30},
+            'cena_za_kolo': {'jidlo': 4, 'kamen': 1}
+        },
+        'berserkr': {
+            'typ': 'berserkr',
+            'rychlost': 4,
+            'dosah': 1,
+            'utok': 12,
+            'obrana': 4,
+            'zivoty': 20,
+            'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 4}
+        },
         'lucisnik': {
             'typ': 'lucisnik',
-            'rychlost': 2,
-            'dosah': 5,
+            'rychlost': 3,
+            'dosah': 4,
             'utok': 5,
             'obrana': 1,
-            'zivoty': 8,
-            'cena': {'jidlo': 10, 'drevo': 10, 'kamen': 0},
-            'cena_za_kolo': {'jidlo': 2}
-        },
-        'testovaci': {
-            'typ': 'testovaci',
-            'rychlost': 5,
-            'dosah': 1,
-            'utok': 15,
-            'obrana': 2,
             'zivoty': 10,
-            'cena': {'jidlo': 1, 'drevo': 0, 'kamen': 0},
-            'cena_za_kolo': {'jidlo': 2}
+            'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 2, 'drevo': 1,}
+        },
+        'ostrostrelec': {
+            'typ': 'ostrostrelec',
+            'rychlost': 2,
+            'dosah': 6,
+            'utok': 7,
+            'obrana': 1,
+            'zivoty': 10,
+            'cena': {'jidlo': 80, 'drevo': 60, 'kamen': 40},
+            'cena_za_kolo': {'jidlo': 4, 'drevo': 2,}
+        },
+        'lovec': {
+            'typ': 'lovec',
+            'rychlost': 5,
+            'dosah': 3,
+            'utok': 6,
+            'obrana': 2,
+            'zivoty': 14,
+            'cena': {'jidlo': 60, 'drevo': 40, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 3, 'drevo': 1,}
         },
         'zakladna': {
             'typ': 'zakladna',
             'rychlost': 0,
             'dosah': 0,
             'utok': 0,
-            'obrana': 5,
+            'obrana': 0,
             'zivoty': 50,
             'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 0}
-        }
+        },
     }
 
     BUDOVY_SABLONY = {
