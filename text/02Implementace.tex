@@ -23,7 +23,7 @@
     tabsize=2,
     frame=single,
     extendedchars=true,
-    morecomment=[l]#,
+    morecomment=[l]{\#},
     literate=
       {á}{{\'a}}1 {č}{{\v{c}}}1 {ď}{{\v{d}}}1 {é}{{\'e}}1 {ě}{{\v{e}}}1 {í}{{\'i}}1
       {ň}{{\v{n}}}1 {ó}{{\'o}}1 {ř}{{\v{r}}}1 {š}{{\v{s}}}1 {ť}{{\v{t}}}1 {ú}{{\'u}}1
@@ -50,19 +50,15 @@ V této kapitole popíšu implementaci generování výškových map třemi způ
     \item Gradientní šum -- generování přirozeně vypadajícího terénu pomocí Perlinova šumu.
 \end{itemize}
 
-\section{Použité technologie}
-
-
-
 \section{Implementované metody}
 
 Výškové mapy jsem, jak už bylo zmíněno, implementoval třemi různými způsoby.
 
 \subsection{Náhodná výšková mapa}
 
-Tuto metodu jsem implementoval především proto, že je velmi jednoduchá a může sloužit jako základní benchmark pro srovnání s ostatními metodami. Výsledky této metody nejsou příliš dobré, protože nevytváří realistické terénní struktury. Výsledné struktury nejsou realistické ani praktické pro hraní.
+Tuto metodu jsem implementoval především proto, že je velmi jednoduchá a může sloužit jako základní "benchmark" pro srovnání s ostatními metodami. Výsledky této metody nejsou příliš dobré, protože nevytváří realistické terénní struktury. Výsledné struktury nejsou realistické ani praktické pro hraní.
 
-Celá implementace spočívá v generování náhodných hodnot v a jejich uložení do dvourozměrného \textit{numpy} pole, které pak funkce vrací \ref{kod_nahodne_pole}.
+Celá implementace spočívá v generování náhodných hodnot a jejich uložení do dvourozměrného pole, které pak funkce vrací \ref{kod_nahodne_pole}.
 
 
 \begin{lstlisting}[language=Python, caption=Kód generující pole pro náhodnou mapu, label=kod_nahodne_pole]
@@ -74,7 +70,7 @@ def nahodne_pole(rows, cols, min_value=0, max_value=1):
 
 \subsection{Interpolovaná výšková mapa}
 
-Lepšího výsledku lze dosáhnout interpolací náhodné mřížky. Tato metoda spočívá v tom, že vygeneruji menší náhodnou mřížku, tu rozmístím do větší a prázdné hodnoty získám interpolací hodnot z menší mřížky. Pro samotnou interpolaci využívám v kódu \ref{kod_interpolovane_pole} knihovnu \textit{scipy}. Funkce nakonec opět vrací matici čísel mezi nula a jedna.
+Lepšího výsledku lze dosáhnout interpolací náhodné mřížky. Tato metoda spočívá v tom, že vygeneruji menší náhodnou mřížku, její hodnoty rozmístím pravidelně do větší mřížky a prázdné hodnoty pak získám interpolací hodnot z menší mřížky. Pro samotnou interpolaci využívám v kódu \ref{kod_interpolovane_pole} knihovnu \textit{scipy}. Funkce nakonec opět vrací matici čísel mezi nula a jedna.
 
 \begin{lstlisting}[language=Python, caption=Kód generující iterpolovanou výškovou mapu, label=kod_interpolovane_pole]
 def interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value=0, max_value=1):
@@ -97,7 +93,7 @@ def interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value=0, 
 
 \end{lstlisting}
 
-Interpolace vytvoří plynulejší terén bez ostrých přechodů mezi výškami, ale nevytváří přirozené detaily, jako jsou útesy nebo rozmanitější svahy.
+Interpolace vytvoří plynulejší terén bez ostrých přechodů mezi výškami, ale výsledky mají stále tendenci být hranaté a ne zcela přirozeně vypadájící.
 
 \subsection{Gradientní šum}
 
@@ -113,7 +109,7 @@ Mnou napsaná funkce generuje Perlinův šum v několika krocích:
 
 \begin{enumerate}
     \item Vytvoření mřížky gradientových vektorů -- Každému bodu v hrubé mřížce (menší ze dvou mřížek, vytvořené podle zvolené hodnoty \textit{scale}) je přiřazen náhodný gradientový vektor. Tento vektor určuje, jak se bude hodnota šumu měnit v okolí daného bodu.
-    \item Výpočet skalárních součinů -- Pro každý bod na jemné mřížce se vypočítá skalární součin mezi gradientními vektorem a vektorem k bodu, jehož hodnotu chceme určit.
+    \item Výpočet skalárních součinů -- Pro každý bod na jemné mřížce se vypočítá skalární součin mezi gradientním vektorem a vektorem k bodu, jehož hodnotu chceme určit.
     \item Použití funkce fade -- Hodnoty jsou vyhlazeny pomocí speciální funkce fade, která zajišťuje plynulý přechod mezi body mřížky a zabraňuje vzniku ostrých přechodů.
     \item Interpolace mezi sousedními hodnotami -- Hodnoty se interpolují mezi čtyřmi nejbližšími gradientními body, čímž vznikne plynulý přechod mezi oblastmi s různou výškou.
     \item Normalizace -- Nakonec se hodnoty normalizují aby výsledné hodnoty dobře vycházeli mezi hodnoty nula a jedna.

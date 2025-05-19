@@ -1,0 +1,68 @@
+\section{Simulace a testování}
+
+V této kapitole popíšu průběh simulací zaměřených na získání dat pro vyvážení herních mechanik a určení optimálních parametrů jednotek, budov a herního pole. V simulacích budu využívat konkrétní scénáře a také metodu Monte Carlo pro získání robustních dat.
+
+\subsection{Cíle simulací}
+
+Hlavními cíli těchto simulací je:
+
+\begin{itemize}
+\item Systematicky testovat atributy jednotek, produkci budov a ceny herních prvků v různých scénářích.
+\item Nalézt vyvážené nastavení herních parametrů, kde žádný prvek není výrazně dominantní nebo zbytečný.
+\item Analyzovat charakteristiky generovaného herního pole v závislosti na jeho parametrech.
+\end{itemize}
+
+\subsection{Metriky pro sběr dat a analýzu}
+
+Pro sběr dat a analýzu v těchto simulacích se zaměřím na následující metriky v rámci jednotlivých testovaných scénářů:
+
+\begin{itemize}
+\item \textbf{Míra přežití jednotek:} Procento jednotek daného typu, které přežijí střet.
+\item \textbf{Poškození:} Celkové poškození způsobené jednotkou daného typu během střetu.
+\item \textbf{Zranění:} Celkové poškození, které jednotka daného typu utrpěla.
+\item \textbf{Poměr ztrát:} Poměr mezi ztrátami na straně útočníka a obránce v daném scénáři.
+\item \textbf{Počet kol:} Jak dlouho trvá hra (např. zničení všech jednotek jedné strany).
+\item \textbf{Ekonomická efektivita:} Poměr mezi investovanými surovinami a dosaženými výsledky (např. způsobené poškození na jednotku ceny).
+\end{itemize}
+
+\subsection{Simulace}
+
+Při provádění simulací budu využívat přístup podobný Monte Carlo metodě. Tato metoda spočívá v opakovaném náhodném vzorkování a simulaci s cílem získat statisticky robustní odhady chování komplexních systémů. 
+
+V kontextu této práce to znamená, že jednotlivé testovací scénáře a celkové herní simulace budou spouštěny mnohokrát s potenciálně mírně odlišnými počátečními podmínkami (zejména v pozdějších fázích s náhodně generovanými mapami a prvkem náhody v rozhodování AI), abych získal průměrné výsledky a posoudil stabilitu a vyváženost herních mechanismů.
+
+\subsubsection{Fáze 1: Testování vyváženosti jednotek a ekonomických parametrů v izolovaných scénářích}
+
+V této fázi se zaměřím na testování jednotlivých typů jednotek proti sobě v kontrolovaných bojových situacích a zároveň budu zkoumat vliv cen jednotek a produkce surovin na jejich efektivitu.
+
+\begin{itemize}
+    \item \textbf{Scénáře 1v1:} Budu simulovat souboje mezi dvěma jednotkami různých typů (např. bojovník vs. lučištník) se stejnou nebo podobnou cenou.
+    \item \textbf{Scénáře "armáda proti armádě":} Budu simulovat střety mezi menšími skupinami jednotek (např. 3 bojovníci vs. 2 lučištníci a 1 bojovník) se srovnatelnou celkovou cenou.
+\end{itemize}
+
+V rámci těchto scénářů mohu simulovat, jak rychlost získávání surovin ovlivňuje schopnost hráčů nasazovat jednotky v různých typech střetů.
+Budu analyzovat, jak cena jednotky ovlivňuje její výkonnost v boji a její ekonomickou návratnost v kontextu verbování.
+
+Na základě výsledků budu upravovat atributy a ceny jednotek a produkci budov a testovat upravené verze v nových scénářích.
+
+\subsubsection{Fáze 2: Testování náhodného herního pole}
+
+V této fázi se zaměřím na analýzu charakteristik generovaného herního pole v závislosti na parametrech generování mapy. Budu testovat různé kombinace parametrů, jako je velikost mapy, škálování Perlinova šumu a prahové hodnoty pro definici jednotlivých typů terénu. Pro každé nastavení budu provádět opakované generování map a sbírat následující statistiky:
+
+\begin{itemize}
+\item \textbf{Existence cesty mezi základnami:} Pro každou vygenerovanou mapu zjistím, zda existuje alespoň jedna průchodná cesta mezi počátečními pozicemi základen (předpokládám pevně dané startovní pozice pro účely tohoto testování).
+\item \textbf{Délka nejkratší cesty mezi základnami:} Pokud cesta existuje, vypočítám délku nejkratší cesty (například pomocí algoritmu A* nebo Dijkstrova algoritmu s ohodnocením políček podle typu terénu).
+\item \textbf{Existence "snadné" cesty (bez hor):} Zjistím, jak často existuje cesta mezi základnami, která neprochází přes horský terén ('H').
+\item \textbf{Poměr zastoupení jednotlivých typů terénu:} Pro každou vygenerovanou mapu spočítám procentuální zastoupení jednotlivých typů terénu (voda 'V', pláně 'P', les 'L', hory 'H').
+\end{itemize}
+
+Cílem této fáze je identifikovat parametry generování map, které vedou k herním polím s vhodnými charakteristikami z hlediska průchodnosti, strategické hloubky (dané rozložením terénu) a potenciálu pro interakci mezi hráči.
+
+\subsubsection{Fáze 3: Testování v celkových herních simulacích na náhodně generovaných mapách}
+
+V této fázi se vrátím k simulacím celých her na náhodně generovaných mapách s jednoduchou AI, s již předběžně vyladěnými parametry jednotek a produkce budov z Fáze 1 a s nastavením generování map z Fáze 2, které se ukázalo jako nejvhodnější.
+
+\begin{itemize}
+\item \textbf{Sledování celkové dynamiky hry:} Budu sledovat délku her, frekvenci interakcí mezi hráči a celkový průběh hry.
+\item \textbf{Sbírání dat pro finální doladění:} Budu shromažďovat data o využití jednotek a budov, výsledcích střetů a ekonomickém vývoji hráčů v reálných herních podmínkách pro případné další úpravy parametrů.
+\end{itemize}
