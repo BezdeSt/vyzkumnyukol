@@ -1,0 +1,56 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.14">
+  <diagram name="Stránka-1" id="DPJ1nuR5DXpl-9QW9udg">
+    <mxGraphModel dx="434" dy="554" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-21" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="BvRGOukD3QbgGtvEXKvn-17" target="BvRGOukD3QbgGtvEXKvn-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-24" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="BvRGOukD3QbgGtvEXKvn-17" target="BvRGOukD3QbgGtvEXKvn-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-29" value="Spravuje" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="BvRGOukD3QbgGtvEXKvn-24">
+          <mxGeometry x="-0.3193" y="2" relative="1" as="geometry">
+            <mxPoint x="15" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-25" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="BvRGOukD3QbgGtvEXKvn-17" target="BvRGOukD3QbgGtvEXKvn-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-17" value="SpravceHry" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="235" y="189" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-22" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;endArrow=none;startFill=0;" edge="1" parent="1" source="BvRGOukD3QbgGtvEXKvn-18" target="BvRGOukD3QbgGtvEXKvn-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-23" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;endArrow=none;startFill=0;" edge="1" parent="1" source="BvRGOukD3QbgGtvEXKvn-18" target="BvRGOukD3QbgGtvEXKvn-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-26" value="Vlastní" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="BvRGOukD3QbgGtvEXKvn-23">
+          <mxGeometry x="0.1998" y="-2" relative="1" as="geometry">
+            <mxPoint x="8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-18" value="Hrac" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="235" y="295" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-19" value="Jednotka" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="117" y="371" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-20" value="Budova" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="354" y="371" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-28" value="Vlastní" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="340.99580566694306" y="351.9976728166098" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-30" value="Spravuje" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="221.0031468774408" y="264.00017179678997" as="geometry" />
+        </mxCell>
+        <mxCell id="BvRGOukD3QbgGtvEXKvn-31" value="Spravuje" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="287.0031468774408" y="264.00017179678997" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
