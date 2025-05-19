@@ -29,7 +29,10 @@ class Jednotka:
         self.spravce_hry = spravce_hry
 
         self.vlastnik.jednotky.append(self)
-        print(f"Jednotka {self.typ} se připsala k {self.vlastnik.jmeno}. Nachází se na pozici {self.pozice}")
+
+        # TODO: Pro simulace, následně odstranit
+        self.celkem_zpusobene_poskozeni = 0
+        self.celkem_prijate_poskozeni = 0
 
     # -------------------------------------------------------------------------------------------------------
     # POHYB
@@ -195,7 +198,7 @@ class Jednotka:
         Provádí protiútok na útočníka, pokud je v dosahu.
 
         Args:
-            utocnik: Instance jednotky, která provedla útok.
+            utocnik: Instance jednotky, která provedla útok. Je proti ní prováděn protiútok
         """
         modifikace = 0
         if mrizka[utocnik.pozice[1]][utocnik.pozice[0]] == 'H':

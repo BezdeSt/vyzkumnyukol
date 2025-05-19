@@ -30,7 +30,7 @@ class SpravceHry:
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
-        self.simulace = simulace.Logger(self)
+        self.simulace = simulace.LoggerSimulace(Simulace)
 
     # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {
@@ -78,7 +78,7 @@ class SpravceHry:
             'typ': 'lucisnik',
             'rychlost': 3,
             'dosah': 4,
-            'utok': 5,
+            'utok': 6,
             'obrana': 1,
             'zivoty': 10,
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
@@ -156,8 +156,6 @@ class SpravceHry:
         """
         self.aktualni_hrac_index = (self.aktualni_hrac_index + 1) % len(self.hraci)
         if self.aktualni_hrac_index == 0:
-            # IDEA: Uložení stavu na konci kola
-            self.simulace.log_kola()
             self.kolo += 1
             print("-------")
 
@@ -181,16 +179,26 @@ class SpravceHry:
         # Vyhodnocení údržby jednotek (může způsobit ztrátu životů)
         celkove_naklady = hrac.zpracuj_udrzbu(self.jednotky)
 
-        print(f"Clekový zisk: {celkovi_zisk}")
-        print(f"Clekové náklady: {celkove_naklady}")
+        #print(f"Clekový zisk: {celkovi_zisk}")
+        #print(f"Clekové náklady: {celkove_naklady}")
 
         # Zde by probíhala simulace akcí hráče nebo AI
         # (např. náhodné akce, skripty, apod.)
         self.ai_tah(hrac, celkovi_zisk, celkove_naklady)
 
-        print(hrac.suroviny)
+        #print(hrac.suroviny)
         # Ukončení tahu a posun na dalšího hráče
+
+        # TODO: Simulace
+        self.simulace.log_stav_kola(self.kolo, self.jednotky)
+
         self.dalsi_hrac()
+
+    def inicializace_scenare(self, hrac1="Modrý", hrac2="Červený"):
+        hrac1 = hrac.Hrac(jmeno=hrac1)
+        self.hraci.append(hrac1)
+        hrac2 = hrac.Hrac(jmeno=hrac2)
+        self.hraci.append(hrac2)
 
     def inicializace_hry(self):
         hrac1 = hrac.Hrac(jmeno="Modrý")
@@ -231,29 +239,45 @@ class SpravceHry:
         """
         # zkontrolujeme jestli jsou v dosahu
         if napadeny in utocnik.najdi_cile_v_dosahu(self.mrizka, self.jednotky):
+
+            # TODO: Pro simulace
+            realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
+            self.simulace.log_utok(self.kolo, utocnik, napadeny, utocnik.utok, realne_poskozeni)
+
             utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
+
+                # TODO: Pro simulace
+                # Zaznamenáme smrt jednotky (pouze typ)
+                self.simulace.log_smrt_jednotky(self.kolo, napadeny.typ)
+
                 napadeny.zemri(self.jednotky)
                 self.kontrola_bojeschopnosti(napadeny.vlastnik, utocnik.vlastnik)
                 if napadeny.typ == 'zakladna':
-                    print(f"{napadeny.vlastnik.jmeno} přišel o základnu! Hra končí.")
                     self.konec(utocnik.vlastnik, napadeny.vlastnik)
             else:
+                # TODO: Pro simulace
+                if abs(utocnik.pozice[0] - napadeny.pozice[0]) + abs(utocnik.pozice[1] - napadeny.pozice[1]) <= napadeny.dosah:
+                    realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
+                    self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok) # Zůstává stejné
+
                 napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
+                    # TODO: Pro simulace
+                    self.simulace.log_smrt_jednotky(self.kolo, utocnik.typ)
+
                     utocnik.zemri(self.jednotky)
                     self.kontrola_bojeschopnosti(utocnik.vlastnik, napadeny.vlastnik)
 
     def kontrola_bojeschopnosti(self, poskozeny_hrac, poskozujici_hrac):
         # TODO: Testovat jestli test bojeschopnosti funguje
-        if poskozeny_hrac.jednotky == None:
+        if not poskozeny_hrac.jednotky:
+            print(f"Hráč {poskozeny_hrac.jmeno} ztratil všechny jednotky!!!!!!!!!!!!!!")
             self.konec(poskozujici_hrac, poskozeny_hrac)
 
     def konec(self, vitez, porazeny, poznamka = "Vyhrál: "):
-        print("!!!!!!!!!!!!!!!!!!!")
-        print(f"{porazeny.jmeno} prohrál! Hra končí.")
-        print("!!!!!!!!!!!!!!!!!!!")
-        self.simulace.uloz_vysledek(poznamka + vitez.jmeno)
+        print("KONEC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        self.simulace.uloz_vysledek_simulace(vitez, self.kolo, self.jednotky)
         self.stav_hry = 0
 
     def verbovani(self, typ, vlastnik, spravce_hry, pozice=None):
@@ -275,28 +299,29 @@ class SpravceHry:
                     print(f"{vlastnik.jmeno} už má základnu, nelze vytvořit další.")
                     return None
 
-        if not vlastnik.jednotky == []:
-            pozice_zakladna = vlastnik.jednotky[0].pozice
-            smery = [(-1, 0), (0, -1), (1, 0), (0, 1)]
-            prvni_pokus = smery[randint(0, 3)]
-            vybrana_pozice = (pozice_zakladna[0] + prvni_pokus[0], pozice_zakladna[1] + prvni_pokus[1])
+        if pozice == None:
+            if not vlastnik.jednotky == []:
+                pozice_zakladna = vlastnik.jednotky[0].pozice
+                smery = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+                prvni_pokus = smery[randint(0, 3)]
+                vybrana_pozice = (pozice_zakladna[0] + prvni_pokus[0], pozice_zakladna[1] + prvni_pokus[1])
 
-            if vybrana_pozice in self.jednotky:
-                nalezeno = False
-                for smer in smery:
-                    nova_pozice = (pozice_zakladna[0] + smer[0], pozice_zakladna[1] + smer[1])
-                    if nova_pozice not in self.jednotky:
-                        vybrana_pozice = nova_pozice
-                        nalezeno = True
-                        break
-                if not nalezeno:
-                    print("Není místo pro naverbování jednotky.")
+                if vybrana_pozice in self.jednotky:
+                    nalezeno = False
+                    for smer in smery:
+                        nova_pozice = (pozice_zakladna[0] + smer[0], pozice_zakladna[1] + smer[1])
+                        if nova_pozice not in self.jednotky:
+                            vybrana_pozice = nova_pozice
+                            nalezeno = True
+                            break
+                    if not nalezeno:
+                        print("Není místo pro naverbování jednotky.")
+                        return None
+                pozice = vybrana_pozice
+            else:
+                if pozice in self.jednotky:
+                    print("Tady nemůžeš postavi Základnu.")
                     return None
-            pozice = vybrana_pozice
-        else:
-            if pozice in self.jednotky:
-                print("Tady nemůžeš postavi Základnu.")
-                return None
 
         if typ not in self.JEDNOTKY_SABLONY:
             print(f"Neznámý typ jednotky: {typ}")
@@ -386,7 +411,9 @@ class SpravceHry:
         spravce_hry.pohyb_jednotek_ai(hrac)
 
         # Stavba budov a verbování jednotek
-        spravce_hry.stavba_a_verbovani_ai(hrac, zisk, naklady)
+        # TODO: Zakomentovávám, protože nebude použito v rámci testování scénářů.
+
+        #spravce_hry.stavba_a_verbovani_ai(hrac, zisk, naklady)
 
 
     def nejslabsi_z_nepratel_v_dosahu(spravce_hry, nepratele):
@@ -461,19 +488,36 @@ class SpravceHry:
 
                 # IDEA: V okolí není nepřítel, posunout se k základně nepřítele
                 if neni_nepritel_v_dosahu:
-                    print(f"Jednotka na {jednotka.pozice} by se měla začít pohybovat k základně nepřítele.")
-                    # IDEA: Najde základnu nepřítele
-                    zakladna_nepritele = {pozice: j for pozice, j in spravce_hry.jednotky.items() if j.vlastnik != hrac and j.typ == 'zakladna'}
-                    pozice_zakladna = list(zakladna_nepritele.keys())[0]
-                    cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice_zakladna, spravce_hry.mrizka)
+                    # TODO: Upraveno do vyhozené funkce (není otestované jestli to v tomhle stavu funguje)
+                    #       A zakomentováno v rámci testování scénářů
+                    #spravce_hry.nepritel_mimo_dosah(jednotka)
+                    if hrac == spravce_hry.hraci[0]:
+                        pozice = (7,7)
+                    else:
+                        pozice = (0, 0)
+
+                    cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice, spravce_hry.mrizka)
                     if cesta:
-                        print(f"Cesta z: {jednotka.pozice} na: {cesta}")
                         jednotka.proved_pohyb(cesta, [cesta], spravce_hry.jednotky)
                     else:
-                        print(f"Pro jednotku na pozici {jednotka.pozice}, nexistuje cesta.")
+                        spravce_hry.konec(hrac, spravce_hry.hraci[1] if hrac == spravce_hry.hraci[0] else spravce_hry.hraci[0], "Něco se nepovedlo při tahu hráče: ")
 
             if not spravce_hry.stav_hry:
                 break
+
+
+    def nepritel_mimo_dosah(spravce_hry, jednotka):
+        print(f"Jednotka na {jednotka.pozice} by se měla začít pohybovat k základně nepřítele.")
+        # IDEA: Najde základnu nepřítele
+        zakladna_nepritele = {pozice: j for pozice, j in spravce_hry.jednotky.items() if
+                              j.vlastnik != hrac and j.typ == 'zakladna'}
+        pozice_zakladna = list(zakladna_nepritele.keys())[0]
+        cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice_zakladna, spravce_hry.mrizka)
+        if cesta:
+            print(f"Cesta z: {jednotka.pozice} na: {cesta}")
+            jednotka.proved_pohyb(cesta, [cesta], spravce_hry.jednotky)
+        else:
+            print(f"Pro jednotku na pozici {jednotka.pozice}, nexistuje cesta.")
 
     def stavba_a_verbovani_ai(spravce_hry, hrac, zisk, naklady):
         pocet_pokusu = 0
