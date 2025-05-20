@@ -1,112 +1,249 @@
 import datetime
 import csv
+import os
+
 
 class LoggerSimulace:
     def __init__(self, scenar_nazev, poznamka=None):
         self.scenar_nazev = scenar_nazev
         self.poznamka = poznamka
         self.cas_startu = datetime.datetime.now()
-        self.log_prubehu = {}  # Kolo: {jednotka_id: {'typ', 'zivoty', 'vlastnik'}}
-        self.log_poskozeni = {} # Kolo: {typ_jednotky: {'zpusobene': celkem, 'utrzene': celkem, 'utok': [], 'realne': []}}
-        self.log_smrti = {}      # Kolo: [typ_jednotky]
-        self.vysledky_simulaci = []
+
+        # Logy pro detailní průběh kola za kolem
+        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'typ', 'zivoty', 'vlastnik', 'zive_jednotky_count', 'zpusobene_poskozeni_kolo', 'realne_zpusobene_poskozeni_kolo', 'utrzene_poskozeni_kolo', 'pocet_utoku_kolo', 'pocet_protiutoku_kolo'}}
+        self.log_prubehu = {}
+
+        # Klíč je (typ_jednotky, vlastnik_jmeno)
+        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'zpusobene': celkem, 'realne_zpusobene': celkem, 'utrzene': celkem}}
+        self.log_poskozeni = {}
+
+        # Klíč je (typ_jednotky, vlastnik_jmeno)
+        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'utoky': pocet, 'protiutoky': pocet}}
+        self.log_poctu_utoku_protiutoku = {}
+
+        # Ukládá slovník {typ: ..., vlastnik: ...}
+        # Kolo: [{'typ': str, 'vlastnik': str}]
+        self.log_smrti = {}
+
+        self.vitez_simulace = None
 
     def log_stav_kola(self, kolo, jednotky):
-        stav_kola = {}
+        """
+        Zaznamená aktuální stav všech jednotek na konci daného kola (nebo na začátku pro kolo 0).
+        Zahrnuje i jednotky s 0 životy, které právě zemřely, ale byly aktivní v tomto kole.
+        """
+        relevantni_jednotky_klice = set()
+
+        # Přidej klíče živých jednotek
         for jednotka_id, jednotka_instance in jednotky.items():
-            stav_kola[jednotka_id] = {
-                'typ': jednotka_instance.typ,
-                'zivoty': jednotka_instance.zivoty,
-                'vlastnik': jednotka_instance.vlastnik.jmeno if jednotka_instance.vlastnik else None
+            if jednotka_instance and hasattr(jednotka_instance, 'typ') and hasattr(jednotka_instance, 'vlastnik'):
+                relevantni_jednotky_klice.add((jednotka_instance.typ,
+                                               jednotka_instance.vlastnik.jmeno if jednotka_instance.vlastnik else "Neutral"))
+
+        # Přidej klíče jednotek, které způsobily/utržily poškození v tomto kole
+        if kolo in self.log_poskozeni:
+            for klic_jednotky in self.log_poskozeni[kolo].keys():
+                relevantni_jednotky_klice.add(klic_jednotky)
+
+        # Přidej klíče jednotek, které zemřely v tomto kole
+        if kolo in self.log_smrti:
+            for smrt_info in self.log_smrti[kolo]:
+                relevantni_jednotky_klice.add((smrt_info['typ'], smrt_info['vlastnik']))
+
+        # Přidej klíče jednotek, které útočily nebo protiútovaly v tomto kole
+        if kolo in self.log_poctu_utoku_protiutoku:
+            for klic_jednotky in self.log_poctu_utoku_protiutoku[kolo].keys():
+                relevantni_jednotky_klice.add(klic_jednotky)
+
+        stav_kola_zaznamy = {}
+
+        for typ_jednotky, vlastnik_jmeno in relevantni_jednotky_klice:
+            # Nově: Agregujeme životy a počet živých jednotek pro daný typ a vlastníka
+            agregovane_zivoty = 0
+            agregovane_zive_jednotky_count = 0
+
+            # Projdeme VŠECHNY živé jednotky v aktuálním kole a sečteme je
+            for jednotka_id, j_instance in jednotky.items():
+                if j_instance.typ == typ_jednotky and (
+                j_instance.vlastnik.jmeno if j_instance.vlastnik else "Neutral") == vlastnik_jmeno:
+                    agregovane_zivoty += j_instance.zivoty
+                    agregovane_zive_jednotky_count += 1
+
+            # Získání dat o poškození pro tuto jednotku v tomto kole
+            data_poskozeni = self.log_poskozeni.get(kolo, {}).get((typ_jednotky, vlastnik_jmeno), {
+                'zpusobene': 0,
+                'realne_zpusobene': 0,
+                'utrzene': 0
+            })
+
+            # Získání dat o počtu útoků a protiútoků
+            utoky_data = self.log_poctu_utoku_protiutoku.get(kolo, {}).get((typ_jednotky, vlastnik_jmeno), {
+                'utoky': 0,
+                'protiutoky': 0
+            })
+
+            stav_kola_zaznamy[(typ_jednotky, vlastnik_jmeno)] = {
+                'typ': typ_jednotky,
+                'zivoty': agregovane_zivoty,  # Použijeme agregované životy
+                'vlastnik': vlastnik_jmeno,
+                'zive_jednotky_count': agregovane_zive_jednotky_count,  # Použijeme agregovaný počet živých jednotek
+                'zpusobene_poskozeni_kolo': data_poskozeni['zpusobene'],
+                'realne_zpusobene_poskozeni_kolo': data_poskozeni['realne_zpusobene'],
+                'utrzene_poskozeni_kolo': data_poskozeni['utrzene'],
+                'pocet_utoku_kolo': utoky_data['utoky'],
+                'pocet_protiutoku_kolo': utoky_data['protiutoky']
             }
-        self.log_prubehu[kolo] = stav_kola
+
+        self.log_prubehu[kolo] = stav_kola_zaznamy
+
+    def log_utok(self, kolo, utocnik, napadeny, utok_hodnota, realne_poskozeni_hodnota, je_protiutok=False):
+        """
+        Zaznamená detail útoku, s informacemi o typu a vlastníkovi útočníka i napadeného.
+        Předpokládá, že utok_hodnota a realne_poskozeni_hodnota jsou již vypočítány.
+        Přidán parametr 'je_protiutok' pro rozlišení.
+        """
+        utocnik_typ = utocnik.typ
+        utocnik_vlastnik = utocnik.vlastnik.jmeno if utocnik.vlastnik else "Neutral"
+
+        napadnuty_typ = napadeny.typ
+        napadnuty_vlastnik = napadeny.vlastnik.jmeno if napadeny.vlastnik else "Neutral"
+
+        if kolo not in self.log_poskozeni:
+            self.log_poskozeni[kolo] = {}
+        if kolo not in self.log_poctu_utoku_protiutoku:
+            self.log_poctu_utoku_protiutoku[kolo] = {}
+
+        # Zaznamenat způsobené poškození pro útočníka
+        klic_utocnik = (utocnik_typ, utocnik_vlastnik)
+        if klic_utocnik not in self.log_poskozeni[kolo]:
+            self.log_poskozeni[kolo][klic_utocnik] = {'zpusobene': 0, 'realne_zpusobene': 0, 'utrzene': 0}
+        self.log_poskozeni[kolo][klic_utocnik]['zpusobene'] += utok_hodnota
+        self.log_poskozeni[kolo][klic_utocnik]['realne_zpusobene'] += realne_poskozeni_hodnota
+
+        # Zaznamenat utržené poškození pro napadeného
+        klic_napadeny = (napadnuty_typ, napadnuty_vlastnik)
+        if klic_napadeny not in self.log_poskozeni[kolo]:
+            self.log_poskozeni[kolo][klic_napadeny] = {'zpusobene': 0, 'realne_zpusobene': 0, 'utrzene': 0}
+        self.log_poskozeni[kolo][klic_napadeny]['utrzene'] += realne_poskozeni_hodnota
+
+        # Nové: Zaznamenání počtu útoků/protiútoků
+        if klic_utocnik not in self.log_poctu_utoku_protiutoku[kolo]:
+            self.log_poctu_utoku_protiutoku[kolo][klic_utocnik] = {'utoky': 0, 'protiutoky': 0}
+
+        if je_protiutok:
+            self.log_poctu_utoku_protiutoku[kolo][klic_utocnik]['protiutoky'] += 1
+        else:
+            self.log_poctu_utoku_protiutoku[kolo][klic_utocnik]['utoky'] += 1
+
+    def log_smrt_jednotky(self, kolo, jednotka_instance):
+        """
+        Zaznamená úmrtí jednotky, s informacemi o jejím typu a vlastníkovi.
+        Předpokládá, že jednotka_instance je objekt s atributy .typ a .vlastnik.
+        """
+        if kolo not in self.log_smrti:
+            self.log_smrti[kolo] = []
+        self.log_smrti[kolo].append({
+            'typ': jednotka_instance.typ,
+            'vlastnik': jednotka_instance.vlastnik.jmeno if jednotka_instance.vlastnik else "Neutral"
+        })
 
     def uloz_vysledek_simulace(self, vitezny_hrac, pocet_kol, jednotky):
-        vysledek = {
-            'scenar': self.scenar_nazev,
-            'vitez': vitezny_hrac.jmeno if vitezny_hrac else 'remiza',
-            'pocet_kol': pocet_kol
-        }
-        zpusobene_celkem = {}
-        utrzene_celkem = {}
-        for jednotka_id, jednotka_instance in jednotky.items():
-            typ = jednotka_instance.typ
-            zpusobene_celkem[typ] = zpusobene_celkem.get(typ, 0) + jednotka_instance.celkem_zpusobene_poskozeni
-            utrzene_celkem[typ] = utrzene_celkem.get(typ, 0) + jednotka_instance.celkem_prijate_poskozeni
-            prefix = f"{typ.lower().replace('ě', 'e').replace('š', 's').replace('č', 'c').replace('ř', 'r').replace('ž', 'z').replace('ý', 'y')}"
-            vysledek[f'{prefix}_zpusobene'] = jednotka_instance.celkem_zpusobene_poskozeni
-            vysledek[f'{prefix}_prijate'] = jednotka_instance.celkem_prijate_poskozeni
+        """
+        Nastaví vítěze simulace pro použití v uloz_prubeh_do_souboru.
+        Tato metoda již neslouží k ukládání do samostatného souboru.
+        """
+        self.vitez_simulace = vitezny_hrac.jmeno if vitezny_hrac else 'remiza'
+        pass
 
-        vysledek.update({f'celkem_zpusobene_{typ.lower()}': damage for typ, damage in zpusobene_celkem.items()})
-        vysledek.update({f'celkem_utrzene_{typ.lower()}': damage for typ, damage in utrzene_celkem.items()})
+    def uloz_prubeh_do_souboru(self, nazev_souboru='prubeh_simulaci.csv'):
+        """
+        Zapíše detailní průběh simulace kola za kolem do JEDNOHO CSV souboru.
+        Zahrnuje počáteční stav (kolo 0) a výsledek (vítěze) v posledním kole.
+        """
+        soubor_existuje = os.path.isfile(nazev_souboru)
 
-        self.vysledky_simulaci.append(vysledek)
+        with open(nazev_souboru, 'a', newline='', encoding='utf-8') as csvfile:
+            pole_hlavice = ['kolo', 'typ_jednotky', 'vlastnik', 'zive_jednotky', 'celkove_zivoty',
+                            'zpusobene_poskozeni_kolo', 'realne_zpusobene_poskozeni_kolo',
+                            'utrzene_poskozeni_kolo', 'pocet_utoku_kolo', 'pocet_protiutoku_kolo', 'vitez']
+            writer = csv.DictWriter(csvfile, fieldnames=pole_hlavice)
 
-    def uloz_vysledky_do_souboru(self, nazev_souboru='vysledky_simulaci.csv'):
-        with open(nazev_souboru, 'w', newline='') as csvfile:
-            fieldnames = self.vysledky_simulaci[0].keys() if self.vysledky_simulaci else []
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if not soubor_existuje:
+                writer.writeheader()
 
-            writer.writeheader()
-            for vysledek in self.vysledky_simulaci:
-                writer.writerow(vysledek)
+            vsechny_typy_vlastnici = set()
+            for kolo_num, kolo_data_agregovana in self.log_prubehu.items():
+                for klic in kolo_data_agregovana.keys():
+                    vsechny_typy_vlastnici.add(klic)
 
-        print(f"Výsledky simulací pro scénář '{self.scenar_nazev}' uloženy do souboru: {nazev_souboru}")
+            posledni_kolo = max(self.log_prubehu.keys(), default=0)
+
+            vsechna_kolo_v_logu = sorted(list(self.log_prubehu.keys()))
+
+            for kolo in vsechna_kolo_v_logu:
+                for typ_jednotky, vlastnik in sorted(list(vsechny_typy_vlastnici)):
+
+                    jednotka_data = self.log_prubehu.get(kolo, {}).get((typ_jednotky, vlastnik), {})
+
+                    # Zde přímo používáme hodnoty ze slovníku jednotka_data
+                    zive_jednotky = jednotka_data.get('zive_jednotky_count', 0)
+                    celkove_zivoty = jednotka_data.get('zivoty', 0)
+                    zpusobene_poskozeni_kolo = jednotka_data.get('zpusobene_poskozeni_kolo', 0)
+                    realne_zpusobene_poskozeni_kolo = jednotka_data.get('realne_zpusobene_poskozeni_kolo', 0)
+                    utrzene_poskozeni_kolo = jednotka_data.get('utrzene_poskozeni_kolo', 0)
+                    pocet_utoku_kolo = jednotka_data.get('pocet_utoku_kolo', 0)
+                    pocet_protiutoku_kolo = jednotka_data.get('pocet_protiutoku_kolo', 0)
+
+                    aktualni_vitez = ""
+                    if kolo == posledni_kolo:
+                        aktualni_vitez = self.vitez_simulace
+
+                    writer.writerow({
+                        'kolo': kolo,
+                        'typ_jednotky': typ_jednotky,
+                        'vlastnik': vlastnik,
+                        'zive_jednotky': zive_jednotky,
+                        'celkove_zivoty': celkove_zivoty,
+                        'zpusobene_poskozeni_kolo': zpusobene_poskozeni_kolo,
+                        'realne_zpusobene_poskozeni_kolo': realne_zpusobene_poskozeni_kolo,  # Nyní se bere z proměnné
+                        'utrzene_poskozeni_kolo': utrzene_poskozeni_kolo,
+                        'pocet_utoku_kolo': pocet_utoku_kolo,
+                        'pocet_protiutoku_kolo': pocet_protiutoku_kolo,
+                        'vitez': aktualni_vitez
+                    })
+
+        print(f"Průběh simulací pro scénář '{self.scenar_nazev}' byl přidán do souboru: {nazev_souboru}")
 
     def vypis_vysledky(self):
         print(f"=== Výsledky souhrnné simulace pro scénář: {self.scenar_nazev} ===")
         print(f"Začátek simulace: {self.cas_startu.strftime('%Y-%m-%d %H:%M:%S')}")
         if self.poznamka:
             print(f"Poznámka: {self.poznamka}")
-        print(f"Počet simulací: {len(self.vysledky_simulaci)}")
-
-        if self.vysledky_simulaci:
-            for vysledek in self.vysledky_simulaci:
-                print("\n--- Výsledek simulace ---")
-                print(f"Vítěz: {vysledek.get('vitez', 'N/A')}")
-                print(f"Počet kol: {vysledek.get('pocet_kol', 'N/A')}")
-                # Můžete zde přidat výpis dalších statistik z 'vysledek' slovníku
-                # Například:
-                # for k, v in vysledek.items():
-                #     if k not in ['scenar', 'vitez', 'pocet_kol']:
-                #         print(f"{k}: {v}")
-        else:
-            print("Žádné výsledky simulace nebyly zaznamenány.")
+        print("Souhrnné výsledky nejsou ukládány do samostatného listu v loggeru.")
+        print(f"Vítěz této simulace: {self.vitez_simulace}")
 
     def vypis_prubeh(self):
+        """
+        Vypíše detailní průběh simulace na konzoli.
+        """
         print(f"\n=== Průběh simulace pro scénář: {self.scenar_nazev} ===")
-        for kolo in sorted(self.log_prubehu.keys()):
+
+        vsechna_kolo_v_logu = sorted(list(self.log_prubehu.keys()))
+
+        for kolo in vsechna_kolo_v_logu:
             print(f"\n--- Kolo {kolo} ---")
+
             if kolo in self.log_prubehu:
-                print("Stav jednotek:")
-                for jednotka_id, info in self.log_prubehu[kolo].items():
-                    print(f"  {info['typ']} (vlastník: {info['vlastnik']}) - Životy: {info['zivoty']}")
-            if kolo in self.log_poskozeni:
-                print("Způsobené a utržené poškození:")
-                for typ, poskozeni in self.log_poskozeni[kolo].items():
-                    print(f"  {typ}: Způsobené={poskozeni['zpusobene']}, Utržené={poskozeni['utrzene']}, Útoky={poskozeni['utok']}, Reálné={poskozeni['realne']}")
-            if kolo in self.log_smrti:
-                print("Smrti:")
-                for smrt in self.log_smrti[kolo]:
-                    print(f"  Jednotka typu {smrt} zemřela")
-        print("\n=== Konec průběhu ===")
+                print("Stav jednotek a agregovaná data:")
+                for (typ, vlastnik), info_agregovane in self.log_prubehu[kolo].items():
+                    print(
+                        f"  Typ: {typ}, Vlastník: {vlastnik}, Životy: {info_agregovane['zivoty']},"
+                        f" Živé jednotky: {info_agregovane['zive_jednotky_count']},"
+                        f" Způsobené: {info_agregovane['zpusobene_poskozeni_kolo']},"
+                        f" Utržené: {info_agregovane['utrzene_poskozeni_kolo']},"
+                        f" Útoky: {info_agregovane['pocet_utoku_kolo']},"
+                        f" Protiútoky: {info_agregovane['pocet_protiutoku_kolo']}"
+                    )
 
-    def log_utok(self, kolo, utocnik, napadeny, utok, realne_poskozeni):
-        utocnik_typ = utocnik.typ
-        if kolo not in self.log_poskozeni:
-            self.log_poskozeni[kolo] = {}
-        if utocnik_typ not in self.log_poskozeni[kolo]:
-            self.log_poskozeni[kolo][utocnik_typ] = {'zpusobene': 0, 'utrzene': 0, 'utok': [], 'realne': []}
-        self.log_poskozeni[kolo][utocnik_typ]['zpusobene'] += realne_poskozeni
-        self.log_poskozeni[kolo][utocnik_typ]['utok'].append(utok)
-        self.log_poskozeni[kolo][utocnik_typ]['realne'].append(realne_poskozeni)
-
-        napadnuty_typ = napadeny.typ
-        if napadnuty_typ not in self.log_poskozeni[kolo]:
-            self.log_poskozeni[kolo][napadnuty_typ] = {'zpusobene': 0, 'utrzene': 0, 'utok': [], 'realne': []}
-        self.log_poskozeni[kolo][napadnuty_typ]['utrzene'] += realne_poskozeni
-
-    def log_smrt_jednotky(self, kolo, jednotka_typ):
-        if kolo not in self.log_smrti:
-            self.log_smrti[kolo] = []
-        self.log_smrti[kolo].append(jednotka_typ)
+            # Další logy (poškození, smrti) jsou stále dostupné v jejich samostatných strukturách
+            # pro podrobnější diagnostiku, ale hlavní data pro CSV jsou nyní v log_prubehu.

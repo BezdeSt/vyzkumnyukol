@@ -12,7 +12,7 @@ class SpravceHry:
     Spravuje průběh hry, včetně sledování kol, hráčů a vyhodnocení jejich tahů.
     """
 
-    def __init__(self, hraci, mrizka, jednotky, budovy, Simulace = None):
+    def __init__(self, hraci, mrizka, jednotky, budovy, scenar_nazev ="None"):
         """
         Inicializuje správce hry.
 
@@ -30,7 +30,7 @@ class SpravceHry:
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
-        self.simulace = simulace.LoggerSimulace(Simulace)
+        self.simulace = simulace.LoggerSimulace(scenar_nazev)
 
     # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {
@@ -40,7 +40,7 @@ class SpravceHry:
             'dosah': 1,
             'utok': 5,
             'obrana': 3,
-            'zivoty': 15,
+            'zivoty': 10,
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
@@ -50,7 +50,7 @@ class SpravceHry:
             'dosah': 1,
             'utok': 8,
             'obrana': 5,
-            'zivoty': 22,
+            'zivoty': 15,
             'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3}
         },
@@ -78,8 +78,8 @@ class SpravceHry:
             'typ': 'lucisnik',
             'rychlost': 3,
             'dosah': 4,
-            'utok': 6,
-            'obrana': 1,
+            'utok': 7,
+            'obrana': 2,
             'zivoty': 10,
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2, 'drevo': 1,}
@@ -88,7 +88,7 @@ class SpravceHry:
             'typ': 'ostrostrelec',
             'rychlost': 2,
             'dosah': 6,
-            'utok': 7,
+            'utok': 10,
             'obrana': 1,
             'zivoty': 10,
             'cena': {'jidlo': 80, 'drevo': 60, 'kamen': 40},
@@ -98,7 +98,7 @@ class SpravceHry:
             'typ': 'lovec',
             'rychlost': 5,
             'dosah': 3,
-            'utok': 6,
+            'utok': 7,
             'obrana': 2,
             'zivoty': 14,
             'cena': {'jidlo': 60, 'drevo': 40, 'kamen': 0},
@@ -156,6 +156,10 @@ class SpravceHry:
         """
         self.aktualni_hrac_index = (self.aktualni_hrac_index + 1) % len(self.hraci)
         if self.aktualni_hrac_index == 0:
+
+            # TODO: Simulace
+            self.simulace.log_stav_kola(self.kolo, self.jednotky)
+
             self.kolo += 1
             print("-------")
 
@@ -189,8 +193,6 @@ class SpravceHry:
         #print(hrac.suroviny)
         # Ukončení tahu a posun na dalšího hráče
 
-        # TODO: Simulace
-        self.simulace.log_stav_kola(self.kolo, self.jednotky)
 
         self.dalsi_hrac()
 
@@ -242,14 +244,14 @@ class SpravceHry:
 
             # TODO: Pro simulace
             realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
-            self.simulace.log_utok(self.kolo, utocnik, napadeny, utocnik.utok, realne_poskozeni)
+            self.simulace.log_utok(self.kolo, utocnik, napadeny, utocnik.utok, realne_poskozeni, je_protiutok=False)
 
             utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
 
                 # TODO: Pro simulace
                 # Zaznamenáme smrt jednotky (pouze typ)
-                self.simulace.log_smrt_jednotky(self.kolo, napadeny.typ)
+                self.simulace.log_smrt_jednotky(self.kolo, napadeny)
 
                 napadeny.zemri(self.jednotky)
                 self.kontrola_bojeschopnosti(napadeny.vlastnik, utocnik.vlastnik)
@@ -259,12 +261,12 @@ class SpravceHry:
                 # TODO: Pro simulace
                 if abs(utocnik.pozice[0] - napadeny.pozice[0]) + abs(utocnik.pozice[1] - napadeny.pozice[1]) <= napadeny.dosah:
                     realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
-                    self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok) # Zůstává stejné
+                    self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok, je_protiutok=True) # Zůstává stejné
 
                 napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
                     # TODO: Pro simulace
-                    self.simulace.log_smrt_jednotky(self.kolo, utocnik.typ)
+                    self.simulace.log_smrt_jednotky(self.kolo, utocnik)
 
                     utocnik.zemri(self.jednotky)
                     self.kontrola_bojeschopnosti(utocnik.vlastnik, napadeny.vlastnik)
@@ -277,7 +279,11 @@ class SpravceHry:
 
     def konec(self, vitez, porazeny, poznamka = "Vyhrál: "):
         print("KONEC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        # TODO: Simulace
+        self.simulace.log_stav_kola(self.kolo, self.jednotky)
         self.simulace.uloz_vysledek_simulace(vitez, self.kolo, self.jednotky)
+
         self.stav_hry = 0
 
     def verbovani(self, typ, vlastnik, spravce_hry, pozice=None):
