@@ -463,14 +463,54 @@ class SpravceHry:
             x, y = jednotka.pozice
 
             # Všechny nepřátelské jednotky (pro každou jednotku znovu protože můžou umřít)
-            nepratelske_jednotky = protivnici = {pozice: j for pozice, j in spravce_hry.jednotky.items() if j.vlastnik != hrac}
+            nepratelske_jednotky = {pozice: j for pozice, j in spravce_hry.jednotky.items() if j.vlastnik != hrac}
 
             # Hledání sousedních nepřátel
             nepratele_v_dosahu = jednotka.najdi_cile_v_dosahu(spravce_hry.mrizka, nepratelske_jednotky)
             if nepratele_v_dosahu: # IDEA: Existuje nepřítel v dosahu
-                nejslabsi = spravce_hry.nejslabsi_z_nepratel_v_dosahu(nepratele_v_dosahu)
-                print(f"Jednotka na pozici {jednotka.pozice} provedla útok na nepřítele vedle sebe bez nutnosti pohybu.")
-                spravce_hry.vyhodnot_souboj(jednotka, nejslabsi)
+
+                # IDEA: "Útěk" od nepřítele, pokud jsem střelec
+                if jednotka.dosah > 1:
+                    nepratele_v_bezprostrednim_dosahu = []
+                    for pozice_nepritele, nepritel in nepratelske_jednotky.items():
+                        if abs(x - pozice_nepritele[0]) + abs(y - pozice_nepritele[1]) <= 1:
+                            nepratele_v_bezprostrednim_dosahu.append(nepritel)
+
+                    if nepratele_v_bezprostrednim_dosahu:
+                        mozne_pohyby = jednotka.vypocet_moznych_pohybu(spravce_hry.mrizka, spravce_hry.jednotky)
+
+                        nejblizsi_nepritel_vedle = nepratele_v_bezprostrednim_dosahu[0]
+
+                        nejlepsi_utekova_pozice = None
+                        max_vzdalenost_od_nepritele_po_pohybu = -1
+
+                        for nova_pozice in mozne_pohyby:
+                            # jednotka z nové pozice dosáhne na nejbližšího nepřítele_vedle
+                            vzdalenost_k_nepriteli_z_nove_pozice = abs(
+                                nova_pozice[0] - nejblizsi_nepritel_vedle.pozice[0]) + abs(
+                                nova_pozice[1] - nejblizsi_nepritel_vedle.pozice[1])
+
+                            if jednotka.dosah >= vzdalenost_k_nepriteli_z_nove_pozice:  # Pokud stále dosáhneme
+                                # Pokud je tato nová pozice dál od nepřítele než dosavadní nejlepší
+                                if vzdalenost_k_nepriteli_z_nove_pozice > max_vzdalenost_od_nepritele_po_pohybu:
+                                    max_vzdalenost_od_nepritele_po_pohybu = vzdalenost_k_nepriteli_z_nove_pozice
+                                    nejlepsi_utekova_pozice = nova_pozice
+
+                        if nejlepsi_utekova_pozice:
+                            # Přesuň se na nalezenou únikovou pozici a zaútoč na nejbližšího nepřítele
+                            jednotka.proved_pohyb(nejlepsi_utekova_pozice, mozne_pohyby, spravce_hry.jednotky)
+                            print(
+                                f"Jednotka s dlouhým dosahem na pozici {(x, y)} se posunula na {jednotka.pozice} (dál od {nejblizsi_nepritel_vedle.typ} na {nejblizsi_nepritel_vedle.pozice}) a zaútočila.")
+                            spravce_hry.vyhodnot_souboj(jednotka, nejblizsi_nepritel_vedle)
+                        else:
+                            # Není kam se pohnout, abychom se vzdálili a stále dosáhli.
+                            print(
+                                f"Jednotka na pozici {jednotka.pozice} útočí na {nejblizsi_nepritel_vedle.typ} na {nejblizsi_nepritel_vedle.pozice} (není kam utéct a stále dosáhnout).")
+                            spravce_hry.vyhodnot_souboj(jednotka, nejblizsi_nepritel_vedle)
+                    else:
+                        nejslabsi = spravce_hry.nejslabsi_z_nepratel_v_dosahu(nepratele_v_dosahu)
+                        print(f"Jednotka na pozici {jednotka.pozice} provedla útok na nepřítele vedle sebe bez nutnosti pohybu.")
+                        spravce_hry.vyhodnot_souboj(jednotka, nejslabsi)
             else:  # IDEA: Nepřítel není v dosahu bez pohybu.
                 mozne_pohyby = jednotka.vypocet_moznych_pohybu(spravce_hry.mrizka, spravce_hry.jednotky)
 
