@@ -230,6 +230,16 @@ class SpravceHry:
         hrac.pridej_suroviny({'drevo': 5})
         self.stavba_budovy(self.budovy, 'domek', (0, 0), hrac)
 
+    def realne_poskozeni(self, utocnik, napadeny):
+        modifikace = 0
+        if self.mrizka[napadeny.pozice[1]][napadeny.pozice[0]] == 'H':
+            modifikace += 2
+        poskozeni = utocnik.utok - (napadeny.obrana + modifikace)
+        if poskozeni > 0:
+            return poskozeni
+        else:
+            return 0
+
 
     def vyhodnot_souboj(self, utocnik, napadeny):
         """
@@ -243,7 +253,8 @@ class SpravceHry:
         if napadeny in utocnik.najdi_cile_v_dosahu(self.mrizka, self.jednotky):
 
             # TODO: Pro simulace
-            realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
+            #realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
+            realne_poskozeni = self.realne_poskozeni(utocnik, napadeny)
             self.simulace.log_utok(self.kolo, utocnik, napadeny, utocnik.utok, realne_poskozeni, je_protiutok=False)
 
             utocnik.proved_utok(napadeny, self.mrizka)
@@ -260,7 +271,8 @@ class SpravceHry:
             else:
                 # TODO: Pro simulace
                 if abs(utocnik.pozice[0] - napadeny.pozice[0]) + abs(utocnik.pozice[1] - napadeny.pozice[1]) <= napadeny.dosah:
-                    realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
+                    #realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
+                    realne_protiutok = self.realne_poskozeni(napadeny, utocnik)
                     self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok, je_protiutok=True) # Zůstává stejné
 
                 napadeny.proved_protiutok(utocnik, self.mrizka)
