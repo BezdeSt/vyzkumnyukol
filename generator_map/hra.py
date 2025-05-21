@@ -49,7 +49,7 @@ class SpravceHry:
             'rychlost': 3,
             'dosah': 1,
             'utok': 8,
-            'obrana': 5,
+            'obrana': 4,
             'zivoty': 15,
             'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3}
@@ -78,8 +78,8 @@ class SpravceHry:
             'typ': 'lucisnik',
             'rychlost': 3,
             'dosah': 4,
-            'utok': 7,
-            'obrana': 2,
+            'utok': 8,
+            'obrana': 3,
             'zivoty': 10,
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2, 'drevo': 1,}
