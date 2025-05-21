@@ -365,7 +365,7 @@ class DataProcessor:
 
 if __name__ == "__main__":
     # --- Zde vlož skutečnou cestu k tvému CSV souboru ---
-    soubor_dat = 'Válečník_vs_Lučištník--Linie_prubeh_simulaci.csv'  # Předpokládá se, že soubor je ve stejné složce
+    soubor_dat = 'Válečník_vs_Lučištník--Linie2_prubeh_simulaci.csv'  # Předpokládá se, že soubor je ve stejné složce
     # --- Konec nastavení cesty ---
 
     processor = DataProcessor(soubor_dat)

@@ -51,7 +51,7 @@ mapa_line = [
 duel = "Válečník_vs_Lučištník"
 
 def jednaVSjedna_Linie():
-    nazev_scenare = duel+"--Linie"
+    nazev_scenare = duel+"--Linie2"
     for i in range(10):
         Hra = hra.SpravceHry(hraci=[], mrizka=mapa_line, jednotky={}, budovy=[], scenar_nazev=nazev_scenare)
         Hra.inicializace_scenare("Hráč 1", "Hráč 2")
