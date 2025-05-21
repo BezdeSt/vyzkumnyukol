@@ -69,7 +69,7 @@ class SpravceHry:
             'rychlost': 4,
             'dosah': 1,
             'utok': 12,
-            'obrana': 4,
+            'obrana': 2,
             'zivoty': 20,
             'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 4}
