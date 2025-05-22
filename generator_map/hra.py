@@ -546,13 +546,12 @@ class SpravceHry:
 
                 # IDEA: V okolí není nepřítel, posunout se k základně nepřítele
                 if neni_nepritel_v_dosahu:
-                    # TODO: Upraveno do vyhozené funkce (není otestované jestli to v tomhle stavu funguje)
-                    #       A zakomentováno v rámci testování scénářů
+                    # TODO: A zakomentováno v rámci testování scénářů
                     #spravce_hry.nepritel_mimo_dosah(jednotka)
                     if hrac == spravce_hry.hraci[0]:
-                        pozice = (7,7)
+                        pozice = spravce_hry.jednotka_nepritele_pozice(jednotka)
                     else:
-                        pozice = (0, 0)
+                        pozice = spravce_hry.jednotka_nepritele_pozice(jednotka)
 
                     cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice, spravce_hry.mrizka)
                     if cesta:
@@ -562,6 +561,13 @@ class SpravceHry:
 
             if not spravce_hry.stav_hry:
                 break
+
+    def jednotka_nepritele_pozice(self, jednotka):
+        for pozice, j in self.jednotky.items():
+            if j.vlastnik != jednotka.vlastnik:
+                return pozice
+        print("Něco se rozflákalo při hledání nepřátel ve velké vzdálenosti.")
+        return None
 
 
     def nepritel_mimo_dosah(spravce_hry, jednotka):
