@@ -44,7 +44,7 @@ Metoda \texttt{proved\_tah} spravuje celý tah aktuálního hráče, včetně ak
 Metoda \texttt{kontrola\_bojeschopnosti} ověřuje, zda hráč po ztrátách ještě má bojeschopné jednotky.
 
 \paragraph{Rozhodování AI.}  
-Jednoduchá AI, implementovaná metodami \texttt{ai\_tah}, \texttt{ai\_pohyb\_a\_utok} a \texttt{stavba\_a\_verbovani\_ai}, vyhodnocuje akce jednotek hráče v daném tahu. Jednotky nejprve útočí na nejbližšího nepřítele v dosahu, pokud je k dispozici, nebo hledají nepřátelské jednotky v okolí jednoho kroku.Pokud ani tak nedosáhnou, posouvají se směrem k nepřátelské základně. Po pohybu jednotek, na základě aktuálního zisku surovin, AI rozhoduje o stavbě nových budov nebo verbování nových jednotek.
+Jednoduchá AI, implementovaná metodami \texttt{ai\_tah}, \texttt{ai\_pohyb\_a\_utok} a \texttt{stavba\_a\_verbovani\_ai}, vyhodnocuje akce jednotek hráče v daném tahu. Jednotky nejprve útočí na nejbližšího nepřítele v dosahu, pokud je k dispozici, nebo hledají nepřátelské jednotky v okolí jednoho kroku. Specifickou výjimkou jsou jednotky s větším dosahem (střelci), kteří před útokem kontrolují, jestli nestojí nepřítel vedle nich a pokud ano, před útokem se pokusí od nepřítele "utéct" aby jim nehrozil protiútok. Pokud ani tak nedosáhnou, posouvají se směrem k nepřátelské základně. Po pohybu jednotek, na základě aktuálního zisku surovin, AI rozhoduje o stavbě nových budov nebo verbování nových jednotek.
 
 \paragraph{Verbování a Stavba}
 Nové jednotky jsou vytvářeny metodou \texttt{verbovani}, která ověřuje podmínky a najde volné místo v okolí základny. 
