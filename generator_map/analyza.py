@@ -177,8 +177,10 @@ class DataProcessor:
 
         # Agregace statistik jednotek napříč simulacemi
         agregace_jednotek = {}
+        pocet_kol_list = [] # Nový seznam pro sběr počtu kol z jednotlivých simulací
 
         for sim_res in vysledky_jednotlivych_simulaci:
+            pocet_kol_list.append(sim_res['pocet_kol']) # Přidání počtu kol do seznamu
             for typ_jednotky, data in sim_res['jednotky_data'].items():
                 vlastnik = data['vlastnik']
                 klic = f"{typ_jednotky} ({vlastnik})"
@@ -251,6 +253,7 @@ class DataProcessor:
 
         celkove_vysledky['agregace_jednotek'] = final_agregace_jednotek
         celkove_vysledky['celkovy_pocet_simulaci'] = pocet_simulaci
+        celkove_vysledky['prumerny_pocet_kol_napric_simulacemi'] = np.mean(pocet_kol_list) if pocet_kol_list else 0 # Výpočet průměrného počtu kol
 
         return celkove_vysledky
 
@@ -365,7 +368,7 @@ class DataProcessor:
 
 if __name__ == "__main__":
     # --- Zde vlož skutečnou cestu k tvému CSV souboru ---
-    soubor_dat = 'Válečník_vs_Lučištník--Linie2_prubeh_simulaci.csv'  # Předpokládá se, že soubor je ve stejné složce
+    soubor_dat = 'Válečník_vs_Lučištník--Flat_prubeh_simulaci.csv'  # Předpokládá se, že soubor je ve stejné složce
     # --- Konec nastavení cesty ---
 
     processor = DataProcessor(soubor_dat)
@@ -407,6 +410,9 @@ if __name__ == "__main__":
 
         print("\n--- Celkové agregované výsledky všech simulací: ---")
         print(f"Celkový počet simulací: {celkove_agregovane_vysledky['celkovy_pocet_simulaci']}")
+        # Nový tisk průměrného počtu kol napříč simulacemi
+        print(f"Průměrný počet kol napříč simulacemi: {celkove_agregovane_vysledky['prumerny_pocet_kol_napric_simulacemi']:.2f}")
+
 
         print("\n  Počet vítězství:")
         for vitez, count in celkove_agregovane_vysledky['vitezove_counts'].items():

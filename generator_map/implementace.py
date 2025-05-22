@@ -135,8 +135,8 @@ def jednaVSjedna_NonFlat():
         nazev_souboru_pro_prubeh = f"{Hra.simulace.scenar_nazev}_prubeh_simulaci.csv"  # Používáme název scénáře
         Hra.simulace.uloz_prubeh_do_souboru(nazev_souboru_pro_prubeh)
 
-jednaVSjedna_Linie()
+#jednaVSjedna_Linie()
 
 #jednaVSjedna_Flat()
 
-#jednaVSjedna_NonFlat()
+jednaVSjedna_NonFlat()
