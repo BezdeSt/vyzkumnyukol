@@ -182,7 +182,10 @@ def jednaVSjedna():
         hrac1.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
         hrac2.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
         Hra.verbovani('valecnik', hrac1, Hra, pozice=(0, 0))
-        Hra.verbovani('lucisnik', hrac2, Hra, pozice=(14, 0))
+        if i == 0:
+            Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 0))
+        else:
+            Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 14))
         print('===')
         Hra.simulace.log_stav_kola(0, Hra.jednotky) # Nulté kolo
 
