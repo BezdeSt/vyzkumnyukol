@@ -2,30 +2,23 @@ import datetime
 import csv
 import os
 
-
 class LoggerSimulace:
-    def __init__(self, scenar_nazev, poznamka=None):
+    def __init__(self, id_simulace, scenar_nazev, poznamka=None):
+        self.id_simulace = id_simulace # Nové: nyní jednoduchý int
         self.scenar_nazev = scenar_nazev
         self.poznamka = poznamka
         self.cas_startu = datetime.datetime.now()
 
         # Logy pro detailní průběh kola za kolem
-        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'typ', 'zivoty', 'vlastnik', 'zive_jednotky_count', 'zpusobene_poskozeni_kolo', 'realne_zpusobene_poskozeni_kolo', 'utrzene_poskozeni_kolo', 'pocet_utoku_kolo', 'pocet_protiutoku_kolo'}}
         self.log_prubehu = {}
-
-        # Klíč je (typ_jednotky, vlastnik_jmeno)
-        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'zpusobene': celkem, 'realne_zpusobene': celkem, 'utrzene': celkem}}
         self.log_poskozeni = {}
-
-        # Klíč je (typ_jednotky, vlastnik_jmeno)
-        # Kolo: {(typ_jednotky, vlastnik_jmeno): {'utoky': pocet, 'protiutoky': pocet}}
         self.log_poctu_utoku_protiutoku = {}
-
-        # Ukládá slovník {typ: ..., vlastnik: ...}
-        # Kolo: [{'typ': str, 'vlastnik': str}]
         self.log_smrti = {}
-
         self.vitez_simulace = None
+
+        # Nové: Slovník pro ukládání startovních atributů jednotek
+        # Klíč: (typ_jednotky, vlastnik_jmeno)
+        self.log_jednotky_metadata = {}
 
     def log_stav_kola(self, kolo, jednotky):
         """
@@ -147,6 +140,26 @@ class LoggerSimulace:
             'vlastnik': jednotka_instance.vlastnik.jmeno if jednotka_instance.vlastnik else "Neutral"
         })
 
+    def log_startovni_atributy_jednotky(self, jednotka_instance):
+        """
+        Zaznamená startovní atributy jednotky.
+        Ukládá se pouze první zaznamenané atributy pro daný typ a vlastníka,
+        protože jednotky stejného typu a vlastníka mají v této simulaci stejné počáteční atributy.
+        """
+        vlastnik_jmeno = jednotka_instance.vlastnik.jmeno if jednotka_instance.vlastnik else "Neutral"
+        klic = (jednotka_instance.typ, vlastnik_jmeno)
+
+        if klic not in self.log_jednotky_metadata:
+            self.log_jednotky_metadata[klic] = {
+                'typ_jednotky': jednotka_instance.typ,
+                'vlastnik': vlastnik_jmeno,
+                'utok_start': jednotka_instance.utok,
+                'obrana_start': jednotka_instance.obrana,
+                'zivoty_start': jednotka_instance.max_zivoty,
+                'rychlost_start': jednotka_instance.rychlost,
+                'dosah_start': jednotka_instance.dosah
+            }
+
     def uloz_vysledek_simulace(self, vitezny_hrac, pocet_kol, jednotky):
         """
         Nastaví vítěze simulace pro použití v uloz_prubeh_do_souboru.
@@ -162,10 +175,15 @@ class LoggerSimulace:
         """
         soubor_existuje = os.path.isfile(nazev_souboru)
 
-        with open(nazev_souboru, 'a', newline='', encoding='utf-8') as csvfile:
-            pole_hlavice = ['kolo', 'typ_jednotky', 'vlastnik', 'zive_jednotky', 'celkove_zivoty',
-                            'zpusobene_poskozeni_kolo', 'realne_zpusobene_poskozeni_kolo',
-                            'utrzene_poskozeni_kolo', 'pocet_utoku_kolo', 'pocet_protiutoku_kolo', 'vitez']
+        pole_hlavice = [
+            'id_simulace', 'scenar_nazev', # Nové: ID a název scénáře
+            'kolo', 'typ_jednotky', 'vlastnik', 'zive_jednotky', 'celkove_zivoty',
+            'zpusobene_poskozeni_kolo', 'realne_zpusobene_poskozeni_kolo',
+            'utrzene_poskozeni_kolo', 'pocet_utoku_kolo', 'pocet_protiutoku_kolo', 'vitez'
+        ]
+        writer_mode = 'a' if soubor_existuje else 'w' # Používáme 'w' pro první zápis, 'a' pro append
+
+        with open(nazev_souboru, writer_mode, newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=pole_hlavice)
 
             if not soubor_existuje:
@@ -185,7 +203,6 @@ class LoggerSimulace:
 
                     jednotka_data = self.log_prubehu.get(kolo, {}).get((typ_jednotky, vlastnik), {})
 
-                    # Zde přímo používáme hodnoty ze slovníku jednotka_data
                     zive_jednotky = jednotka_data.get('zive_jednotky_count', 0)
                     celkove_zivoty = jednotka_data.get('zivoty', 0)
                     zpusobene_poskozeni_kolo = jednotka_data.get('zpusobene_poskozeni_kolo', 0)
@@ -199,20 +216,56 @@ class LoggerSimulace:
                         aktualni_vitez = self.vitez_simulace
 
                     writer.writerow({
+                        'id_simulace': self.id_simulace, # Zde se přidává ID simulace
+                        'scenar_nazev': self.scenar_nazev, # Zde se přidává název scénáře
                         'kolo': kolo,
                         'typ_jednotky': typ_jednotky,
                         'vlastnik': vlastnik,
                         'zive_jednotky': zive_jednotky,
                         'celkove_zivoty': celkove_zivoty,
                         'zpusobene_poskozeni_kolo': zpusobene_poskozeni_kolo,
-                        'realne_zpusobene_poskozeni_kolo': realne_zpusobene_poskozeni_kolo,  # Nyní se bere z proměnné
+                        'realne_zpusobene_poskozeni_kolo': realne_zpusobene_poskozeni_kolo,
                         'utrzene_poskozeni_kolo': utrzene_poskozeni_kolo,
                         'pocet_utoku_kolo': pocet_utoku_kolo,
                         'pocet_protiutoku_kolo': pocet_protiutoku_kolo,
                         'vitez': aktualni_vitez
                     })
 
-        print(f"Průběh simulací pro scénář '{self.scenar_nazev}' byl přidán do souboru: {nazev_souboru}")
+        print(f"Průběh simulací pro scénář '{self.scenar_nazev}' (ID: {self.id_simulace}) byl přidán do souboru: {nazev_souboru}")
+
+    def uloz_metadata_jednotek_do_souboru(self, nazev_souboru='metadata_jednotek.csv'):
+        """
+        Uloží startovní atributy všech typů jednotek v této simulaci do samostatného CSV souboru.
+        """
+        soubor_existuje = os.path.isfile(nazev_souboru)
+
+        pole_hlavice = [
+            'id_simulace', 'scenar_nazev',
+            'typ_jednotky', 'vlastnik',
+            'utok_start', 'obrana_start', 'zivoty_start', 'rychlost_start', 'dosah_start'
+        ]
+        writer_mode = 'a' if soubor_existuje else 'w' # Používáme 'w' pro první zápis, 'a' pro append
+
+
+        with open(nazev_souboru, writer_mode, newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=pole_hlavice)
+
+            if not soubor_existuje:
+                writer.writeheader()
+
+            for klic, data in self.log_jednotky_metadata.items():
+                writer.writerow({
+                    'id_simulace': self.id_simulace,
+                    'scenar_nazev': self.scenar_nazev,
+                    'typ_jednotky': data['typ_jednotky'],
+                    'vlastnik': data['vlastnik'],
+                    'utok_start': data['utok_start'],
+                    'obrana_start': data['obrana_start'],
+                    'zivoty_start': data['zivoty_start'],
+                    'rychlost_start': data['rychlost_start'],
+                    'dosah_start': data['dosah_start']
+                })
+        print(f"Metadata jednotek pro scénář '{self.scenar_nazev}' (ID: {self.id_simulace}) byla přidána do souboru: {nazev_souboru}")
 
     def vypis_vysledky(self):
         print(f"=== Výsledky souhrnné simulace pro scénář: {self.scenar_nazev} ===")
@@ -244,6 +297,3 @@ class LoggerSimulace:
                         f" Útoky: {info_agregovane['pocet_utoku_kolo']},"
                         f" Protiútoky: {info_agregovane['pocet_protiutoku_kolo']}"
                     )
-
-            # Další logy (poškození, smrti) jsou stále dostupné v jejich samostatných strukturách
-            # pro podrobnější diagnostiku, ale hlavní data pro CSV jsou nyní v log_prubehu.

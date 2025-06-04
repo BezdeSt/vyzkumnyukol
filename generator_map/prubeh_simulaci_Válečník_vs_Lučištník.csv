@@ -1,0 +1,33 @@
+id_simulace,scenar_nazev,kolo,typ_jednotky,vlastnik,zive_jednotky,celkove_zivoty,zpusobene_poskozeni_kolo,realne_zpusobene_poskozeni_kolo,utrzene_poskozeni_kolo,pocet_utoku_kolo,pocet_protiutoku_kolo,vitez
+1,Válečník_vs_Lučištník--Linie,0,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+1,Válečník_vs_Lučištník--Linie,0,valecnik,Hráč 1,1,15,0,0,0,0,0,
+1,Válečník_vs_Lučištník--Linie,1,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+1,Válečník_vs_Lučištník--Linie,1,valecnik,Hráč 1,1,15,0,0,0,0,0,
+1,Válečník_vs_Lučištník--Linie,2,lucisnik,Hráč 2,1,10,7,2,0,1,0,
+1,Válečník_vs_Lučištník--Linie,2,valecnik,Hráč 1,1,13,0,0,2,0,0,
+1,Válečník_vs_Lučištník--Linie,3,lucisnik,Hráč 2,1,4,14,4,6,1,1,
+1,Válečník_vs_Lučištník--Linie,3,valecnik,Hráč 1,1,9,8,6,4,1,0,
+1,Válečník_vs_Lučištník--Linie,4,lucisnik,Hráč 2,0,0,0,0,6,0,0,Hráč 1
+1,Válečník_vs_Lučištník--Linie,4,valecnik,Hráč 1,1,9,8,6,0,1,0,Hráč 1
+2,Válečník_vs_Lučištník--Flat,0,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+2,Válečník_vs_Lučištník--Flat,0,valecnik,Hráč 1,1,15,0,0,0,0,0,
+2,Válečník_vs_Lučištník--Flat,1,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+2,Válečník_vs_Lučištník--Flat,1,valecnik,Hráč 1,1,15,0,0,0,0,0,
+2,Válečník_vs_Lučištník--Flat,2,lucisnik,Hráč 2,1,10,7,2,0,1,0,
+2,Válečník_vs_Lučištník--Flat,2,valecnik,Hráč 1,1,13,0,0,2,0,0,
+2,Válečník_vs_Lučištník--Flat,3,lucisnik,Hráč 2,1,4,14,4,6,1,1,
+2,Válečník_vs_Lučištník--Flat,3,valecnik,Hráč 1,1,9,8,6,4,1,0,
+2,Válečník_vs_Lučištník--Flat,4,lucisnik,Hráč 2,0,0,0,0,6,0,0,Hráč 1
+2,Válečník_vs_Lučištník--Flat,4,valecnik,Hráč 1,1,9,8,6,0,1,0,Hráč 1
+3,Válečník_vs_Lučištník--NonFlat,0,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+3,Válečník_vs_Lučištník--NonFlat,0,valecnik,Hráč 1,1,15,0,0,0,0,0,
+3,Válečník_vs_Lučištník--NonFlat,1,lucisnik,Hráč 2,1,10,0,0,0,0,0,
+3,Válečník_vs_Lučištník--NonFlat,1,valecnik,Hráč 1,1,15,0,0,0,0,0,
+3,Válečník_vs_Lučištník--NonFlat,2,lucisnik,Hráč 2,1,10,7,2,0,1,0,
+3,Válečník_vs_Lučištník--NonFlat,2,valecnik,Hráč 1,1,13,0,0,2,0,0,
+3,Válečník_vs_Lučištník--NonFlat,3,lucisnik,Hráč 2,1,10,7,0,0,1,0,
+3,Válečník_vs_Lučištník--NonFlat,3,valecnik,Hráč 1,1,13,0,0,0,0,0,
+3,Válečník_vs_Lučištník--NonFlat,4,lucisnik,Hráč 2,1,4,14,4,6,1,1,
+3,Válečník_vs_Lučištník--NonFlat,4,valecnik,Hráč 1,1,9,8,6,4,1,0,
+3,Válečník_vs_Lučištník--NonFlat,5,lucisnik,Hráč 2,0,0,0,0,6,0,0,Hráč 1
+3,Válečník_vs_Lučištník--NonFlat,5,valecnik,Hráč 1,1,9,8,6,0,1,0,Hráč 1

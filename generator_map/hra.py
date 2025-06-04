@@ -12,7 +12,7 @@ class SpravceHry:
     Spravuje průběh hry, včetně sledování kol, hráčů a vyhodnocení jejich tahů.
     """
 
-    def __init__(self, hraci, mrizka, jednotky, budovy, scenar_nazev ="None"):
+    def __init__(self, hraci, mrizka, jednotky, budovy, scenar_nazev="None", id_simulace=None):
         """
         Inicializuje správce hry.
 
@@ -30,7 +30,7 @@ class SpravceHry:
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
 
-        self.simulace = simulace.LoggerSimulace(scenar_nazev)
+        self.simulace = simulace.LoggerSimulace(id_simulace, scenar_nazev)
 
     # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {
@@ -49,7 +49,7 @@ class SpravceHry:
             'rychlost': 3,
             'dosah': 1,
             'utok': 8,
-            'obrana': 4,
+            'obrana': 5,
             'zivoty': 15,
             'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3}
@@ -74,12 +74,12 @@ class SpravceHry:
             'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 4}
         },
-        'lucisnik': {
+        'lucistnik': {
             'typ': 'lucisnik',
             'rychlost': 3,
             'dosah': 4,
-            'utok': 8,
-            'obrana': 3,
+            'utok': 7,
+            'obrana': 2,
             'zivoty': 10,
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2, 'drevo': 1,}
@@ -368,6 +368,7 @@ class SpravceHry:
         )
 
         self.jednotky[pozice] = nova
+        self.simulace.log_startovni_atributy_jednotky(nova)
         print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
         return nova
 
