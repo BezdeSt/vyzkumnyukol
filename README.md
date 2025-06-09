@@ -1,5 +1,15 @@
 # Výzkumný úkol
 
+## Doplnění náhdnosti
+### 1. Náhoda v AI
+- pohyb náhodným směrem když nemůžu najít žádný cíl
+- rozhodování na koho v dosahu zaútočit
+
+### 2. Náhoda v souboji
+- náhodné změny v poškození?
+- kritické zásahy?
+- šance uhnutí?
+
 ## Plán:
 - ~~Opravit gradientní mapy -- zeptat se jestli můžu použít knihovnu / dát dohromady bez knihovny~~
 - ~~Dopsat kapitolu Návrh~~
