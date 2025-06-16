@@ -57,7 +57,7 @@ def jednaVSjedna():
     global global_sim_id_counter # Abychom mohli modifikovat globální proměnnou
     nazev_scenare = [duel+"--Linie", duel+"--Flat",duel+"--NonFlat"]
     mapa_scenare = [mapa_line, mapa_flat, mapa_non_flat]
-    for i in range(3): # Zachováváme 10 opakování, jak sis přál
+    for i in range(1): # Zachováváme 10 opakování, jak sis přál
         global_sim_id_counter += 1 # Inkrementujeme ID pro každou simulaci
         current_sim_id = global_sim_id_counter
 
@@ -79,7 +79,11 @@ def jednaVSjedna():
 
         while Hra.stav_hry:
             Hra.proved_tah()
-            if Hra.kolo > 1000:
+            print('-')
+            for jednotka in Hra.jednotky.values():
+                print(f"{jednotka.typ} má {jednotka.zivoty} životů")
+            print('-')
+            if Hra.kolo > 100:
                 break
 
         for jednotka in Hra.jednotky.values():

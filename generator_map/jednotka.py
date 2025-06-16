@@ -1,5 +1,9 @@
+import random
+
+CRITICAL_HIT_CHANCE = 0.1
+
 class Jednotka:
-    def __init__(self, typ=None, pozice=(0, 0), rychlost=0, dosah=1, utok=1, obrana=1, zivoty=10, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None, spravce_hry=None):
+    def __init__(self, typ=None, id=0, pozice=(0, 0), rychlost=0, dosah=1, utok_min=1, utok_max=1, obrana=1, zivoty=10, crit = 1.1, uhyb = 0.0, cena={'jidlo': 10, 'drevo': 5}, cena_za_kolo={'jidlo': 2}, vlastnik=None, spravce_hry=None):
         """
         Inicializuje jednotku s danými parametry a přidá ji do seznamu jednotek vlastníka.
 
@@ -14,15 +18,22 @@ class Jednotka:
             cena_za_kolo: Cena za kolo (udržovací náklady).
             vlastnik: Instance hráče, kterému jednotka patří.
         """
+        self.id = id
         self.typ = typ
         self.pozice = pozice
         self.rychlost = rychlost
         self.dosah = dosah
-        self.utok = utok
+        #self.utok = utok
+        self.utok_min = utok_min
+        self.utok_max = utok_max
+
         self.obrana = obrana
         self.zivoty = zivoty
         self.max_zivoty = zivoty
         self.vlastnik = vlastnik
+
+        self.crit = crit
+        self.uhyb = uhyb
 
         self.cena = cena
         self.cena_za_kolo = cena_za_kolo
@@ -179,34 +190,47 @@ class Jednotka:
 
         return cile
 
-    def proved_utok(self, napadeny, mrizka):
-        """
-        Útočí na cílovou jednotku a snižuje jí životy podle síly útoku a obrany cíle.
 
-        Args:
-            napadeny: Instance jednotky, která je napadena.
-        """
+    def modifikace_obrany_terenem(self, mapa):
         modifikace = 0
-        if mrizka[napadeny.pozice[1]][napadeny.pozice[0]] == 'H':
+        if mapa[self.pozice[1]][self.pozice[0]] == 'H':
             modifikace += 2
-        poskozeni = self.utok - (napadeny.obrana + modifikace)
-        if poskozeni > 0:
-            napadeny.zivoty -= poskozeni
+        return modifikace
 
-    def proved_protiutok(self, utocnik, mrizka):
+    def proved_utok(self, cilova_jednotka, mapa):
         """
-        Provádí protiútok na útočníka, pokud je v dosahu.
+            Útočí na cílovou jednotku a snižuje jí životy podle síly útoku a obrany cíle
+            Args:
+            cilova_jednotka: Instance jednotky, která je napadena.
+        """
 
-        Args:
-            utocnik: Instance jednotky, která provedla útok. Je proti ní prováděn protiútok
-        """
-        modifikace = 0
-        if mrizka[utocnik.pozice[1]][utocnik.pozice[0]] == 'H':
-            modifikace += 2
-        if self.zivoty > 0 and abs(utocnik.pozice[0] - self.pozice[0]) + abs(utocnik.pozice[1] - self.pozice[1]) <= self.dosah:
-            poskozeni = self.utok - (utocnik.obrana + modifikace)
-            if poskozeni > 0:
-                utocnik.zivoty -= poskozeni
+        # 1. Výpočet základního poškození s náhodnou variabilitou
+        poskozeni_ciste = random.randint(self.utok_min, self.utok_max)
+
+        # Poškození redukované obranou cíle (použijte efektivní obranu cíle)
+        celkove_poskozeni = max(0, poskozeni_ciste - (cilova_jednotka.obrana + cilova_jednotka.modifikace_obrany_terenem(mapa)))
+
+        # 2. Šance na uhnutí cílové jednotky
+        if random.random() < cilova_jednotka.uhyb:
+            celkove_poskozeni = 0  # Útok minul
+            print(f"{cilova_jednotka.typ} uhnula útoku!") # Pro ladění
+        else:
+            # 3. Kritický zásah (pokud útok neminul)
+            if random.random() < CRITICAL_HIT_CHANCE:
+                celkove_poskozeni = round(self.crit*celkove_poskozeni)
+                print(f"{self.typ} způsobil kritický zásah!") # Pro ladění
+
+        # Aplikace poškození
+        print(f"{self.typ} způsobil poškození: {celkove_poskozeni}!")
+        cilova_jednotka.zivoty -= celkove_poskozeni
+
+    def proved_protiutok(self, utocici_jednotka, mapa):
+        # Zkontrolujte, zda je útočící jednotka v dosahu protiútoku
+        # Předpokládá existenci metody je_v_dosahu
+        if self.zivoty > 0 and abs(utocici_jednotka.pozice[0] - self.pozice[0]) + abs(utocici_jednotka.pozice[1] - self.pozice[1]) <= self.dosah:
+            # Voláme proved_utok z pohledu bránící se jednotky na útočící jednotku
+            self.proved_utok(utocici_jednotka, mapa)
+            # print(f"{self.nazev} provedl protiútok na {utocici_jednotka.nazev}!") # Pro ladění
 
     def zemri(self, jednotky):
         """

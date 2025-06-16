@@ -29,6 +29,14 @@ class SpravceHry:
         self.aktualni_hrac_index = 0
         self.kolo = 1
         self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
+        self.pocitadlo_id = 0
+
+        self.ai_decision_weights = {
+            "random_move_chance": 0.2,  # 20% šance na náhodný pohyb
+            "target_priority_melee": 1.0,  # Váha pro útok na jednotky pro boj zblízka
+            "target_priority_ranged": 1.2,  # Váha pro útok na jednotky s velkým dosahem (vyšší priorita)
+            # ... další váhy dle potřeby (např. pro ekonomiku, obranu)...
+        }
 
         self.simulace = simulace.LoggerSimulace(id_simulace, scenar_nazev)
 
@@ -230,16 +238,6 @@ class SpravceHry:
         hrac.pridej_suroviny({'drevo': 5})
         self.stavba_budovy(self.budovy, 'domek', (0, 0), hrac)
 
-    def realne_poskozeni(self, utocnik, napadeny):
-        modifikace = 0
-        if self.mrizka[napadeny.pozice[1]][napadeny.pozice[0]] == 'H':
-            modifikace += 2
-        poskozeni = utocnik.utok - (napadeny.obrana + modifikace)
-        if poskozeni > 0:
-            return poskozeni
-        else:
-            return 0
-
 
     def vyhodnot_souboj(self, utocnik, napadeny):
         """
@@ -250,12 +248,11 @@ class SpravceHry:
             napadeny: Napadená jednotka.
         """
         # zkontrolujeme jestli jsou v dosahu
+        print("Probíhá souboj")
         if napadeny in utocnik.najdi_cile_v_dosahu(self.mrizka, self.jednotky):
 
             # TODO: Pro simulace
             #realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
-            realne_poskozeni = self.realne_poskozeni(utocnik, napadeny)
-            self.simulace.log_utok(self.kolo, utocnik, napadeny, utocnik.utok, realne_poskozeni, je_protiutok=False)
 
             utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
@@ -272,10 +269,9 @@ class SpravceHry:
                 # TODO: Pro simulace
                 if abs(utocnik.pozice[0] - napadeny.pozice[0]) + abs(utocnik.pozice[1] - napadeny.pozice[1]) <= napadeny.dosah:
                     #realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
-                    realne_protiutok = self.realne_poskozeni(napadeny, utocnik)
-                    self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok, je_protiutok=True) # Zůstává stejné
-
-                napadeny.proved_protiutok(utocnik, self.mrizka)
+                    #realne_protiutok = self.realne_poskozeni(napadeny, utocnik)
+                    #self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok, je_protiutok=True) # Zůstává stejné
+                    napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
                     # TODO: Pro simulace
                     self.simulace.log_smrt_jednotky(self.kolo, utocnik)
@@ -355,10 +351,12 @@ class SpravceHry:
         # Vytvoření jednotky
         nova = jednotka.Jednotka(
             typ=sablona['typ'],
+            id=self.pocitadlo_id,
             pozice=pozice,
             rychlost=sablona['rychlost'],
             dosah=sablona['dosah'],
-            utok=sablona['utok'],
+            utok_min=sablona['utok'],
+            utok_max=sablona['utok'],
             obrana=sablona['obrana'],
             zivoty=sablona['zivoty'],
             cena=sablona['cena'],
@@ -370,6 +368,7 @@ class SpravceHry:
         self.jednotky[pozice] = nova
         self.simulace.log_startovni_atributy_jednotky(nova)
         print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
+        self.pocitadlo_id = self.pocitadlo_id+1
         return nova
 
     # NEXT: V plné verzi tady bude muset být kontrola, že se pozicie nepřekrývají
@@ -427,7 +426,8 @@ class SpravceHry:
             hrac (Hrac): AI hráč.
         """
         # Tah jednotek
-        spravce_hry.pohyb_jednotek_ai(hrac)
+        #spravce_hry.pohyb_jednotek_ai(hrac)
+        spravce_hry.ai_pohyb_a_utok(hrac)
 
         # Stavba budov a verbování jednotek
         # TODO: Zakomentovávám, protože nebude použito v rámci testování scénářů.
@@ -550,9 +550,9 @@ class SpravceHry:
                     # TODO: A zakomentováno v rámci testování scénářů
                     #spravce_hry.nepritel_mimo_dosah(jednotka)
                     if hrac == spravce_hry.hraci[0]:
-                        pozice = spravce_hry.jednotka_nepritele_pozice(jednotka)
+                        pozice = spravce_hry.nahodna_jednotka_nepritele_pozice(jednotka)
                     else:
-                        pozice = spravce_hry.jednotka_nepritele_pozice(jednotka)
+                        pozice = spravce_hry.nahodna_jednotka_nepritele_pozice(jednotka)
 
                     cesta = spravce_hry.pohyb_smerem_na(jednotka, pozice, spravce_hry.mrizka)
                     if cesta:
@@ -563,12 +563,158 @@ class SpravceHry:
             if not spravce_hry.stav_hry:
                 break
 
-    def jednotka_nepritele_pozice(self, jednotka):
+    def _vyber_ai_cile(self, utocici_jednotka, ai_weights):
+        # TODO: Zkontrolovat
+        # TODO: Zkontrolovat
+        # TODO: Zkontrolovat
+        # IDEA: Už mám funkci na výběr nejslabší jednotky v dosahu, to by celkem dávalo smysl použít
+        vazene_cile_list = []
+        mozne_cile = utocici_jednotka.najdi_cile_v_dosahu(self.mrizka, self.jednotky)
+        for cil in mozne_cile:
+            vaha = 0
+            if cil.dosah > 1:  # Předpokládáme, že jednotky s dosahem > 1 jsou střelecké
+                vaha = ai_weights['target_priority_ranged']
+            else:
+                vaha = ai_weights['target_priority_melee']
+
+            # Přidat další faktory do váhy, např. nízké životy cíle
+            if hasattr(cil, 'zivoty') and hasattr(cil, 'zivoty_max') and cil.zivoty < cil.zivoty_max / 2:
+                vaha *= 1.5  # Vyšší priorita pro zraněné cíle
+
+            vazene_cile_list.append((cil, vaha))
+
+        if not vazene_cile_list:
+            return None
+
+        # Vyberte cíl na základě vah
+        # random.choices vrací seznam, takže vezmeme první prvek
+        vybrany_cil = random.choices([c for c, w in vazene_cile_list], weights=[w for c, w in vazene_cile_list], k=1)
+        return vybrany_cil[0]
+
+    def nepratele_v_bezprostredni_blizkosit(self, x, y, hrac):
+        nepratelske_jednotky = {pozice: j for pozice, j in self.jednotky.items() if j.vlastnik != hrac}
+
+        nepratele_v_bezprostrednim_dosahu = []
+        for pozice_nepritele, nepritel in nepratelske_jednotky.items():
+            if abs(x - pozice_nepritele[0]) + abs(y - pozice_nepritele[1]) <= 1:
+                nepratele_v_bezprostrednim_dosahu.append(nepritel)
+
+        return nepratele_v_bezprostrednim_dosahu
+
+
+
+    def ai_pohyb_a_utok(self, hrac):
+        for jednotka in hrac.jednotky:
+
+            x, y = jednotka.pozice
+
+            nahodnost = random.random()
+            if nahodnost < 0.1:
+                self.jednotka_pohyb_nahodny_nebo_k_nepritely(jednotka)
+            else:
+                cile_v_dosahu = jednotka.najdi_cile_v_dosahu(self.mrizka, self.jednotky)
+                if cile_v_dosahu: #IDEA: Nepřátelé v dosahu
+                    utok_probehl = False # Kontrola jestli jednotka provedla útok
+
+                    if jednotka.dosah > 1: # IDEA: Střelecká jednotka
+
+                        nepratele_v_bezprostrednim_dosahu = self.nepratele_v_bezprostredni_blizkosit(x,y, hrac)
+
+                        if nepratele_v_bezprostrednim_dosahu:
+                            mozne_pohyby = jednotka.vypocet_moznych_pohybu(self.mrizka, self.jednotky)
+
+                            nejblizsi_nepritel_vedle = nepratele_v_bezprostrednim_dosahu[0]
+
+                            nejlepsi_utekova_pozice = None
+                            max_vzdalenost_od_nepritele_po_pohybu = -1
+
+                            for nova_pozice in mozne_pohyby:
+                                # jednotka z nové pozice dosáhne na nejbližšího nepřítele_vedle
+                                vzdalenost_k_nepriteli_z_nove_pozice = abs(
+                                    nova_pozice[0] - nejblizsi_nepritel_vedle.pozice[0]) + abs(
+                                    nova_pozice[1] - nejblizsi_nepritel_vedle.pozice[1])
+
+                                if jednotka.dosah >= vzdalenost_k_nepriteli_z_nove_pozice:  # Pokud stále dosáhneme
+                                    # Pokud je tato nová pozice dál od nepřítele než dosavadní nejlepší
+                                    if vzdalenost_k_nepriteli_z_nove_pozice > max_vzdalenost_od_nepritele_po_pohybu:
+                                        max_vzdalenost_od_nepritele_po_pohybu = vzdalenost_k_nepriteli_z_nove_pozice
+                                        nejlepsi_utekova_pozice = nova_pozice
+
+                            if nejlepsi_utekova_pozice:
+                                # Přesuň se na nalezenou únikovou pozici a zaútoč na nejbližšího nepřítele
+                                jednotka.proved_pohyb(nejlepsi_utekova_pozice, mozne_pohyby, self.jednotky)
+                                print(
+                                    f"Jednotka s dlouhým dosahem na pozici {(x, y)} se posunula na {jednotka.pozice} (dál od {nejblizsi_nepritel_vedle.typ} na {nejblizsi_nepritel_vedle.pozice}) a zaútočila.")
+                                self.vyhodnot_souboj(jednotka, nejblizsi_nepritel_vedle)
+                                utok_probehl = True
+
+                    if not utok_probehl: # IDEA: Boj na blízko
+                        vybrany_cil = self._vyber_ai_cile(jednotka, self.ai_decision_weights)
+                        if vybrany_cil:
+                            self.vyhodnot_souboj(jednotka, vybrany_cil)
+
+                else: # IDEA: Není nepřítel v dosahu
+                    mozne_pohyby = jednotka.vypocet_moznych_pohybu(self.mrizka, self.jednotky)
+
+                    # IDEA: Nepřítel je v dosahu po pohybu
+                    neni_nepritel_v_dosahu = True
+                    for moznost in mozne_pohyby:  # posouvám dočaně jednotku na novou pozici a testuju jestli na někoho dosáhne
+
+                        nepratele_v_dosahu = jednotka.najdi_cile_v_dosahu_z_pozice(moznost, self.mrizka,
+                                                                                   self.jednotky)
+                        if nepratele_v_dosahu:  # Existuje nepřítel v dosahu
+                            neni_nepritel_v_dosahu = False
+
+                            jednotka.proved_pohyb(moznost, mozne_pohyby, self.jednotky)
+                            print("K pohybu došlo tady")
+                            vybrany_cil = self._vyber_ai_cile(jednotka, self.ai_decision_weights)
+                            if vybrany_cil:
+                                self.vyhodnot_souboj(jednotka, vybrany_cil)
+                                print(f"Jednotka se posunula z pozice {(x, y)} na {jednotka.pozice} a provedla útok.")
+                            break
+
+                    # IDEA: V okolí není nepřítel:
+                    if neni_nepritel_v_dosahu:
+                        self.jednotka_pohyb_nahodny_nebo_k_nepritely(jednotka)
+
+    def jednotka_pohyb_nahodny_nebo_k_nepritely(self, jednotka):
+        mozne_pohyby = jednotka.vypocet_moznych_pohybu(self.mrizka, self.jednotky)
+        nahodnost = random.random()
+        if nahodnost < 0.5:  # Padesát na padesát že půjde náhodně nebo za cílem
+            # Náhodný pohyb
+            self.nahodny_pohyb(jednotka, mozne_pohyby)
+        else:
+            # Pohyb směrem k nepřátelské jednotce
+            pozice = self.nahodna_jednotka_nepritele_pozice(jednotka)
+
+            cesta = self.pohyb_smerem_na(jednotka, pozice, self.mrizka)
+            if cesta:
+                jednotka.proved_pohyb(cesta, [cesta], self.jednotky)
+                print(f"Jednotka {jednotka.typ} se pohybuje směrem k nepříteli na pozici {cesta}")
+            else:
+                self.konec(hrac, self.hraci[1] if hrac == self.hraci[0] else
+                self.hraci[0], "Něco se nepovedlo při tahu hráče: ")
+
+    def nahodny_pohyb(self, jednotka, mozne_pohyby):
+        print(mozne_pohyby)
+        random.shuffle(mozne_pohyby)
+        print(mozne_pohyby)
+        jednotka.proved_pohyb(mozne_pohyby[0], mozne_pohyby, self.jednotky)
+        print(f"Jednotka {jednotka.typ} se rozhodla k náhodnému pohybu na pozici: {mozne_pohyby[0]}.")
+
+    def nahodna_jednotka_nepritele_pozice(self, jednotka):
+        # TODO: Zkontrolovat, že se vrací správná starna slovníku
+        pozice_jednotek = []
         for pozice, j in self.jednotky.items():
             if j.vlastnik != jednotka.vlastnik:
-                return pozice
-        print("Něco se rozflákalo při hledání nepřátel ve velké vzdálenosti.")
-        return None
+                pozice_jednotek.append(pozice)
+
+        if pozice_jednotek:
+            random.shuffle(pozice_jednotek)
+            return pozice_jednotek[0]
+        else:
+            print("Něco se rozflákalo při hledání nepřátel ve velké vzdálenosti.")
+            return None
 
 
     def nepritel_mimo_dosah(spravce_hry, jednotka):

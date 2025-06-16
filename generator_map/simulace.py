@@ -153,7 +153,8 @@ class LoggerSimulace:
             self.log_jednotky_metadata[klic] = {
                 'typ_jednotky': jednotka_instance.typ,
                 'vlastnik': vlastnik_jmeno,
-                'utok_start': jednotka_instance.utok,
+                'utok_min_start': jednotka_instance.utok_min,
+                'utok_max_start': jednotka_instance.utok_max,
                 'obrana_start': jednotka_instance.obrana,
                 'zivoty_start': jednotka_instance.max_zivoty,
                 'rychlost_start': jednotka_instance.rychlost,
@@ -259,7 +260,7 @@ class LoggerSimulace:
                     'scenar_nazev': self.scenar_nazev,
                     'typ_jednotky': data['typ_jednotky'],
                     'vlastnik': data['vlastnik'],
-                    'utok_start': data['utok_start'],
+                    #'utok_start': data['utok_start'],
                     'obrana_start': data['obrana_start'],
                     'zivoty_start': data['zivoty_start'],
                     'rychlost_start': data['rychlost_start'],
