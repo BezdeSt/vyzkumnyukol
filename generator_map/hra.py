@@ -46,9 +46,12 @@ class SpravceHry:
             'typ': 'bojovnik',
             'rychlost': 3,
             'dosah': 1,
-            'utok': 5,
+            'utok_min': 3,
+            'utok_max': 5,
             'obrana': 3,
             'zivoty': 10,
+            'crit': 1.1,
+            'uhyb': 0.05,  # Malá šance na uhnutí
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
@@ -56,9 +59,12 @@ class SpravceHry:
             'typ': 'valecnik',
             'rychlost': 3,
             'dosah': 1,
-            'utok': 8,
+            'utok_min': 6,
+            'utok_max': 8,
             'obrana': 4,
             'zivoty': 15,
+            'crit': 1.2,
+            'uhyb': 0.05,
             'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3}
         },
@@ -66,9 +72,12 @@ class SpravceHry:
             'typ': 'rytir',
             'rychlost': 2,
             'dosah': 1,
-            'utok': 10,
+            'utok_min': 8,
+            'utok_max': 10,
             'obrana': 7,
             'zivoty': 30,
+            'crit': 1.3,
+            'uhyb': 0.01,  # Nízká šance na uhnutí kvůli těžké zbroji
             'cena': {'jidlo': 120, 'drevo': 50, 'kamen': 30},
             'cena_za_kolo': {'jidlo': 4, 'kamen': 1}
         },
@@ -76,9 +85,12 @@ class SpravceHry:
             'typ': 'berserkr',
             'rychlost': 4,
             'dosah': 1,
-            'utok': 12,
+            'utok_min': 9,
+            'utok_max': 12,
             'obrana': 2,
             'zivoty': 20,
+            'crit': 2,
+            'uhyb': 0.1,  # Vyšší šance na uhnutí díky rychlosti
             'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 4}
         },
@@ -86,39 +98,51 @@ class SpravceHry:
             'typ': 'lucisnik',
             'rychlost': 3,
             'dosah': 4,
-            'utok': 8,
+            'utok_min': 6,
+            'utok_max': 8,
             'obrana': 3,
             'zivoty': 10,
+            'crit': 1.2,
+            'uhyb': 0.05,  # Mírná šance na uhnutí
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
-            'cena_za_kolo': {'jidlo': 2, 'drevo': 1,}
+            'cena_za_kolo': {'jidlo': 2, 'drevo': 1, }
         },
         'ostrostrelec': {
             'typ': 'ostrostrelec',
             'rychlost': 2,
             'dosah': 6,
-            'utok': 10,
+            'utok_min': 8,
+            'utok_max': 10,
             'obrana': 1,
             'zivoty': 10,
+            'crit': 1.5,
+            'uhyb': 0.05,  # Nízká šance na uhnutí, spoléhá na dosah
             'cena': {'jidlo': 80, 'drevo': 60, 'kamen': 40},
-            'cena_za_kolo': {'jidlo': 4, 'drevo': 2,}
+            'cena_za_kolo': {'jidlo': 4, 'drevo': 2, }
         },
         'lovec': {
             'typ': 'lovec',
             'rychlost': 5,
             'dosah': 3,
-            'utok': 7,
+            'utok_min': 5,
+            'utok_max': 7,
             'obrana': 2,
             'zivoty': 14,
+            'crit': 1.3,
+            'uhyb': 0.15,  # Vysoká šance na uhnutí díky rychlosti a obratnosti
             'cena': {'jidlo': 60, 'drevo': 40, 'kamen': 0},
-            'cena_za_kolo': {'jidlo': 3, 'drevo': 1,}
+            'cena_za_kolo': {'jidlo': 3, 'drevo': 1, }
         },
         'zakladna': {
             'typ': 'zakladna',
             'rychlost': 0,
             'dosah': 0,
-            'utok': 0,
+            'utok_min': 0,  # Základna neútočí
+            'utok_max': 0,  # Základna neútočí
             'obrana': 0,
             'zivoty': 50,
+            'crit': 1.0,  # Základna nemá kritický zásah
+            'uhyb': 0.0,  # Základna se nevyhýbá
             'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 0}
         },
@@ -355,10 +379,12 @@ class SpravceHry:
             pozice=pozice,
             rychlost=sablona['rychlost'],
             dosah=sablona['dosah'],
-            utok_min=sablona['utok'],
-            utok_max=sablona['utok'],
+            utok_min=sablona['utok_min'],
+            utok_max=sablona['utok_max'],
             obrana=sablona['obrana'],
             zivoty=sablona['zivoty'],
+            crit=sablona['crit'],
+            uhyb=sablona['uhyb'],
             cena=sablona['cena'],
             cena_za_kolo=sablona['cena_za_kolo'],
             vlastnik=vlastnik,
@@ -366,6 +392,7 @@ class SpravceHry:
         )
 
         self.jednotky[pozice] = nova
+        # TODO: Simulace
         self.simulace.log_startovni_atributy_jednotky(nova)
         print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
         self.pocitadlo_id = self.pocitadlo_id+1

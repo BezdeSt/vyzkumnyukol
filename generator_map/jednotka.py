@@ -217,8 +217,8 @@ class Jednotka:
         else:
             # 3. Kritický zásah (pokud útok neminul)
             if random.random() < CRITICAL_HIT_CHANCE:
+                print(f"{self.typ} způsobil kritický zásah původní poškození mělo být {celkove_poskozeni}!") # Pro ladění
                 celkove_poskozeni = round(self.crit*celkove_poskozeni)
-                print(f"{self.typ} způsobil kritický zásah!") # Pro ladění
 
         # Aplikace poškození
         print(f"{self.typ} způsobil poškození: {celkove_poskozeni}!")
