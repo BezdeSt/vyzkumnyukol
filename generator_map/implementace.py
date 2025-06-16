@@ -57,12 +57,12 @@ def jednaVSjedna():
     global global_sim_id_counter # Abychom mohli modifikovat globální proměnnou
     nazev_scenare = [duel+"--Linie", duel+"--Flat",duel+"--NonFlat"]
     mapa_scenare = [mapa_line, mapa_flat, mapa_non_flat]
-    for i in range(1): # Zachováváme 10 opakování, jak sis přál
+    for i in range(10):
         global_sim_id_counter += 1 # Inkrementujeme ID pro každou simulaci
         current_sim_id = global_sim_id_counter
 
         # Předáme id_simulace do SpravceHry
-        Hra = hra.SpravceHry(hraci=[], mrizka=mapa_scenare[i], jednotky={}, budovy=[], scenar_nazev=nazev_scenare[i], id_simulace=current_sim_id)
+        Hra = hra.SpravceHry(hraci=[], mrizka=mapa_scenare[0], jednotky={}, budovy=[], scenar_nazev=nazev_scenare[0], id_simulace=current_sim_id)
         Hra.inicializace_scenare("Hráč 1", "Hráč 2")
         hrac1 = Hra.hraci[0]
         hrac2 = Hra.hraci[1]
@@ -70,7 +70,7 @@ def jednaVSjedna():
         hrac1.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
         hrac2.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
         Hra.verbovani('valecnik', hrac1, Hra, pozice=(0, 0))
-        if i == 0:
+        if True:
             Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 0))
         else:
             Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 14))
