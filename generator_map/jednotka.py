@@ -41,9 +41,14 @@ class Jednotka:
 
         self.vlastnik.jednotky.append(self)
 
-        # TODO: Pro simulace, následně odstranit
-        self.celkem_zpusobene_poskozeni = 0
-        self.celkem_prijate_poskozeni = 0
+        # TODO: Simulace
+        # Statistiky za jedno kolo pro logování
+        self.zpusobene_poskozeni_za_kolo = 0
+        self.prijate_poskozeni_za_kolo = 0
+        self.utoky_za_kolo = 0
+        self.protiutoky_za_kolo = 0
+        self.kriticke_zasahy_za_kolo = 0
+        self.uhyby_za_kolo = 0
 
     # -------------------------------------------------------------------------------------------------------
     # POHYB
@@ -197,12 +202,16 @@ class Jednotka:
             modifikace += 2
         return modifikace
 
-    def proved_utok(self, cilova_jednotka, mapa):
+    def proved_utok(self, cilova_jednotka, mapa, utok=True):
         """
             Útočí na cílovou jednotku a snižuje jí životy podle síly útoku a obrany cíle
             Args:
             cilova_jednotka: Instance jednotky, která je napadena.
         """
+        # TODO: Simulace
+        # Kontrola zda se nejedná o protiútok (ten se započítává jinde)
+        if utok:
+            self.utoky_za_kolo += 1
 
         # 1. Výpočet základního poškození s náhodnou variabilitou
         poskozeni_ciste = random.randint(self.utok_min, self.utok_max)
@@ -213,10 +222,14 @@ class Jednotka:
         # 2. Šance na uhnutí cílové jednotky
         if random.random() < cilova_jednotka.uhyb:
             celkove_poskozeni = 0  # Útok minul
+            # TODO: Simulace
+            cilova_jednotka.uhyby_za_kolo += 1
             print(f"{cilova_jednotka.typ} uhnula útoku!") # Pro ladění
         else:
             # 3. Kritický zásah (pokud útok neminul)
             if random.random() < CRITICAL_HIT_CHANCE:
+                # TODO: Simulace
+                self.kriticke_zasahy_za_kolo += 1
                 print(f"{self.typ} způsobil kritický zásah původní poškození mělo být {celkove_poskozeni}!") # Pro ladění
                 celkove_poskozeni = round(self.crit*celkove_poskozeni)
 
@@ -224,12 +237,17 @@ class Jednotka:
         print(f"{self.typ} způsobil poškození: {celkove_poskozeni}!")
         cilova_jednotka.zivoty -= celkove_poskozeni
 
+        # TODO: Simulace
+        self.zpusobene_poskozeni_za_kolo += celkove_poskozeni
+        cilova_jednotka.prijate_poskozeni_za_kolo += celkove_poskozeni
+
     def proved_protiutok(self, utocici_jednotka, mapa):
-        # Zkontrolujte, zda je útočící jednotka v dosahu protiútoku
-        # Předpokládá existenci metody je_v_dosahu
         if self.zivoty > 0 and abs(utocici_jednotka.pozice[0] - self.pozice[0]) + abs(utocici_jednotka.pozice[1] - self.pozice[1]) <= self.dosah:
             # Voláme proved_utok z pohledu bránící se jednotky na útočící jednotku
-            self.proved_utok(utocici_jednotka, mapa)
+
+            # TODO: Simulace
+            self.protiutoky_za_kolo += 1
+            self.proved_utok(utocici_jednotka, mapa, False)
             # print(f"{self.nazev} provedl protiútok na {utocici_jednotka.nazev}!") # Pro ladění
 
     def zemri(self, jednotky):
@@ -243,3 +261,38 @@ class Jednotka:
         jednotky.pop(self.pozice, None)
         if self in self.vlastnik.jednotky:
             self.vlastnik.jednotky.remove(self)
+
+    # TODO: Simulace
+    def reset_round_stats(self):
+        """Resetuje statistiky jednotky sbírané za jedno kolo."""
+        self.zpusobene_poskozeni_za_kolo = 0
+        self.prijate_poskozeni_za_kolo = 0
+        self.utoky_za_kolo = 0
+        self.protiutoky_za_kolo = 0
+        self.kriticke_zasahy_za_kolo = 0
+        self.uhyby_za_kolo = 0
+
+    def ziskej_info(self):
+        """Vrátí slovník s aktuálními informacemi o jednotce, včetně statistik za kolo."""
+        return {
+            'id': self.id,
+            'typ': self.typ,
+            'pozice': self.pozice,
+            'vlastnik': self.vlastnik.jmeno,
+            'zivoty': self.zivoty,
+            'max_zivoty': self.max_zivoty,
+            'utok_min': self.utok_min,
+            'utok_max': self.utok_max,
+            'obrana': self.obrana,
+            'rychlost': self.rychlost,
+            'dosah': self.dosah,
+            'crit': self.crit,
+            'uhyb': self.uhyb,
+            # --- NOVÉ STATISTIKY ZA KOLO ---
+            'zpusobene_poskozeni_za_kolo': self.zpusobene_poskozeni_za_kolo,
+            'prijate_poskozeni_za_kolo': self.prijate_poskozeni_za_kolo,
+            'utoky_za_kolo': self.utoky_za_kolo,
+            'protiutoky_za_kolo': self.protiutoky_za_kolo,
+            'kriticke_zasahy_za_kolo': self.kriticke_zasahy_za_kolo,
+            'uhyby_za_kolo': self.uhyby_za_kolo,
+        }

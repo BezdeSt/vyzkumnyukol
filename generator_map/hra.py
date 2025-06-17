@@ -190,7 +190,9 @@ class SpravceHry:
         if self.aktualni_hrac_index == 0:
 
             # TODO: Simulace
-            self.simulace.log_stav_kola(self.kolo, self.jednotky)
+            self.simulace.log_stav_kola(self.kolo, self.jednotky, self.simulace.id_simulace)
+            for jednotka in self.jednotky.values():
+                jednotka.reset_round_stats()
 
             self.kolo += 1
             print("-------")
@@ -275,30 +277,22 @@ class SpravceHry:
         print("Probíhá souboj")
         if napadeny in utocnik.najdi_cile_v_dosahu(self.mrizka, self.jednotky):
 
-            # TODO: Pro simulace
-            #realne_poskozeni = utocnik.utok - max(0, napadeny.obrana)
-
             utocnik.proved_utok(napadeny, self.mrizka)
             if napadeny.zivoty <= 0:
 
-                # TODO: Pro simulace
-                # Zaznamenáme smrt jednotky (pouze typ)
-                self.simulace.log_smrt_jednotky(self.kolo, napadeny)
+                # TODO: Simulace
+                self.simulace.log_umirajici_jednotku(napadeny)
 
                 napadeny.zemri(self.jednotky)
                 self.kontrola_bojeschopnosti(napadeny.vlastnik, utocnik.vlastnik)
                 if napadeny.typ == 'zakladna':
                     self.konec(utocnik.vlastnik, napadeny.vlastnik)
             else:
-                # TODO: Pro simulace
                 if abs(utocnik.pozice[0] - napadeny.pozice[0]) + abs(utocnik.pozice[1] - napadeny.pozice[1]) <= napadeny.dosah:
-                    #realne_protiutok = napadeny.utok - max(0, utocnik.obrana)
-                    #realne_protiutok = self.realne_poskozeni(napadeny, utocnik)
-                    #self.simulace.log_utok(self.kolo, napadeny, utocnik, napadeny.utok, realne_protiutok, je_protiutok=True) # Zůstává stejné
                     napadeny.proved_protiutok(utocnik, self.mrizka)
                 if utocnik.zivoty <= 0:
-                    # TODO: Pro simulace
-                    self.simulace.log_smrt_jednotky(self.kolo, utocnik)
+                    # TODO: Simulace
+                    self.simulace.log_umirajici_jednotku(utocnik)
 
                     utocnik.zemri(self.jednotky)
                     self.kontrola_bojeschopnosti(utocnik.vlastnik, napadeny.vlastnik)
@@ -313,7 +307,9 @@ class SpravceHry:
         print("KONEC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         # TODO: Simulace
-        self.simulace.log_stav_kola(self.kolo, self.jednotky)
+        # Zalogujeme poslední stav kola, včetně mrtvých jednotek
+        self.simulace.log_stav_kola(self.kolo, self.jednotky, self.simulace.id_simulace)
+        # Uložíme celkový výsledek simulace
         self.simulace.uloz_vysledek_simulace(vitez, self.kolo, self.jednotky)
 
         self.stav_hry = 0
@@ -392,8 +388,6 @@ class SpravceHry:
         )
 
         self.jednotky[pozice] = nova
-        # TODO: Simulace
-        self.simulace.log_startovni_atributy_jednotky(nova)
         print(f"{vlastnik.jmeno} verboval jednotku typu {typ} na pozici {pozice}.")
         self.pocitadlo_id = self.pocitadlo_id+1
         return nova

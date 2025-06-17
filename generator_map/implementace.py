@@ -49,13 +49,13 @@ mapa_line = [
 #pozice=(0, 0)
 #pozice=(14, 0)
 duel = "Válečník_vs_Lučištník"
-cislo_pokusu = "2."
+cislo_pokusu = "1."
 
 global_sim_id_counter = 0
 
 def jednaVSjedna():
     global global_sim_id_counter # Abychom mohli modifikovat globální proměnnou
-    nazev_scenare = [duel+"--Linie", duel+"--Flat",duel+"--NonFlat"]
+    nazev_scenare = [cislo_pokusu+duel+"--Linie", cislo_pokusu+duel+"--Flat",cislo_pokusu+duel+"--NonFlat"]
     mapa_scenare = [mapa_line, mapa_flat, mapa_non_flat]
     for i in range(10):
         global_sim_id_counter += 1 # Inkrementujeme ID pro každou simulaci
@@ -75,7 +75,7 @@ def jednaVSjedna():
         else:
             Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 14))
         print('===')
-        Hra.simulace.log_stav_kola(0, Hra.jednotky) # Nulté kolo
+        Hra.simulace.log_stav_kola(0, Hra.jednotky, Hra.simulace.id_simulace) # Nulté kolo
 
         while Hra.stav_hry:
             Hra.proved_tah()
@@ -88,13 +88,5 @@ def jednaVSjedna():
 
         for jednotka in Hra.jednotky.values():
             print(f"{jednotka.typ} má {jednotka.zivoty} životů")
-
-        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-        # Používáme fixní názvy souborů, aby se data appendovala
-        nazev_souboru_prubeh = f"{cislo_pokusu}prubeh_simulaci_{duel}.csv"
-        Hra.simulace.uloz_prubeh_do_souboru(nazev_souboru_prubeh)
-
-        nazev_souboru_metadata = f"{cislo_pokusu}metadata_{duel}.csv"
-        Hra.simulace.uloz_metadata_jednotek_do_souboru(nazev_souboru_metadata)
 
 jednaVSjedna()
