@@ -1,3 +1,5 @@
+import random
+
 import hra
 import vyskove_mapy
 
@@ -60,6 +62,7 @@ def jednaVSjedna():
     for i in range(10):
         global_sim_id_counter += 1 # Inkrementujeme ID pro každou simulaci
         current_sim_id = global_sim_id_counter
+        random.seed(current_sim_id)
 
         # Předáme id_simulace do SpravceHry
         Hra = hra.SpravceHry(hraci=[], mrizka=mapa_scenare[0], jednotky={}, budovy=[], scenar_nazev=nazev_scenare[0], id_simulace=current_sim_id)
