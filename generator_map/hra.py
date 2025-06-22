@@ -12,7 +12,8 @@ class SpravceHry:
     Spravuje průběh hry, včetně sledování kol, hráčů a vyhodnocení jejich tahů.
     """
 
-    def __init__(self, hraci, mrizka, jednotky, budovy, scenar_nazev="None", id_simulace=None):
+    def __init__(self, hraci, mrizka, jednotky, budovy, soubor_nazev="None", scenar_nazev="Neznámy Scenář",
+                 id_simulace=None, id_atribut_sada=None):
         """
         Inicializuje správce hry.
 
@@ -21,16 +22,21 @@ class SpravceHry:
             mrizka: Herní mapa jako 2D seznam terénních typů.
             jednotky: Slovník všech jednotek na mapě (pozice: instance jednotky).
             budovy: Seznam všech budov na mapě.
+            soubor_nazev (str): Název pro pojmenování souborů logů.
+            scenar_nazev (str): Název mapy/scénáře pro logování.
+            id_simulace (int): Unikátní ID pro danou simulaci.
+            id_atribut_sada (int): ID pro sadu atributů jednotek.
         """
         self.hraci = hraci
         self.mrizka = mrizka
-        self.jednotky = jednotky # {(pozice): Jednotka}
+        self.jednotky = jednotky  # {(pozice): Jednotka}
         self.budovy = budovy
         self.aktualni_hrac_index = 0
         self.kolo = 1
-        self.stav_hry = 1 # 1 Hra probíhá; 0 Hra byla ukončena
+        self.stav_hry = 1  # 1 Hra probíhá; 0 Hra byla ukončena
         self.pocitadlo_id = 0
 
+        # AI váhy pro rozhodování (mohou být předány jako parametr nebo načteny z konfigurace)
         self.ai_decision_weights = {
             "random_move_chance": 0.2,  # 20% šance na náhodný pohyb
             "target_priority_melee": 1.0,  # Váha pro útok na jednotky pro boj zblízka
@@ -38,7 +44,13 @@ class SpravceHry:
             # ... další váhy dle potřeby (např. pro ekonomiku, obranu)...
         }
 
-        self.simulace = simulace.LoggerSimulace(id_simulace, scenar_nazev)
+        # Inicializace loggeru
+        self.simulace = simulace.LoggerSimulace(
+            id_simulace=id_simulace,
+            soubor_nazev=soubor_nazev,
+            scenar_nazev=scenar_nazev,
+            id_atribut_sada=id_atribut_sada
+        )
 
     # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {

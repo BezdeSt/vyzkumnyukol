@@ -3,24 +3,27 @@ import csv
 import os
 
 class LoggerSimulace:
-    def __init__(self, id_simulace, scenar_nazev, poznamka=None):
-        self.id_simulace = id_simulace # Nové: nyní jednoduchý int
-        self.scenar_nazev = scenar_nazev
+    def __init__(self, id_simulace, soubor_nazev, scenar_nazev, id_atribut_sada, poznamka=None):
+        self.id_simulace = id_simulace
+        self.soubor_nazev = soubor_nazev  # Pro pojmenování souborů
+        self.scenar_nazev = scenar_nazev  # Název mapy pro sloupec v souhrnu
+        self.id_atribut_sada = id_atribut_sada  # ID pro sadu atributů
         self.poznamka = poznamka
         self.cas_startu = datetime.datetime.now()
 
         # Log pro detailní průběh kola za kolem (nová struktura)
-        # Klíč: kolo (int)
-        # Hodnota: slovník, kde klíč je ID jednotky a hodnota je slovník s jejími atributy
         self.log_jednotek_detail_kola = {}
 
         # Dočasný seznam jednotek, které zemřely v aktuálním kole
-        # Klíč: ID jednotky, Hodnota: instance jednotky (s konečným stavem)
         self.nedavno_zemrele_jednotky_kolo = {}
 
         # Celkové výsledky simulace
         self.vitez_simulace = None
         self.pocet_kol = 0
+
+        # Cesty k souborům s logy (úprava pro dynamické jméno)
+        self.adresare_logu = "sim_logy"
+        os.makedirs(self.adresare_logu, exist_ok=True)  # Vytvoří složku, pokud neexistuje
 
     def log_umirajici_jednotku(self, jednotka):
         """
@@ -50,6 +53,7 @@ class LoggerSimulace:
             info = jednotka_instance.ziskej_info()
             info['kolo'] = kolo
             info['id_simulace'] = id_simulace
+            info['id_atribut_sada'] = self.id_atribut_sada # Nová hodnota pro detailní log
             self.log_jednotek_detail_kola[kolo][jednotka_instance.id] = info
 
         # Po zalogování vyprázdníme seznam nedávno zemřelých jednotek
@@ -60,15 +64,16 @@ class LoggerSimulace:
         Uloží detailní log jednotek do CSV souboru (agregovaně podle scénáře)
         a souhrnné výsledky simulace (přidáním řádku).
         """
-        # Vytvoření složky pro logy, pokud neexistuje
-        if not os.path.exists('sim_logy'):
-            os.makedirs('sim_logy')
+        # Vytvoření složky pro logy, pokud neexistuje (již je v __init__, ale pro jistotu zde)
+        if not os.path.exists(self.adresare_logu):
+            os.makedirs(self.adresare_logu)
 
         # --- Definujte preferované pořadí sloupců zde ---
         # Tyto sloupce se objeví v CSV v tomto pořadí.
         # Ostatní sloupce budou přidány na konec v abecedním pořadí.
         PREFERRED_FIELD_ORDER = [
             'id_simulace',
+            'id_atribut_sada', # Nový sloupec pro detailní log
             'kolo',
             'id',
             'typ',
@@ -92,7 +97,8 @@ class LoggerSimulace:
         ]
         # --- Konec definice preferovaného pořadí ---
 
-        detail_csv_path = os.path.join('sim_logy', f'{self.scenar_nazev}.csv')
+        # Detailní log
+        detail_csv_path = os.path.join(self.adresare_logu, f'{self.soubor_nazev}_detail.csv') # Používáme soubor_nazev
 
         # Získání všech unikátních klíčů ze všech dat pro určení všech možných sloupců
         all_possible_fields = set()
@@ -123,26 +129,38 @@ class LoggerSimulace:
                 for kolo in sorted(self.log_jednotek_detail_kola.keys()):
                     for unit_id in sorted(self.log_jednotek_detail_kola[kolo].keys()):
                         writer.writerow(self.log_jednotek_detail_kola[kolo][unit_id])
-            print(f"Detailní log jednotek simulace (scénář '{self.scenar_nazev}') přidán do: {detail_csv_path}")
+            print(f"Detailní log jednotek simulace (scénář '{self.soubor_nazev}') přidán do: {detail_csv_path}") # Používáme soubor_nazev
 
-        # Souhrnné výsledky simulace zůstávají stejné
-        souhrn_csv_path = os.path.join('sim_logy', 'souhrn_simulaci.csv')
-        souhrn_fieldnames = ['id_simulace', 'scenar_nazev', 'cas_startu', 'vitez_simulace', 'pocet_kol', 'poznamka']
 
-        file_exists = os.path.isfile(souhrn_csv_path)
+        # Souhrnné výsledky simulace
+        souhrn_csv_path = os.path.join(self.adresare_logu, 'souhrn_simulaci.csv')
+        souhrn_fieldnames = [
+            'nazev',
+            'id_simulace',
+            'id_atribut_sada', # Nový sloupec pro souhrn
+            'scenar_nazev',    # Nový sloupec (název mapy) pro souhrn
+            'cas_startu',
+            'vitez_simulace',
+            'pocet_kol',
+            'poznamka'
+        ]
+
+        file_exists_souhrn = os.path.isfile(souhrn_csv_path)
 
         with open(souhrn_csv_path, 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=souhrn_fieldnames)
-            if not file_exists:
+            if not file_exists_souhrn:
                 writer.writeheader()
 
             writer.writerow({
                 'id_simulace': self.id_simulace,
-                'scenar_nazev': self.scenar_nazev,
+                'id_atribut_sada': self.id_atribut_sada, # Nová hodnota
+                'scenar_nazev': self.scenar_nazev,    # Nová hodnota
                 'cas_startu': self.cas_startu.strftime('%Y-%m-%d %H:%M:%S'),
                 'vitez_simulace': self.vitez_simulace.jmeno if self.vitez_simulace else "Neznámý",
                 'pocet_kol': self.pocet_kol,
-                'poznamka': self.poznamka if self.poznamka else ""
+                'poznamka': self.poznamka if self.poznamka else "",
+                'nazev': self.soubor_nazev,
             })
         print(f"Souhrnný výsledek simulace přidán do: {souhrn_csv_path}")
 
