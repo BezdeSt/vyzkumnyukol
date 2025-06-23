@@ -1,447 +1,453 @@
 import pandas as pd
-import numpy as np
-import os
 import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import glob
 
+# --- Konfigurace ---
+LOG_DIR = 'sim_logy'
+BASE_OUTPUT_DIR = 'agregovane_vystupy'  # Základní výstupní složka
+SUMMARY_FILE_NAME = 'souhrn_simulaci.csv'
+DETAIL_FILE_PATTERN = '*_detail.csv'  # Pattern pro detailní logy
 
-class DataProcessor:
-    def __init__(self, soubor_csv):
-        self.soubor_csv = soubor_csv
-        self.df_raw = self.nacti_data()
+# Vytvoření základní výstupní složky, pokud neexistuje
+os.makedirs(BASE_OUTPUT_DIR, exist_ok=True)
 
-        if self.df_raw.empty:
-            print("Chyba: Raw DataFrame je prázdný. Zkontrolujte soubor a kódování.")
-            return
+print("--- Spouštím analýzu dat simulací ---")
 
-        self.simulace_list = self.rozdel_na_simulace()
+# --- 1. Načtení dat ---
 
-    def nacti_data(self):
-        """Načte data z CSV souboru s pokusem o různé kódování."""
-        encoding_options = ['utf-8', 'cp1250', 'latin-1']
-        for encoding in encoding_options:
-            try:
-                df = pd.read_csv(self.soubor_csv, encoding=encoding)
-                if 'vlastnik' in df.columns and df['vlastnik'].astype(str).str.contains('Hráč|Hrac', na=False).any():
-                    return df
-            except UnicodeDecodeError:
-                pass  # Ignoruj chyby kódování a zkus další
-            except Exception:
-                pass  # Ignoruj ostatní chyby a zkus další
+# Načtení souhrnného logu
+try:
+    df_summary = pd.read_csv(os.path.join(LOG_DIR, SUMMARY_FILE_NAME), delimiter=',')
+    print(f"Načten souhrnný log: {SUMMARY_FILE_NAME}")
+    print(f"Počet záznamů v souhrnném logu: {len(df_summary)}")
 
+    # Zajištění správných datových typů pro analýzu
+    df_summary['id_simulace'] = df_summary['id_simulace'].astype(str)
+
+    # Zajištění sloupce 'nazev'
+    if 'nazev' not in df_summary.columns:
+        df_summary['nazev'] = 'Vychozi_nazev_simulace'  # Výchozí hodnota, pokud sloupec chybí
         print(
-            f"Nedaří se načíst soubor '{self.soubor_csv}' s žádným běžným kódováním. Zkontrolujte prosím kódování souboru.")
-        return pd.DataFrame()
-
-    def rozdel_na_simulace(self):
-        """
-        Rozdělí DataFrame na seznam menších DataFrames,
-        kde každý reprezentuje jednu kompletní simulaci.
-        Detekuje začátky simulací podle poklesu čísla kola.
-        """
-        if self.df_raw.empty:
-            return []
-
-        self.df_raw['kolo'] = pd.to_numeric(self.df_raw['kolo'], errors='coerce')
-        self.df_raw.dropna(subset=['kolo'], inplace=True)
-
-        kolo_shifted = self.df_raw['kolo'].shift(1).fillna(np.inf)
-
-        simulace_starts_indices = self.df_raw[self.df_raw['kolo'] < kolo_shifted].index.tolist()
-
-        if 0 not in simulace_starts_indices:
-            simulace_starts_indices.insert(0, 0)
-
-        simulace_starts_indices = sorted(list(set(simulace_starts_indices)))
-
-        simulace_list = []
-        for i in range(len(simulace_starts_indices)):
-            start_index = simulace_starts_indices[i]
-            end_index = simulace_starts_indices[i + 1] if i + 1 < len(simulace_starts_indices) else len(self.df_raw)
-
-            current_sim_df = self.df_raw.iloc[start_index:end_index].copy()
-            simulace_list.append(current_sim_df)
-
-        return simulace_list
-
-    def agreguj_jednotlivou_simulaci(self, df_simulace):
-        """
-        Agreguje klíčové metriky pro jednu kompletní simulaci.
-        """
-        if df_simulace.empty:
-            return None
-
-        vitez = None
-        unikatni_vitezove = df_simulace['vitez'].dropna().unique()
-        if len(unikatni_vitezove) > 0:
-            vitez = str(unikatni_vitezove[0])
-
-        pocet_kol = int(df_simulace['kolo'].max()) if not df_simulace['kolo'].empty else 0
-
-        agregovane_vysledky_simulace = {}
-        df_simulace['typ_jednotky'] = df_simulace['typ_jednotky'].astype(str)
-        df_simulace['vlastnik'] = df_simulace['vlastnik'].astype(str)
-
-        jednotky_a_vlastnici = df_simulace[['typ_jednotky', 'vlastnik']].drop_duplicates().values
-
-        for typ_jednotky, vlastnik in jednotky_a_vlastnici:
-            df_jednotka_simulace = df_simulace[
-                (df_simulace['typ_jednotky'] == typ_jednotky) & (df_simulace['vlastnik'] == vlastnik)]
-
-            if df_jednotka_simulace.empty:
-                continue
-
-            df_jednotka_simulace_po_kole_0 = df_jednotka_simulace[df_jednotka_simulace['kolo'] > 0]
-
-            celkove_zpusobene_poskozeni = df_jednotka_simulace_po_kole_0['realne_zpusobene_poskozeni_kolo'].sum().item()
-            celkove_utrzene_poskozeni = df_jednotka_simulace_po_kole_0['utrzene_poskozeni_kolo'].sum().item()
-
-            celkovy_pocet_utoku = df_jednotka_simulace_po_kole_0[
-                'pocet_utoku_kolo'].sum().item() if 'pocet_utoku_kolo' in df_jednotka_simulace_po_kole_0.columns else 0
-            celkovy_pocet_protiutoku = df_jednotka_simulace_po_kole_0[
-                'pocet_protiutoku_kolo'].sum().item() if 'pocet_protiutoku_kolo' in df_jednotka_simulace_po_kole_0.columns else 0
-
-            efektivni_pocet_kol_pro_prumery = df_jednotka_simulace_po_kole_0['kolo'].nunique()
-
-            prumerne_zpusobene_za_kolo = (
-                    celkove_zpusobene_poskozeni / efektivni_pocet_kol_pro_prumery) if efektivni_pocet_kol_pro_prumery > 0 else 0.0
-            prumerne_utrzene_za_kolo = (
-                    celkove_utrzene_poskozeni / efektivni_pocet_kol_pro_prumery) if efektivni_pocet_kol_pro_prumery > 0 else 0.0
-
-            prumerny_pocet_utoku_za_kolo = (
-                    celkovy_pocet_utoku / efektivni_pocet_kol_pro_prumery) if efektivni_pocet_kol_pro_prumery > 0 else 0.0
-            prumerny_pocet_protiutoku_za_kolo = (
-                    celkovy_pocet_protiutoku / efektivni_pocet_kol_pro_prumery) if efektivni_pocet_kol_pro_prumery > 0 else 0.0
-
-            last_state = df_jednotka_simulace.iloc[-1]
-
-            zive_jednotky_na_konci = last_state['zive_jednotky'].item()
-            celkove_zivoty_na_konci = last_state['celkove_zivoty'].item()
-
-            initial_units_series = df_jednotka_simulace[df_jednotka_simulace['kolo'] == 0]['zive_jednotky']
-            initial_units_count = initial_units_series.iloc[0].item() if not initial_units_series.empty else 0
-
-            mira_preziti = (zive_jednotky_na_konci / initial_units_count) * 100.0 if initial_units_count > 0 else 0.0
-
-            unit_data = {
-                'vlastnik': vlastnik,
-                'celkove_zpusobene_poskozeni_simulace': celkove_zpusobene_poskozeni,
-                'celkove_utrzene_poskozeni_simulace': celkove_utrzene_poskozeni,
-                'prumerne_zpusobene_za_kolo_simulace': prumerne_zpusobene_za_kolo,
-                'prumerne_utrzene_za_kolo_simulace': prumerne_utrzene_za_kolo,
-                'zive_jednotky_na_konci': zive_jednotky_na_konci,
-                'celkove_zivoty_na_konci': celkove_zivoty_na_konci,
-                'mira_preziti': mira_preziti
-            }
-
-            # Přidání počtů útoků/protiútoků, pokud existují ve sloupcích
-            if 'pocet_utoku_kolo' in df_jednotka_simulace_po_kole_0.columns:
-                unit_data['celkovy_pocet_utoku_simulace'] = celkovy_pocet_utoku
-                unit_data['prumerny_pocet_utoku_za_kolo_simulace'] = prumerny_pocet_utoku_za_kolo
-            if 'pocet_protiutoku_kolo' in df_jednotka_simulace_po_kole_0.columns:
-                unit_data['celkovy_pocet_protiutoku_simulace'] = celkovy_pocet_protiutoku
-                unit_data['prumerny_pocet_protiutoku_za_kolo_simulace'] = prumerny_pocet_protiutoku_za_kolo
-
-            agregovane_vysledky_simulace[typ_jednotky] = unit_data
-
-        return {
-            'vitez': vitez,
-            'pocet_kol': pocet_kol,
-            'jednotky_data': agregovane_vysledky_simulace
-        }
-
-    def zpracuj_vsechny_simulace(self):
-        agregovane_vsechny_simulace = []
-        for df_simulace in self.simulace_list:
-            res = self.agreguj_jednotlivou_simulaci(df_simulace)
-            if res:
-                agregovane_vsechny_simulace.append(res)
-        return agregovane_vsechny_simulace
-
-    def agreguj_vsechny_simulace_dohromady(self, vysledky_jednotlivych_simulaci):
-        """
-        Provede celkovou agregaci výsledků napříč všemi simulacemi.
-        """
-        celkove_vysledky = {}
-        pocet_simulaci = len(vysledky_jednotlivych_simulaci)
-
-        # Počítání vítězství
-        vitezove_counts = {}
-        for sim_res in vysledky_jednotlivych_simulaci:
-            vitez = sim_res['vitez']
-            if vitez:
-                vitezove_counts[vitez] = vitezove_counts.get(vitez, 0) + 1
-            else:
-                vitezove_counts['Remíza/Žádný vítěz'] = vitezove_counts.get('Remíza/Žádný vítěz', 0) + 1
-
-        celkove_vysledky['vitezove_counts'] = vitezove_counts
-
-        # Agregace statistik jednotek napříč simulacemi
-        agregace_jednotek = {}
-        pocet_kol_list = [] # Nový seznam pro sběr počtu kol z jednotlivých simulací
-
-        for sim_res in vysledky_jednotlivych_simulaci:
-            pocet_kol_list.append(sim_res['pocet_kol']) # Přidání počtu kol do seznamu
-            for typ_jednotky, data in sim_res['jednotky_data'].items():
-                vlastnik = data['vlastnik']
-                klic = f"{typ_jednotky} ({vlastnik})"
-
-                if klic not in agregace_jednotek:
-                    agregace_jednotek[klic] = {
-                        'celkove_zpusobene_poskozeni_simulace': [],
-                        'celkove_utrzene_poskozeni_simulace': [],
-                        'prumerne_zpusobene_za_kolo_simulace': [],
-                        'prumerne_utrzene_za_kolo_simulace': [],
-                        'celkovy_pocet_utoku_simulace': [],
-                        'celkovy_pocet_protiutoku_simulace': [],
-                        'prumerny_pocet_utoku_za_kolo_simulace': [],
-                        'prumerny_pocet_protiutoku_za_kolo_simulace': [],
-                        'zive_jednotky_na_konci': [],
-                        'mira_preziti': [],
-                        'pocet_her': 0
-                    }
-
-                agregace_jednotek[klic]['celkove_zpusobene_poskozeni_simulace'].append(
-                    data['celkove_zpusobene_poskozeni_simulace'])
-                agregace_jednotek[klic]['celkove_utrzene_poskozeni_simulace'].append(
-                    data['celkove_utrzene_poskozeni_simulace'])
-                agregace_jednotek[klic]['prumerne_zpusobene_za_kolo_simulace'].append(
-                    data['prumerne_zpusobene_za_kolo_simulace'])
-                agregace_jednotek[klic]['prumerne_utrzene_za_kolo_simulace'].append(
-                    data['prumerne_utrzene_za_kolo_simulace'])
-
-                # Plnění seznamů daty s kontrolou existence klíče
-                if 'celkovy_pocet_utoku_simulace' in data:
-                    agregace_jednotek[klic]['celkovy_pocet_utoku_simulace'].append(
-                        data['celkovy_pocet_utoku_simulace'])
-                if 'celkovy_pocet_protiutoku_simulace' in data:
-                    agregace_jednotek[klic]['celkovy_pocet_protiutoku_simulace'].append(
-                        data['celkovy_pocet_protiutoku_simulace'])
-                if 'prumerny_pocet_utoku_za_kolo_simulace' in data:
-                    agregace_jednotek[klic]['prumerny_pocet_utoku_za_kolo_simulace'].append(
-                        data['prumerny_pocet_utoku_za_kolo_simulace'])
-                if 'prumerny_pocet_protiutoku_za_kolo_simulace' in data:
-                    agregace_jednotek[klic]['prumerny_pocet_protiutoku_za_kolo_simulace'].append(
-                        data['prumerny_pocet_protiutoku_za_kolo_simulace'])
-
-                agregace_jednotek[klic]['zive_jednotky_na_konci'].append(data['zive_jednotky_na_konci'])
-                agregace_jednotek[klic]['mira_preziti'].append(data['mira_preziti'])
-                agregace_jednotek[klic]['pocet_her'] += 1
-
-        final_agregace_jednotek = {}
-        for klic, data_list in agregace_jednotek.items():
-            final_agregace_jednotek[klic] = {
-                'pocet_odehranych_simulaci': data_list['pocet_her'],
-                'prumer_celkoveho_zpusobeneho_poskozeni_za_simulaci': np.mean(
-                    data_list['celkove_zpusobene_poskozeni_simulace']),
-                'prumer_celkoveho_utrzeneho_poskozeni_za_simulaci': np.mean(
-                    data_list['celkove_utrzene_poskozeni_simulace']),
-                'prumer_zpusobeneho_za_kolo': np.mean(data_list['prumerne_zpusobene_za_kolo_simulace']),
-                'prumer_utrzeneho_za_kolo': np.mean(data_list['prumerne_utrzene_za_kolo_simulace']),
-                # Výpočet průměrů útoků/protiútoků s kontrolou prázdných seznamů
-                'prumer_celkoveho_poctu_utoku_za_simulaci': np.mean(data_list['celkovy_pocet_utoku_simulace']) if
-                data_list['celkovy_pocet_utoku_simulace'] else 0,
-                'prumer_celkoveho_poctu_protiutoku_za_simulaci': np.mean(
-                    data_list['celkovy_pocet_protiutoku_simulace']) if data_list[
-                    'celkovy_pocet_protiutoku_simulace'] else 0,
-                'prumer_poctu_utoku_za_kolo': np.mean(data_list['prumerny_pocet_utoku_za_kolo_simulace']) if data_list[
-                    'prumerny_pocet_utoku_za_kolo_simulace'] else 0,
-                'prumer_poctu_protiutoku_za_kolo': np.mean(data_list['prumerny_pocet_protiutoku_za_kolo_simulace']) if
-                data_list['prumerny_pocet_protiutoku_za_kolo_simulace'] else 0,
-                'prumer_zivych_jednotek_na_konci': np.mean(data_list['zive_jednotky_na_konci']),
-                'prumerna_mira_preziti': np.mean(data_list['mira_preziti'])
-            }
-
-        celkove_vysledky['agregace_jednotek'] = final_agregace_jednotek
-        celkove_vysledky['celkovy_pocet_simulaci'] = pocet_simulaci
-        celkove_vysledky['prumerny_pocet_kol_napric_simulacemi'] = np.mean(pocet_kol_list) if pocet_kol_list else 0 # Výpočet průměrného počtu kol
-
-        return celkove_vysledky
-
-    def vizualizuj_zivoty_prubeh(self, cislo_simulace):
-        """
-        Vizualizuje vývoj celkových životů jednotek v průběhu kol pro danou simulaci.
-        Args:
-            cislo_simulace (int): Pořadové číslo simulace (od 1).
-        """
-        if not (1 <= cislo_simulace <= len(self.simulace_list)):
-            print(
-                f"Chyba: Simulace číslo {cislo_simulace} neexistuje. Dostupné simulace: 1 až {len(self.simulace_list)}.")
-            return
-
-        df_simulace = self.simulace_list[cislo_simulace - 1]  # Převod na 0-index
-
-        plt.figure(figsize=(10, 6))
-
-        # Získání unikátních jednotek a jejich vlastníků v této simulaci
-        jednotky_a_vlastnici = df_simulace[['typ_jednotky', 'vlastnik']].drop_duplicates()
-
-        for index, row in jednotky_a_vlastnici.iterrows():
-            typ_jednotky = row['typ_jednotky']
-            vlastnik = row['vlastnik']
-
-            df_jednotka = df_simulace[(df_simulace['typ_jednotky'] == typ_jednotky) &
-                                      (df_simulace['vlastnik'] == vlastnik)].copy()
-
-            plt.plot(df_jednotka['kolo'], df_jednotka['celkove_zivoty'], marker='o',
-                     label=f'{typ_jednotky} ({vlastnik})')
-
-        plt.title(f'Vývoj celkových životů v simulaci č. {cislo_simulace}')
-        plt.xlabel('Kolo')
-        plt.ylabel('Celkové životy')
-        plt.grid(True)
-        plt.legend()
-        plt.xticks(df_simulace['kolo'].unique())  # Zajistí, že ticky na X-ose budou odpovídat kolům
-        plt.ylim(bottom=0)  # Zajištění, že Y-osa začíná od 0
-        plt.tight_layout()
-        plt.show()
-
-    def vizualizuj_poskozeni_prubeh(self, cislo_simulace):
-        """
-        Vizualizuje způsobené poškození za kolo pro danou simulaci jako bargraf.
-        Args:
-            cislo_simulace (int): Pořadové číslo simulace (od 1).
-        """
-        if not (1 <= cislo_simulace <= len(self.simulace_list)):
-            print(
-                f"Chyba: Simulace číslo {cislo_simulace} neexistuje. Dostupné simulace: 1 až {len(self.simulace_list)}.")
-            return
-
-        df_simulace = self.simulace_list[cislo_simulace - 1]  # Převod na 0-index
-
-        plt.figure(figsize=(12, 7))
-
-        jednotky_a_vlastnici = df_simulace[['typ_jednotky', 'vlastnik']].drop_duplicates()
-
-        # Pro správné zobrazení sloupcového grafu (s oddělenými sloupci pro způsobené)
-        df_plot = df_simulace[df_simulace['kolo'] > 0].copy()
-
-        # Získání unikátních kol pro nastavení X-os
-        kola = df_plot['kolo'].unique()
-        # Nastavení šířky sloupce (pouze pro způsobené poškození, takže stačí jeden offset)
-        width = 0.5
-
-        # Nový způsob získání barevné mapy a normalizátoru
-        cmap = plt.colormaps['Dark2']  # Získáme barevnou mapu
-        # Normalizátor pro mapování indexů jednotek na barvy
-        norm = plt.Normalize(vmin=0, vmax=len(jednotky_a_vlastnici) - 1)
-
-        # Vytvoření seznamu pro legendu
-        labels = []
-        bars_list = []
-
-        # Iterujeme přes kola
-        for k_idx, kolo_val in enumerate(kola):
-            # Pro každé kolo iterujeme přes jednotky
-            for j_idx, (typ_jednotky, vlastnik) in enumerate(jednotky_a_vlastnici.values):
-                df_jednotka_kolo = df_plot[(df_plot['kolo'] == kolo_val) &
-                                           (df_plot['typ_jednotky'] == typ_jednotky) &
-                                           (df_plot['vlastnik'] == vlastnik)]
-
-                # Získání hodnoty poškození, nebo 0 pokud pro dané kolo a jednotku není žádné poškození
-                poskozeni_val = df_jednotka_kolo[
-                    'realne_zpusobene_poskozeni_kolo'].sum() if not df_jednotka_kolo.empty else 0
-
-                # Vypočítáme pozici sloupce na X-ose
-                # Základní pozice je index kola (k_idx), a k tomu přidáme offset pro každou jednotku
-                x_pos = k_idx + (j_idx - len(jednotky_a_vlastnici) / 2 + 0.5) * width
-
-                bar = plt.bar(x_pos, poskozeni_val, width,
-                              label=f'{typ_jednotky} ({vlastnik})' if kolo_val == kola[0] else "",  # Label jen jednou
-                              color=cmap(norm(j_idx)))  # Použijeme cmap a norm pro konzistentní barvy jednotek
-
-                # Ukládáme reference k barům a jejich labely pro legendu
-                if kolo_val == kola[0]:  # Přidáme label jen jednou pro každou jednotku
-                    bars_list.append(bar)
-                    labels.append(f'{typ_jednotky} ({vlastnik})')
-
-        plt.title(f'Způsobené poškození za kolo v simulaci č. {cislo_simulace}')
-        plt.xlabel('Kolo')
-        plt.ylabel('Způsobené poškození')
-        plt.xticks(np.arange(len(kola)), [int(k) for k in kola])  # Nastaví popisky X-os pro kola
-        plt.grid(axis='y', linestyle='--', alpha=0.7)
-        plt.legend(bars_list, labels, bbox_to_anchor=(1.05, 1),
-                   loc='upper left')  # Legendu vytváříme z uložených labelů a barů
-        plt.ylim(bottom=0)
-        plt.tight_layout()
-        plt.show()
-
-
-if __name__ == "__main__":
-    # --- Zde vlož skutečnou cestu k tvému CSV souboru ---
-    soubor_dat = 'Válečník_vs_Lučištník--NonFlat_prubeh_simulaci.csv'  # Předpokládá se, že soubor je ve stejné složce
-    # --- Konec nastavení cesty ---
-
-    processor = DataProcessor(soubor_dat)
-    vysledky_jednotlivych_simulaci = processor.zpracuj_vsechny_simulace()
-
-    if vysledky_jednotlivych_simulaci:
-        # --- Dílčí výsledky pro každou simulaci ---
-        print("\n--- Dílčí agregované výsledky jednotlivých simulací: ---")
-        for i, sim_data in enumerate(vysledky_jednotlivych_simulaci):
-            print(f"\n--- Simulace číslo {i + 1} ---")
-            print(f"  Vítěz: {sim_data['vitez']}")
-            print(f"  Počet kol: {sim_data['pocet_kol']}")
-            for unit_type, data in sim_data['jednotky_data'].items():
-                print(f"    Jednotka: {unit_type} ({data['vlastnik']})")
-                print(
-                    f"      Celkové způsobené poškození (za simulaci): {data['celkove_zpusobene_poskozeni_simulace']}")
-                print(f"      Celkové utržené poškození (za simulaci): {data['celkove_utrzene_poskozeni_simulace']}")
-                print(
-                    f"      Průměrné způsobené za kolo (za simulaci): {data['prumerne_zpusobene_za_kolo_simulace']:.2f}")
-                print(f"      Průměrné utržené za kolo (za simulaci): {data['prumerne_utrzene_za_kolo_simulace']:.2f}")
-                # Tisk celkových a průměrných počtů útoků/protiútoků za simulaci
-                if 'celkovy_pocet_utoku_simulace' in data:
-                    print(f"      Celkový počet útoků (za simulaci): {data['celkovy_pocet_utoku_simulace']}")
-                if 'celkovy_pocet_protiutoku_simulace' in data:
-                    print(f"      Celkový počet protiútoků (za simulaci): {data['celkovy_pocet_protiutoku_simulace']}")
-                if 'prumerny_pocet_utoku_za_kolo_simulace' in data:
-                    print(
-                        f"      Průměrný počet útoků za kolo (za simulaci): {data['prumerny_pocet_utoku_za_kolo_simulace']:.2f}")
-                if 'prumerny_pocet_protiutoku_za_kolo_simulace' in data:
-                    print(
-                        f"      Průměrný počet protiútoků za kolo (za simulaci): {data['prumerny_pocet_protiutoku_za_kolo_simulace']:.2f}")
-                print(f"      Živé jednotky na konci: {data['zive_jednotky_na_konci']}")
-                print(f"      Celkové životy na konci: {data['celkove_zivoty_na_konci']}")
-                print(f"      Míra přežití: {data['mira_preziti']:.2f}%")
-        print("\n--- Konec dílčích výsledků ---")
-
-        # --- Celková agregace všech simulací ---
-        celkove_agregovane_vysledky = processor.agreguj_vsechny_simulace_dohromady(vysledky_jednotlivych_simulaci)
-
-        print("\n--- Celkové agregované výsledky všech simulací: ---")
-        print(f"Celkový počet simulací: {celkove_agregovane_vysledky['celkovy_pocet_simulaci']}")
-        # Nový tisk průměrného počtu kol napříč simulacemi
-        print(f"Průměrný počet kol napříč simulacemi: {celkove_agregovane_vysledky['prumerny_pocet_kol_napric_simulacemi']:.2f}")
-
-
-        print("\n  Počet vítězství:")
-        for vitez, count in celkove_agregovane_vysledky['vitezove_counts'].items():
-            print(f"    {vitez}: {count}x")
-
-        print("\n  Agregované statistiky jednotek napříč všemi simulacemit:")
-        for klic_jednotky, data in celkove_agregovane_vysledky['agregace_jednotek'].items():
-            print(f"    Jednotka: {klic_jednotky} (z {data['pocet_odehranych_simulaci']} simulací)")
-            print(
-                f"      Průměrné celkové způsobené poškození za simulaci: {data['prumer_celkoveho_zpusobeneho_poskozeni_za_simulaci']:.2f}")
-            print(
-                f"      Průměrné celkové utržené poškození za simulaci: {data['prumer_celkoveho_utrzeneho_poskozeni_za_simulaci']:.2f}")
-            print(f"      Průměrné způsobené za kolo: {data['prumer_zpusobeneho_za_kolo']:.2f}")
-            print(f"      Průměrné utržené za kolo: {data['prumer_utrzeneho_za_kolo']:.2f}")
-            # Tisk průměrných útoků/protiútoků z celkové agregace
-            print(
-                f"      Průměrný celkový počet útoků za simulaci: {data['prumer_celkoveho_poctu_utoku_za_simulaci']:.2f}")
-            print(
-                f"      Průměrný celkový počet protiutoků za simulaci: {data['prumer_celkoveho_poctu_protiutoku_za_simulaci']:.2f}")
-            print(f"      Průměrný počet útoků za kolo: {data['prumer_poctu_utoku_za_kolo']:.2f}")
-            print(f"      Průměrný počet protiútoků za kolo: {data['prumer_poctu_protiutoku_za_kolo']:.2f}")
-            print(f"      Průměr živých jednotek na konci: {data['prumer_zivych_jednotek_na_konci']:.2f}")
-            print(f"      Průměrná míra přežití: {data['prumerna_mira_preziti']:.2f}%")
-
+            "Varování: Sloupec 'nazev' nebyl nalezen v souhrnném logu. Použit výchozí název 'Vychozi_nazev_simulace'.")
+
+    df_summary['id_atribut_sada'] = pd.to_numeric(df_summary['id_atribut_sada'], errors='coerce').astype(int).astype(
+        str)
+    df_summary['pocet_kol'] = pd.to_numeric(df_summary['pocet_kol'], errors='coerce')
+
+except FileNotFoundError:
+    print(
+        f"Chyba: Souhrnný log '{SUMMARY_FILE_NAME}' nenalezen ve složce '{LOG_DIR}'. Ujistěte se, že simulace proběhly a vygenerovaly logy.")
+    exit()
+except Exception as e:
+    print(f"Chyba při načítání souhrnného logu: {e}. Zkontrolujte formát CSV a oddělovače.")
+    exit()
+
+# Načtení a spojení detailních logů
+detail_files = glob.glob(os.path.join(LOG_DIR, DETAIL_FILE_PATTERN))
+if not detail_files:
+    print(
+        f"Varování: Žádné detailní logy '{DETAIL_FILE_PATTERN}' nenalezeny ve složce '{LOG_DIR}'. Některé analýzy nebudou možné.")
+    df_detail = pd.DataFrame()  # Prázdný DataFrame
+else:
+    list_df_detail = []
+    for f in detail_files:
+        try:
+            df_temp = pd.read_csv(f, delimiter=',')
+            df_temp['id_simulace'] = df_temp['id_simulace'].astype(str)
+            df_temp['id_atribut_sada'] = pd.to_numeric(df_temp['id_atribut_sada'], errors='coerce').astype(int).astype(
+                str)
+            list_df_detail.append(df_temp)
+        except Exception as e:
+            print(f"Varování: Nepodařilo se načíst detailní log '{f}': {e}. Zkontrolujte formát CSV a oddělovače.")
+    if list_df_detail:
+        df_detail = pd.concat(list_df_detail, ignore_index=True)
+        print(f"Načteno a spojeno {len(detail_files)} detailních logů.")
+        print(f"Celkový počet záznamů v detailním logu: {len(df_detail)}")
+
+        # Merge df_summary (for 'nazev' and 'scenar_nazev') into df_detail
+        # This is crucial for later grouping df_detail by 'nazev' etc.
+        df_detail = pd.merge(df_detail,
+                             df_summary[['id_simulace', 'nazev', 'scenar_nazev']],
+                             on='id_simulace',
+                             how='left')
     else:
-        print("Žádné výsledky simulací k zobrazení. Zkontrolujte vstupní data.")
+        print("Žádné detailní logy nebylo možné úspěšně načíst.")
+        df_detail = pd.DataFrame()
 
-    # VIZUALIZACE
-    # Zkus vizualizovat simulaci číslo 1
-    processor.vizualizuj_zivoty_prubeh(1)
+# --- 2. Agregace souhrnných dat (s 'nazev') ---
+print("\n--- Agregace souhrnných dat ---")
 
-    processor.vizualizuj_poskozeni_prubeh(1)
+# Společné seskupovací klíče pro souhrnné tabulky
+summary_groupby_keys = ['nazev', 'id_atribut_sada', 'scenar_nazev']
+
+# Agregace statistik kol
+aggregated_rounds = pd.DataFrame()
+if 'pocet_kol' in df_summary.columns:
+    aggregated_rounds = df_summary.groupby(summary_groupby_keys)['pocet_kol'].agg(
+        ['mean', 'median', 'min', 'max', 'std', 'count']
+    ).round(2)
+    aggregated_rounds.rename(columns={
+        'mean': 'Průměr_kol',
+        'median': 'Medián_kol',
+        'min': 'Min_kol',
+        'max': 'Max_kol',
+        'std': 'Směrodatná_odchylka_kol',
+        'count': 'Počet_simulací'
+    }, inplace=True)
+    print("\nStatistiky počtu kol dle názvu, sady atributů a scénáře:")
+    print(aggregated_rounds.head())
+
+# Agregace vítězných procent
+win_percentages = pd.DataFrame()
+if 'vitez_simulace' in df_summary.columns:
+    win_counts = df_summary.groupby(summary_groupby_keys + ['vitez_simulace']).size().unstack(fill_value=0)
+    if not win_counts.empty:
+        total_sims_per_group = win_counts.sum(axis=1)
+        valid_groups = total_sims_per_group[total_sims_per_group > 0].index
+        win_percentages = win_counts.loc[valid_groups].div(total_sims_per_group.loc[valid_groups], axis=0).mul(
+            100).round(2)
+
+        expected_winner_cols = ['Hráč 1', 'Hráč 2', 'Nerozhodně', 'Neznámý']
+        for col in expected_winner_cols:
+            if col not in win_percentages.columns:
+                win_percentages[col] = 0.0
+        win_percentages = win_percentages[expected_winner_cols]
+        win_percentages.rename(columns={
+            'Hráč 1': 'Vítěz_Hráč1_%',
+            'Hráč 2': 'Vítěz_Hráč2_%',
+            'Nerozhodně': 'Nerozhodně_%',
+            'Neznámý': 'Neznámý_%'
+        }, inplace=True)
+        print("\nVítězná procenta dle názvu, sady atributů a scénáře:")
+        print(win_percentages.head())
+
+# --- Spojení souhrnných tabulek do jedné ---
+final_summary_table = pd.DataFrame()
+if not aggregated_rounds.empty and not win_percentages.empty:
+    final_summary_table = pd.merge(aggregated_rounds, win_percentages,
+                                   left_index=True, right_index=True, how='outer')
+elif not aggregated_rounds.empty:
+    final_summary_table = aggregated_rounds
+elif not win_percentages.empty:
+    final_summary_table = win_percentages
+
+if not final_summary_table.empty:
+    print("\n--- Finální souhrnná tabulka (agregace kol a vítězství) ---")
+    print(final_summary_table.head())
+    final_summary_table.to_csv(os.path.join(BASE_OUTPUT_DIR, 'final_summary_table.csv'), sep=';')
+else:
+    print("\nNelze vytvořit finální souhrnnou tabulku: nedostatek dat z agregace kol nebo vítězství.")
+
+# --- 3. Agregace detailních dat (s 'nazev') ---
+print("\n--- Agregace detailních dat jednotek ---")
+
+# Společné seskupovací klíče pro detailní tabulky
+detail_groupby_keys = ['nazev', 'id_atribut_sada', 'scenar_nazev', 'typ']
+
+lifespan_stats = pd.DataFrame()
+if not df_detail.empty:
+    required_lifespan_cols = ['zivoty', 'kolo', 'id', 'typ', 'id_atribut_sada', 'nazev', 'scenar_nazev']
+    if all(col in df_detail.columns for col in required_lifespan_cols):
+        df_deaths = df_detail[df_detail['zivoty'] == 0].copy()
+
+        if not df_deaths.empty:
+            unit_death_rounds = df_deaths.groupby(['id_simulace', 'id']).agg(
+                smrt_kolo=('kolo', 'min'),
+                typ=('typ', 'first'),
+                id_atribut_sada=('id_atribut_sada', 'first'),
+                nazev=('nazev', 'first'),  # Ensure 'nazev' is carried over
+                scenar_nazev=('scenar_nazev', 'first')  # Ensure 'scenar_nazev' is carried over
+            ).reset_index()
+
+            lifespan_stats = unit_death_rounds.groupby(detail_groupby_keys)['smrt_kolo'].agg(
+                ['mean', 'median', 'min', 'max', 'std', 'count']
+            ).round(2)
+            lifespan_stats.rename(columns={
+                'mean': 'Průměrná_délka_života_kol',
+                'median': 'Medián_délka_života_kol',
+                'min': 'Min_délka_života_kol',
+                'max': 'Max_délka_života_kol',
+                'std': 'Směrodatná_odchylka_délky_života_kol',
+                'count': 'Počet_úmrtí'
+            }, inplace=True)
+            print("\nStatistiky délky života jednotek (kola, kdy zemřely) dle názvu, sady atributů, scénáře a typu:")
+            print(lifespan_stats.head())
+        else:
+            print("\nŽádné záznamy o úmrtích jednotek pro výpočet délky života.")
+    else:
+        print(
+            f"\nDetailní log neobsahuje všechny potřebné sloupce ({', '.join(required_lifespan_cols)}) pro analýzu délky života.")
+
+aggregated_combat = pd.DataFrame()
+if not df_detail.empty:
+    combat_metrics = [
+        'zpusobene_poskozeni_za_kolo',
+        'prijate_poskozeni_za_kolo',
+        'utoky_za_kolo',
+        'protiutoky_za_kolo',
+        'kriticke_zasahy_za_kolo',
+        'uhyby_za_kolo'
+    ]
+    required_combat_cols_raw = ['zivoty', 'id_atribut_sada', 'typ', 'nazev', 'scenar_nazev'] + combat_metrics
+    if all(col in df_detail.columns for col in required_combat_cols_raw):
+        df_active_units = df_detail[df_detail['zivoty'] > 0].copy()
+
+        if not df_active_units.empty:
+            for col in combat_metrics:
+                df_active_units[col] = pd.to_numeric(df_active_units[col], errors='coerce').fillna(0)
+
+            aggregated_combat = df_active_units.groupby(detail_groupby_keys)[combat_metrics].agg(
+                ['mean', 'median', 'min', 'max', 'std']
+            ).round(2)
+
+            aggregated_combat.columns = ['_'.join(col).strip() for col in aggregated_combat.columns.values]
+            aggregated_combat.columns = [
+                col.replace('zpusobene_poskozeni_za_kolo', 'Zpusobene_poskozeni_').replace('prijate_poskozeni_za_kolo',
+                                                                                           'Prijate_poskozeni_').replace(
+                    'utoky_za_kolo', 'Utoky_')
+                .replace('protiutoky_za_kolo', 'Protiutoky_').replace('kriticke_zasahy_za_kolo',
+                                                                      'Kriticke_zasahy_').replace('uhyby_za_kolo',
+                                                                                                  'Uhyby_')
+                for col in aggregated_combat.columns
+            ]
+            print("\nAgregované bojové statistiky jednotek dle názvu, sady atributů, scénáře a typu:")
+            print(aggregated_combat.head())
+        else:
+            print("\nŽádné aktivní jednotky nalezeny pro agregaci bojových statistik.")
+    else:
+        print(
+            f"\nDetailní log neobsahuje všechny potřebné sloupce ({', '.join(required_combat_cols_raw)}) pro analýzu bojových statistik.")
+else:
+    print("\nDetailní log není k dispozici nebo je prázdný. Agregace detailních dat přeskočena.")
+
+# --- Spojení detailních tabulek do jedné ---
+final_detail_table = pd.DataFrame()
+if not lifespan_stats.empty and not aggregated_combat.empty:
+    final_detail_table = pd.merge(lifespan_stats, aggregated_combat,
+                                  left_index=True, right_index=True, how='outer')
+elif not lifespan_stats.empty:
+    final_detail_table = lifespan_stats
+elif not aggregated_combat.empty:
+    final_detail_table = aggregated_combat
+
+if not final_detail_table.empty:
+    print("\n--- Finální detailní tabulka (agregace života a bojových statistik jednotek) ---")
+    print(final_detail_table.head())
+    final_detail_table.to_csv(os.path.join(BASE_OUTPUT_DIR, 'final_detail_table.csv'), sep=';')
+else:
+    print(
+        "\nNelze vytvořit finální detailní tabulku: nedostatek dat z agregace života nebo bojových statistik jednotek.")
+
+# --- 4. Vizualizace (Grafy) ---
+# Grafy budou stále organizovány do podsložek podle 'nazev' pro lepší čitelnost.
+print("\n--- Generování grafů (do podsložek dle názvu simulace) ---")
+
+sns.set_style("whitegrid")
+plt.rcParams['figure.figsize'] = (12, 7)
+
+# Iterate through unique_nazvy for plotting
+unique_nazvy = df_summary['nazev'].unique()
+for current_nazev in unique_nazvy:
+    print(f"\n--- Generuji grafy pro název simulace: '{current_nazev}' ---")
+
+    # Create output subdirectory for current_nazev
+    current_output_dir = os.path.join(BASE_OUTPUT_DIR, current_nazev)
+    os.makedirs(current_output_dir, exist_ok=True)
+
+    # Filter data for plotting based on current_nazev
+    df_summary_for_plot = df_summary[df_summary['nazev'] == current_nazev].copy()
+    df_detail_for_plot = df_detail[df_detail['nazev'] == current_nazev].copy()
+
+    # Filter `final_summary_table` for plotting
+    summary_plot_data_filtered = pd.DataFrame()
+    if current_nazev in final_summary_table.index.get_level_values('nazev'):
+        summary_plot_data_filtered = final_summary_table.loc[current_nazev].copy()
+        if summary_plot_data_filtered.index.nlevels > 1:
+            summary_plot_data_filtered = summary_plot_data_filtered.reset_index()
+        elif summary_plot_data_filtered.index.name != 'nazev' and summary_plot_data_filtered.index.name is not None:
+            summary_plot_data_filtered = summary_plot_data_filtered.reset_index()
+
+        # Ensure 'id_atribut_sada' and 'scenar_nazev' are columns for plotting
+        if 'id_atribut_sada' not in summary_plot_data_filtered.columns:
+            summary_plot_data_filtered = summary_plot_data_filtered.reset_index()
+
+    # Filter `final_detail_table` for plotting
+    detail_plot_data_filtered = pd.DataFrame()
+    if current_nazev in final_detail_table.index.get_level_values('nazev'):
+        detail_plot_data_filtered = final_detail_table.loc[current_nazev].copy()
+        if detail_plot_data_filtered.index.nlevels > 1:
+            detail_plot_data_filtered = detail_plot_data_filtered.reset_index()
+        elif detail_plot_data_filtered.index.name != 'nazev' and detail_plot_data_filtered.index.name is not None:
+            detail_plot_data_filtered = detail_plot_data_filtered.reset_index()
+
+    # Graf 1: Vítězná procenta (původní)
+    if not summary_plot_data_filtered.empty and 'Vítěz_Hráč1_%' in summary_plot_data_filtered.columns:
+        win_percentages_plot_data = summary_plot_data_filtered.melt(
+            id_vars=['id_atribut_sada', 'scenar_nazev'],
+            value_vars=[col for col in summary_plot_data_filtered.columns if 'Vítěz_' in col or 'Nerozhodně' in col],
+            var_name='Výsledek', value_name='Procento'
+        )
+        win_percentages_plot_data['Procento'] = pd.to_numeric(win_percentages_plot_data['Procento'], errors='coerce')
+        win_percentages_plot_data = win_percentages_plot_data.dropna(subset=['Procento'])
+
+        if not win_percentages_plot_data.empty:
+            g = sns.catplot(
+                data=win_percentages_plot_data,
+                x='Výsledek',
+                y='Procento',
+                col='scenar_nazev',
+                row='id_atribut_sada',
+                kind='bar',
+                height=4, aspect=1.2,
+                palette='viridis'
+            )
+            g.set_axis_labels("Výsledek simulace", "Procento vítězství (%)")
+            g.set_titles("Sada atributů: {row_name}, Scénář: {col_name}")
+            plt.suptitle(f"Vítězná procenta hráčů a nerozhodné výsledky pro '{current_nazev}'", y=1.02, fontsize=16)
+            plt.tight_layout()
+            plt.savefig(os.path.join(current_output_dir, 'vitezna_procenta.png'))
+            plt.close()
+            print("Graf 'vitezna_procenta.png' uložen.")
+        else:
+            print("Data pro graf vítězných procent jsou prázdná po předzpracování.")
+    else:
+        print("Nelze vygenerovat graf vítězných procent: data nejsou k dispozici pro tento název simulace.")
+
+    # NOVÝ GRAF: Srovnání vítězných procent všech sad atributů
+    if not summary_plot_data_filtered.empty and 'Vítěz_Hráč1_%' in summary_plot_data_filtered.columns:
+        # Melt data to have 'Výsledek' and 'Procento' columns for easier plotting
+        win_percentages_compare_data = summary_plot_data_filtered.melt(
+            id_vars=['id_atribut_sada', 'scenar_nazev'],
+            value_vars=[col for col in summary_plot_data_filtered.columns if 'Vítěz_' in col or 'Nerozhodně' in col],
+            var_name='Výsledek', value_name='Procento'
+        )
+        win_percentages_compare_data['Procento'] = pd.to_numeric(win_percentages_compare_data['Procento'],
+                                                                 errors='coerce')
+        win_percentages_compare_data = win_percentages_compare_data.dropna(subset=['Procento'])
+
+        if not win_percentages_compare_data.empty:
+            # Používáme sns.catplot místo sns.barplot pro podporu 'col' a 'hue' pro vícenásobné fasetování.
+            g = sns.catplot(
+                data=win_percentages_compare_data,
+                x='id_atribut_sada',
+                y='Procento',
+                hue='Výsledek',
+                col='scenar_nazev',  # Toto vytvoří samostatný graf pro každý scénář
+                kind='bar',
+                height=6, aspect=1.2,
+                palette='coolwarm',
+                legend="full"
+            )
+            g.set_axis_labels("ID Sady atributů", "Procento vítězství (%)")
+            g.set_titles("Scénář: {col_name}")
+            plt.suptitle(f"Srovnání vítězných procent hráčů dle sady atributů pro '{current_nazev}'", y=1.02,
+                         fontsize=18)
+            plt.tight_layout(rect=[0, 0, 1, 0.98])  # Adjust layout to prevent suptitle overlap
+            plt.savefig(os.path.join(current_output_dir, 'vitezna_procenta_srovnani_atributu.png'))
+            plt.close()
+            print("Graf 'vitezna_procenta_srovnani_atributu.png' uložen.")
+        else:
+            print("Data pro graf srovnání vítězných procent dle sad atributů jsou prázdná po předzpracování.")
+    else:
+        print("Nelze vygenerovat graf srovnání vítězných procent: data nejsou k dispozici pro tento název simulace.")
+
+    # Graf 2: Distribuce kol (Box Plot)
+    if not df_summary_for_plot.empty and 'pocet_kol' in df_summary_for_plot.columns:
+        df_summary_for_plot = df_summary_for_plot.dropna(subset=['pocet_kol'])
+        if not df_summary_for_plot.empty:
+            plt.figure(figsize=(14, 8))
+            sns.boxplot(
+                data=df_summary_for_plot,
+                x='scenar_nazev',
+                y='pocet_kol',
+                hue='id_atribut_sada',
+                palette='plasma'
+            )
+            plt.title(f"Distribuce počtu kol simulací pro '{current_nazev}' dle scénáře a sady atributů")
+            plt.xlabel("Název scénáře (mapy)")
+            plt.ylabel("Počet kol")
+            plt.legend(title="ID Sady atributů", bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            plt.savefig(os.path.join(current_output_dir, 'distribuce_kol.png'))
+            plt.close()
+            print("Graf 'distribuce_kol.png' uložen.")
+        else:
+            print("Data pro graf distribuce kol jsou prázdná po předzpracování.")
+    else:
+        print("Nelze vygenerovat graf distribuce kol: data nejsou k dispozici pro tento název simulace.")
+
+    # Graf 3: Průměrné způsobené poškození za kolo
+    if not detail_plot_data_filtered.empty and 'Zpusobene_poskozeni__mean' in detail_plot_data_filtered.columns:
+        plot_data = detail_plot_data_filtered.pivot_table(
+            index=['id_atribut_sada', 'scenar_nazev'],
+            columns='typ',
+            values='Zpusobene_poskozeni__mean'
+        )
+        if not plot_data.empty:
+            plot_data.plot(kind='bar', figsize=(16, 9))
+            plt.title(f"Průměrné způsobené poškození za kolo na jednotku (Mean) pro '{current_nazev}'")
+            plt.xlabel("(ID Sady atributů, Název scénáře)")
+            plt.ylabel("Průměrné poškození")
+            plt.xticks(rotation=45, ha='right')
+            plt.legend(title="Typ jednotky", bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            plt.savefig(os.path.join(current_output_dir, 'prumerne_zpusobene_poskozeni.png'))
+            plt.close()
+            print("Graf 'prumerne_zpusobene_poskozeni.png' uložen.")
+        else:
+            print("Data pro graf průměrného způsobeného poškození jsou prázdná po pivotování.")
+    else:
+        print(
+            "Nelze vygenerovat graf průměrného způsobeného poškození: data nejsou k dispozici pro tento název simulace.")
+
+    # Graf 4: Průměrné přijaté poškození za kolo
+    if not detail_plot_data_filtered.empty and 'Prijate_poskozeni__mean' in detail_plot_data_filtered.columns:
+        plot_data = detail_plot_data_filtered.pivot_table(
+            index=['id_atribut_sada', 'scenar_nazev'],
+            columns='typ',
+            values='Prijate_poskozeni__mean'
+        )
+        if not plot_data.empty:
+            plot_data.plot(kind='bar', figsize=(16, 9))
+            plt.title(f"Průměrné přijaté poškození za kolo na jednotku (Mean) pro '{current_nazev}'")
+            plt.xlabel("(ID Sady atributů, Název scénáře)")
+            plt.ylabel("Průměrné poškození")
+            plt.xticks(rotation=45, ha='right')
+            plt.legend(title="Typ jednotky", bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            plt.savefig(os.path.join(current_output_dir, 'prumerne_prijate_poskozeni.png'))
+            plt.close()
+            print("Graf 'prumerne_prijate_poskozeni.png' uložen.")
+        else:
+            print("Data pro graf průměrného přijatého poškození jsou prázdná po pivotování.")
+    else:
+        print(
+            "Nelze vygenerovat graf průměrného přijatého poškození: data nejsou k dispozici pro tento název simulace.")
+
+    # Graf 5: Průměrná délka života jednotek
+    if not detail_plot_data_filtered.empty and 'Průměrná_délka_života_kol' in detail_plot_data_filtered.columns:
+        plot_data = detail_plot_data_filtered.pivot_table(
+            index=['id_atribut_sada', 'scenar_nazev'],
+            columns='typ',
+            values='Průměrná_délka_života_kol'
+        )
+        if not plot_data.empty:
+            plot_data.plot(kind='bar', figsize=(16, 9))
+            plt.title(f"Průměrná délka života jednotek v kolech pro '{current_nazev}'")
+            plt.xlabel("(ID Sady atributů, Název scénáře)")
+            plt.ylabel("Průměr kol do smrti")
+            plt.xticks(rotation=45, ha='right')
+            plt.legend(title="Typ jednotky", bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            plt.savefig(os.path.join(current_output_dir, 'prumerna_delka_zivota.png'))
+            plt.close()
+            print("Graf 'prumerna_delka_zivota.png' uložen.")
+        else:
+            print("Data pro graf průměrné délky života jsou prázdná po pivotování.")
+    else:
+        print("Nelze vygenerovat graf průměrné délky života: data nejsou k dispozici pro tento název simulace.")
+
+print(
+    "\n--- Analýza dat dokončena. Dvě hlavní tabulky jsou uloženy přímo ve složce 'agregovane_vystupy'. Grafy jsou organizovány v podsložkách dle názvu simulace. ---")
