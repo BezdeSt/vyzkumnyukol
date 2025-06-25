@@ -288,6 +288,8 @@ class Jednotka:
             'dosah': self.dosah,
             'crit': self.crit,
             'uhyb': self.uhyb,
+            'cena': self.cena,  # PŘIDÁNO
+            'cena_za_kolo': self.cena_za_kolo,  # PŘIDÁNO
             # --- NOVÉ STATISTIKY ZA KOLO ---
             'zpusobene_poskozeni_za_kolo': self.zpusobene_poskozeni_za_kolo,
             'prijate_poskozeni_za_kolo': self.prijate_poskozeni_za_kolo,
