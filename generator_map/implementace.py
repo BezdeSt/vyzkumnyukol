@@ -48,7 +48,7 @@ mapa_non_flat = [
 #pozice=(0, 0)
 #pozice=(14, 0)
 duel = "Válečník_vs_Lučištník"
-cislo_pokusu = "1."
+cislo_pokusu = "luc_dos_+1"
 
 global_sim_id_counter = 0
 

@@ -109,7 +109,7 @@ class SpravceHry:
         'lucistnik': {
             'typ': 'lucisnik',
             'rychlost': 3,
-            'dosah': 4,
+            'dosah': 5,
             'utok_min': 6,
             'utok_max': 8,
             'obrana': 3,
