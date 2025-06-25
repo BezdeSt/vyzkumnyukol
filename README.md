@@ -1,5 +1,8 @@
 # Výzkumný úkol
 
+## Simulace
+- zvětšit množství sad simulací, do tabulky vypysovat jen ty zajímavé (bude potřeba udělat celé znovu -- upravené ukládání dat)
+
 ## Doplnění náhdnosti
 ### 1. Náhoda v AI
 - pohyb náhodným směrem když nemůžu najít žádný cíl
