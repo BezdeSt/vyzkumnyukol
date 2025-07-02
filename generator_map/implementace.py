@@ -1,4 +1,5 @@
 import random
+import csv
 
 import hra
 import vyskove_mapy
@@ -48,7 +49,23 @@ mapa_non_flat = [
 #pozice=(0, 0)
 #pozice=(14, 0)
 duel = "Válečník_vs_Lučištník"
-cislo_pokusu = "luc_dos_+1"
+cislo_pokusu = "zaklad2"
+
+def obsahuje_text_v_sloupci(cesta_k_csv, nazev_sloupce, hledany_text):
+    """
+    Zkontroluje, zda se v daném sloupci nachází hledaný text.
+
+    :param cesta_k_csv: cesta k CSV souboru
+    :param nazev_sloupce: název sloupce, ve kterém hledáme
+    :param hledany_text: hledaný řetězec
+    :return: True, pokud se text nachází, jinak False
+    """
+    with open(cesta_k_csv, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row.get(nazev_sloupce) == hledany_text:
+                return True
+    return False
 
 global_sim_id_counter = 0
 
@@ -97,4 +114,8 @@ def jednaVSjedna():
             for jednotka in Hra.jednotky.values():
                 print(f"{jednotka.typ} má {jednotka.zivoty} životů")
 
-jednaVSjedna()
+
+if not obsahuje_text_v_sloupci('sim_logy/souhrn_simulaci.csv','id_atribut_sada',cislo_pokusu):
+    jednaVSjedna()
+else:
+    print("Opakovaná název sady.")
