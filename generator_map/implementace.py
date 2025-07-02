@@ -1,5 +1,6 @@
 import random
 import csv
+import os
 
 import hra
 import vyskove_mapy
@@ -60,6 +61,9 @@ def obsahuje_text_v_sloupci(cesta_k_csv, nazev_sloupce, hledany_text):
     :param hledany_text: hledaný řetězec
     :return: True, pokud se text nachází, jinak False
     """
+    if not os.path.exists(cesta_k_csv):
+        print(f"Soubor '{cesta_k_csv}' neexistuje.")
+        return False
     with open(cesta_k_csv, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:

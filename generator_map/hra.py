@@ -69,7 +69,7 @@ class SpravceHry:
         },
         'valecnik': {
             'typ': 'valecnik',
-            'rychlost': 3,
+            'rychlost': 6,
             'dosah': 1,
             'utok_min': 6,
             'utok_max': 8,
@@ -108,8 +108,8 @@ class SpravceHry:
         },
         'lucistnik': {
             'typ': 'lucisnik',
-            'rychlost': 3,
-            'dosah': 4,
+            'rychlost': 6,
+            'dosah': 5,
             'utok_min': 6,
             'utok_max': 8,
             'obrana': 3,
