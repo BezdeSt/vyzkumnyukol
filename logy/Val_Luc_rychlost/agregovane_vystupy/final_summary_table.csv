@@ -1,0 +1,17 @@
+nazev;id_atribut_sada;scenar_nazev;Vítěz_Hráč1_%;Průměr_kol;Medián_kol;Min_kol;Max_kol;Směrodatná_odchylka_kol;Počet_simulací;Vítěz_Hráč2_%;Nerozhodně_%;Neznámý_%
+Válečník_vs_Lučištník;rych_+1;hora;44.2;13.48;13.0;6;27;3.65;1000;55.8;0.0;0.0
+Válečník_vs_Lučištník;rych_+1;rovina;51.4;7.66;7.0;5;14;1.56;1000;48.6;0.0;0.0
+Válečník_vs_Lučištník;rych_+1_luc_dos_+1;hora;34.0;13.45;13.0;6;30;3.87;1000;66.0;0.0;0.0
+Válečník_vs_Lučištník;rych_+1_luc_dos_+1;rovina;49.4;7.47;7.0;5;14;1.5;1000;50.6;0.0;0.0
+Válečník_vs_Lučištník;rych_+2;hora;52.2;10.0;9.0;5;25;3.1;1000;47.8;0.0;0.0
+Válečník_vs_Lučištník;rych_+2;rovina;53.8;6.54;6.0;5;12;1.19;1000;46.2;0.0;0.0
+Válečník_vs_Lučištník;rych_+3;hora;49.9;9.95;9.0;5;23;2.95;1000;50.1;0.0;0.0
+Válečník_vs_Lučištník;rych_+3;rovina;55.5;5.67;6.0;4;12;1.11;1000;44.5;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+1;hora;36.1;10.14;10.0;5;23;2.83;1000;63.9;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+1;rovina;53.1;5.56;5.0;4;10;1.06;1000;46.9;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;hora;27.5;9.94;10.0;5;23;2.66;1000;72.5;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;rovina;50.0;5.41;5.0;4;10;1.03;1000;50.0;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;hora;19.1;9.71;9.0;5;22;2.54;1000;80.9;0.0;0.0
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;rovina;47.6;5.32;5.0;4;9;1.0;1000;52.4;0.0;0.0
+Válečník_vs_Lučištník;zaklad;hora;39.5;15.22;15.0;8;37;3.82;1000;60.5;0.0;0.0
+Válečník_vs_Lučištník;zaklad;rovina;47.0;9.76;9.0;6;22;2.04;1000;53.0;0.0;0.0
