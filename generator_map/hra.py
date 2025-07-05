@@ -56,13 +56,13 @@ class SpravceHry:
     JEDNOTKY_SABLONY = {
         'bojovnik': {
             'typ': 'bojovnik',
-            'rychlost': 3,
+            'rychlost': 5,
             'dosah': 1,
-            'utok_min': 3,
-            'utok_max': 5,
+            'utok_min': 5,
+            'utok_max': 8,
             'obrana': 3,
-            'zivoty': 10,
-            'crit': 1.1,
+            'zivoty': 12,
+            'crit': 1.2,
             'uhyb': 0.05,  # Malá šance na uhnutí
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
@@ -108,7 +108,7 @@ class SpravceHry:
         },
         'lucistnik': {
             'typ': 'lucisnik',
-            'rychlost': 6,
+            'rychlost': 5,
             'dosah': 5,
             'utok_min': 6,
             'utok_max': 8,

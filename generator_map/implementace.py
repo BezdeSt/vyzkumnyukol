@@ -49,8 +49,8 @@ mapa_non_flat = [
 
 #pozice=(0, 0)
 #pozice=(14, 0)
-duel = "Válečník_vs_Lučištník"
-cislo_pokusu = "zaklad2"
+duel = "Válečník_vs_Bojovník"
+cislo_pokusu = "zaklad"
 
 def obsahuje_text_v_sloupci(cesta_k_csv, nazev_sloupce, hledany_text):
     """
@@ -102,7 +102,7 @@ def jednaVSjedna():
             hrac1.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
             hrac2.pridej_suroviny({'jidlo': 9999, 'drevo': 9999, 'kamen': 9999})
             Hra.verbovani('valecnik', hrac1, Hra, pozice=(0, 0))
-            Hra.verbovani('lucistnik', hrac2, Hra, pozice=(14, 14))
+            Hra.verbovani('bojovnik', hrac2, Hra, pozice=(14, 14))
             print('===')
             Hra.simulace.log_stav_kola(0, Hra.jednotky, Hra.simulace.id_simulace) # Nulté kolo
 
@@ -122,4 +122,4 @@ def jednaVSjedna():
 if not obsahuje_text_v_sloupci('sim_logy/souhrn_simulaci.csv','id_atribut_sada',cislo_pokusu):
     jednaVSjedna()
 else:
-    print("Opakovaná název sady.")
+    print("Opakovaný název sady.")
