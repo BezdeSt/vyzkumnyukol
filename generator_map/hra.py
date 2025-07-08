@@ -63,7 +63,7 @@ class SpravceHry:
             'obrana': 4,
             'zivoty': 12,
             'crit': 1.2,
-            'uhyb': 0.05,  # Malá šance na uhnutí
+            'uhyb': 0.05,
             'cena': {'jidlo': 10, 'drevo': 2, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2}
         },
@@ -80,32 +80,6 @@ class SpravceHry:
             'cena': {'jidlo': 60, 'drevo': 30, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3}
         },
-        'rytir': {
-            'typ': 'rytir',
-            'rychlost': 2,
-            'dosah': 1,
-            'utok_min': 8,
-            'utok_max': 10,
-            'obrana': 7,
-            'zivoty': 30,
-            'crit': 1.3,
-            'uhyb': 0.01,  # Nízká šance na uhnutí kvůli těžké zbroji
-            'cena': {'jidlo': 120, 'drevo': 50, 'kamen': 30},
-            'cena_za_kolo': {'jidlo': 4, 'kamen': 1}
-        },
-        'berserkr': {
-            'typ': 'berserkr',
-            'rychlost': 4,
-            'dosah': 1,
-            'utok_min': 9,
-            'utok_max': 12,
-            'obrana': 2,
-            'zivoty': 20,
-            'crit': 2,
-            'uhyb': 0.1,  # Vyšší šance na uhnutí díky rychlosti
-            'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
-            'cena_za_kolo': {'jidlo': 4}
-        },
         'lucistnik': {
             'typ': 'lucisnik',
             'rychlost': 5,
@@ -115,33 +89,59 @@ class SpravceHry:
             'obrana': 3,
             'zivoty': 10,
             'crit': 1.2,
-            'uhyb': 0.05,  # Mírná šance na uhnutí
+            'uhyb': 0.05,
             'cena': {'jidlo': 15, 'drevo': 15, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 2, 'drevo': 1, }
         },
+        'rytir': {
+            'typ': 'rytir',
+            'rychlost': 4,
+            'dosah': 1,
+            'utok_min': 7,
+            'utok_max': 10,
+            'obrana': 6,
+            'zivoty': 20,
+            'crit': 1.5,
+            'uhyb': 0.01,
+            'cena': {'jidlo': 120, 'drevo': 50, 'kamen': 30},
+            'cena_za_kolo': {'jidlo': 4, 'kamen': 1}
+        },
+        'barbar': {
+            'typ': 'barbar',
+            'rychlost': 7,
+            'dosah': 1,
+            'utok_min': 8,
+            'utok_max': 12,
+            'obrana': 3,
+            'zivoty': 15,
+            'crit': 2.5,
+            'uhyb': 0.1,
+            'cena': {'jidlo': 70, 'drevo': 40, 'kamen': 0},
+            'cena_za_kolo': {'jidlo': 4}
+        },
         'ostrostrelec': {
             'typ': 'ostrostrelec',
-            'rychlost': 2,
-            'dosah': 6,
+            'rychlost': 6,
+            'dosah': 8,
             'utok_min': 8,
             'utok_max': 10,
-            'obrana': 1,
+            'obrana': 2,
             'zivoty': 10,
             'crit': 1.5,
-            'uhyb': 0.05,  # Nízká šance na uhnutí, spoléhá na dosah
+            'uhyb': 0.05,
             'cena': {'jidlo': 80, 'drevo': 60, 'kamen': 40},
             'cena_za_kolo': {'jidlo': 4, 'drevo': 2, }
         },
         'lovec': {
             'typ': 'lovec',
-            'rychlost': 5,
-            'dosah': 3,
-            'utok_min': 5,
-            'utok_max': 7,
+            'rychlost': 8,
+            'dosah': 4,
+            'utok_min': 6,
+            'utok_max': 8,
             'obrana': 2,
-            'zivoty': 14,
-            'crit': 1.3,
-            'uhyb': 0.15,  # Vysoká šance na uhnutí díky rychlosti a obratnosti
+            'zivoty': 12,
+            'crit': 2.0,
+            'uhyb': 0.2,
             'cena': {'jidlo': 60, 'drevo': 40, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 3, 'drevo': 1, }
         },

@@ -119,9 +119,35 @@ def jednaVSjedna(jednotka1, jednotka2):
 cislo_pokusu = "zaklad"
 
 if not obsahuje_text_v_sloupci('sim_logy/souhrn_simulaci.csv','id_atribut_sada',cislo_pokusu):
-    duel = "Válečník_vs_Bojovník"
-    jednaVSjedna('valecnik', 'bojovnik')
-    duel = "Lučištník_vs_Bojovník"
-    jednaVSjedna('lucistnik', 'bojovnik')
+    duel = "Rytíř_vs_Barbar"
+    jednaVSjedna('rytir', 'barbar')
+    duel = "Rytíř_vs_Ostrostřelec"
+    jednaVSjedna('rytir', 'ostrostrelec')
+    duel = "Rytíř_vs_Lovec"
+    jednaVSjedna('rytir', 'lovec')
+    duel = "Barbar_vs_Ostrostřelec"
+    jednaVSjedna('barbar', 'ostrostrelec')
+    duel = "Barbar_vs_Lovec"
+    jednaVSjedna('barbar', 'lovec')
+    duel = "Ostrostřelec_vs_Lovec"
+    jednaVSjedna('lovec', 'ostrostrelec')
+
+    duel = "Válečník_vs_Rytíř"
+    jednaVSjedna('valecnik', 'rytir')
+    duel = "Válečník_vs_Barbar"
+    jednaVSjedna('valecnik', 'barbar')
+    duel = "Válečník_vs_Ostrostřelec"
+    jednaVSjedna('valecnik', 'ostrostrelec')
+    duel = "Válečník_vs_Lovec"
+    jednaVSjedna('valecnik', 'lovec')
+
+    duel = "Lučištník_vs_Rytíř"
+    jednaVSjedna('lucistnik', 'rytir')
+    duel = "Lučištník_vs_Barbar"
+    jednaVSjedna('lucistnik', 'barbar')
+    duel = "Lučištník_vs_Ostrostřelec"
+    jednaVSjedna('lucistnik', 'ostrostrelec')
+    duel = "Lučištník_vs_Lovec"
+    jednaVSjedna('lucistnik', 'lovec')
 else:
     print("Opakovaný název sady.")
