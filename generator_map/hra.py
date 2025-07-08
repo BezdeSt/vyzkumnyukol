@@ -60,7 +60,7 @@ class SpravceHry:
             'dosah': 1,
             'utok_min': 5,
             'utok_max': 8,
-            'obrana': 3,
+            'obrana': 4,
             'zivoty': 12,
             'crit': 1.2,
             'uhyb': 0.05,  # Malá šance na uhnutí
