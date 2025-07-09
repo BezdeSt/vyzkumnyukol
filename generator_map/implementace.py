@@ -116,7 +116,7 @@ def jednaVSjedna(jednotka1, jednotka2):
             for jednotka in Hra.jednotky.values():
                 print(f"{jednotka.typ} má {jednotka.zivoty} životů")
 
-cislo_pokusu = "zaklad"
+cislo_pokusu = "6.lovec_def_-1"
 
 if not obsahuje_text_v_sloupci('sim_logy/souhrn_simulaci.csv','id_atribut_sada',cislo_pokusu):
     duel = "Rytíř_vs_Barbar"
