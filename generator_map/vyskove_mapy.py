@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from scipy.interpolate import griddata
 
@@ -5,6 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
 from noise import pnoise2
+
+from collections import deque
+import time
+import csv # Import pro práci s CSV
 
 def nahodne_pole(rows, cols, min_value=0, max_value=1):
     """
@@ -166,23 +172,125 @@ def zobraz_mapu(mapa):
 
     plt.show()
 
-# Příklad použití
+#------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------
+def je_validni_policko(r, c, rows, cols):
+    """
+    Zkontroluje, zda je políčko uvnitř hranic mapy.
+    """
+    return 0 <= r < rows and 0 <= c < cols
+
+def je_voda(policko_typ):
+    """
+    Definuje, které typy políček jsou průchozí.
+    Pro jednoduchost, předpokládejme, že voda je neprůchozí, ostatní jsou průchozí.
+    """
+    return policko_typ != "V"
+
+def najdi_cestu_bfs(mapa, start, end):
+    """
+    Najde nejkratší cestu mezi dvěma body pomocí BFS (Breadth-First Search).
+    Vrací True, pokud je cesta nalezena, jinak False.
+    """
+    rows, cols = mapa.shape
+    queue = deque([(start)])
+    visited = set([start])
+
+    while queue:
+        r, c = queue.popleft()
+
+        if (r, c) == end:
+            return True # Cesta nalezena
+
+        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            nr, nc = r + dr, c + dc
+            if je_validni_policko(nr, nc, rows, cols) and (nr, nc) not in visited and je_voda(mapa[nr, nc]):
+                visited.add((nr, nc))
+                queue.append((nr, nc))
+    return False # Cesta nenalezena
+
+def nahodna_cesta(pole):
+    rows, cols = pole.shape
+
+    x1, y1 = np.random.randint(0, rows), np.random.randint(0, cols)
+    while not je_voda(pole[x1, y1]):
+        x1, y1 = np.random.randint(0, rows), np.random.randint(0, cols)
+    start_point = (x1, y1)
+
+    x2, y2 = np.random.randint(0, rows), np.random.randint(0, cols)
+    while not je_voda(pole[x2, y2]) or (x2, y2) == start_point:
+        x2, y2 = np.random.randint(0, rows), np.random.randint(0, cols)
+    end_point = (x2, y2)
+
+    # Testování průchodnosti
+    #print(start_point + end_point)
+    return najdi_cestu_bfs(pole, start_point, end_point)
+
+def log(pole, seed, nazev, nazev_souboru="map_log.csv"):
+    """
+    Spočítá počet políček každého typu, otestuje průchodnost a uloží data do CSV.
+    """
+    V = 0
+    P = 0
+    L = 0
+    H = 0
+
+    for y in range(pole.shape[0]):
+        for x in range(pole.shape[1]):
+            if pole[y][x] == "V":
+                V += 1
+            elif pole[y][x] == "P":
+                P += 1
+            elif pole[y][x] == "L":
+                L += 1
+            elif pole[y][x] == "H":
+                H += 1
+
+    pruchody = 0
+    num_path_tests = 100 # Počet testů průchodnosti
+    print(f"Probíhá {num_path_tests} testů průchodnosti...")
+    for i in range(num_path_tests):
+        if nahodna_cesta(pole):
+            pruchody += 1
+
+    celkem = pole.shape[0] * pole.shape[1]
+
+    # Uložit do CSV
+    try:
+        with open(nazev_souboru, 'a', newline='') as csvfile:
+            fieldnames = ['NazevMapy', 'Seed', 'Voda[%]', 'Plane[%]', 'Les[%]', 'Hory[%]', 'UspechyCest[%]']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            # Pokud soubor neexistuje nebo je prázdný, zapiš hlavičku
+            if csvfile.tell() == 0:
+                writer.writeheader()
+
+            writer.writerow({
+                'NazevMapy': nazev,
+                'Seed': seed,
+                'Voda[%]': (V/celkem)*100,
+                'Plane[%]': (P/celkem)*100,
+                'Les[%]': (L/celkem)*100,
+                'Hory[%]': (H/celkem)*100,
+                'UspechyCest[%]': (pruchody/num_path_tests)*100
+            })
+        print(f"Data byla úspěšně uložena do '{nazev_souboru}'.")
+    except IOError as e:
+        print(f"Chyba při zápisu do CSV souboru: {e}")
+
+#------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------
+def testovani():
+    nazev = "test_velky"
+    for i in range(1000):
+        random.seed(i+1)
+        np.random.seed(i+1)
+
+        perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=scale)
+        log(cislo_na_policko(perlin_grid), i, nazev)
+
 big_rows = 50
 big_cols = 50
-small_rows = 5
-small_cols = 5
-min_value = 0
-max_value = 1
+scale = 10
 
-#random_grid = nahodne_pole(big_rows, big_cols, min_value, max_value)
-#zobraz_mapu(cislo_na_policko(random_grid))
-
-#interpolated_grid = interpolovane_pole(big_rows, big_cols, small_rows, small_cols, min_value, max_value)
-#zobraz_mapu(cislo_na_policko(interpolated_grid))
-
-#gradient_grid = perlin_noise_lib(big_rows, big_cols, scale=10)
-#zobraz_mapu(cislo_na_policko(gradient_grid))
-
-#perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=10)
-#print(cislo_na_policko(perlin_grid))
-#zobraz_mapu(cislo_na_policko(perlin_grid))
+#testovani()
