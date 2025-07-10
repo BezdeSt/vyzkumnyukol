@@ -147,7 +147,7 @@ def perlin_noise_pole(rows, cols, scale=10):
 
 # -------------------------------------------------------------------------------
 
-def zobraz_mapu(mapa):
+def zobraz_mapu(mapa, nazev=""):
     """
     Barevně vykreslí terénní mapu.
     """
@@ -169,6 +169,8 @@ def zobraz_mapu(mapa):
     # Vykreslení mřížky
     plt.figure(figsize=(8, 8))
     plt.imshow(index_map, cmap=cmap, interpolation='nearest')
+    plt.title(nazev, fontsize=25)
+    plt.axis('off')
 
     plt.show()
 
@@ -280,8 +282,9 @@ def log(pole, seed, nazev, nazev_souboru="map_log.csv"):
 
 #------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------
+
 def testovani():
-    nazev = "test_velky"
+    nazev = "Malé_scale"
     for i in range(1000):
         random.seed(i+1)
         np.random.seed(i+1)
@@ -289,8 +292,22 @@ def testovani():
         perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=scale)
         log(cislo_na_policko(perlin_grid), i, nazev)
 
+def vizualni_test():
+    testovaci_id = [561247, 856641,758789]
+
+    for id in testovaci_id:
+        random.seed(id)
+        np.random.seed(id)
+
+        perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=scale)
+        zobraz_mapu(cislo_na_policko(perlin_grid), id)
+
+
+
+
 big_rows = 50
 big_cols = 50
-scale = 10
+scale = 2
 
+vizualni_test()
 #testovani()
