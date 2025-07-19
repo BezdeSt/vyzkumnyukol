@@ -11,6 +11,7 @@ from noise import pnoise2
 from collections import deque
 import time
 import csv # Import pro práci s CSV
+import pandas as pd
 
 def nahodne_pole(rows, cols, min_value=0, max_value=1):
     """
@@ -54,11 +55,11 @@ def cislo_na_policko(grid):
 
     for i in range(grid.shape[0]):  # Počet řádků
         for j in range(grid.shape[1]):  # Počet sloupců
-            if grid[i][j] < 0.25:
+            if grid[i][j] < 0.2:
                 mapa[i][j] = "V"  # Voda
-            elif grid[i][j] < 0.5:
+            elif grid[i][j] < 0.45:
                 mapa[i][j] = "P"  # Pláně
-            elif grid[i][j] < 0.75:
+            elif grid[i][j] < 0.8:
                 mapa[i][j] = "L"  # Les
             else:
                 mapa[i][j] = "H"  # Hory
@@ -250,7 +251,7 @@ def log(pole, seed, nazev, nazev_souboru="map_log.csv"):
 
     pruchody = 0
     num_path_tests = 100 # Počet testů průchodnosti
-    print(f"Probíhá {num_path_tests} testů průchodnosti...")
+    #print(f"Probíhá {num_path_tests} testů průchodnosti...")
     for i in range(num_path_tests):
         if nahodna_cesta(pole):
             pruchody += 1
@@ -283,14 +284,13 @@ def log(pole, seed, nazev, nazev_souboru="map_log.csv"):
 #------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------
 
-def testovani():
-    nazev = "Malé_scale"
+def testovani(nazev):
     for i in range(1000):
         random.seed(i+1)
         np.random.seed(i+1)
 
         perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=scale)
-        log(cislo_na_policko(perlin_grid), i, nazev)
+        log(cislo_na_policko(perlin_grid), i+1, nazev)
 
 def vizualni_test():
     testovaci_id = [561247, 856641,758789]
@@ -303,11 +303,55 @@ def vizualni_test():
         zobraz_mapu(cislo_na_policko(perlin_grid), id)
 
 
+def vizualizace(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+    perlin_grid = perlin_noise_pole(big_rows, big_cols, scale=scale)
+    zobraz_mapu(cislo_na_policko(perlin_grid), seed)
+
+def print_prumeru(nazev):
+    df = pd.read_csv("map_log.csv")
+
+    # Filtrování podle hodnoty ve zvoleném sloupci
+    vybrane_radky = df[df["NazevMapy"] == nazev]
+
+    if vybrane_radky.empty:
+        print("Žádné řádky neodpovídají danému filtru.")
+        return
+
+    # Vyber jen číselné sloupce
+    cisla = vybrane_radky.select_dtypes(include='number')
+
+    # Spočítej průměry
+    prumery = cisla.mean()
+
+    print("Průměry číselných sloupců pro vybrané řádky:")
+    print(prumery)
 
 
+def scale25(nazev):
+    testovani("scale_25_"+nazev)
+    print_prumeru("scale_25_"+nazev)
+#vizualizace(998)
+
+def scale15(nazev):
+    testovani("scale_15_"+nazev)
+    print_prumeru("scale_15_"+nazev)
+
+nazev_ = "mensi_voda_vetsi_hory"
 big_rows = 50
 big_cols = 50
-scale = 2
-
+scale = 25
 vizualni_test()
-#testovani()
+#scale25(nazev_)
+
+
+big_rows = 60
+big_cols = 60
+scale = 15
+vizualni_test()
+#scale15(nazev_)
+
+print_prumeru("scale_25_"+nazev_)
+print_prumeru("scale_15_"+nazev_)
