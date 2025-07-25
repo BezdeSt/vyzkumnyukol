@@ -1,0 +1,10 @@
+Název simulace;ID sady atributů;Název scénáře;Typ entity;Útok Min;Útok Max;Obrana;Rychlost;Dosah;Kritická šance (násobitel);Úhyb (%);Maximální životy;Cena (surovina:množství);Cena za kolo (surovina:množství)
+;nan;;;;;;;;;;;;
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;rovina;valecnik;6.0;8.0;4.0;6.0;1.0;1.2;0.05;15.0;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;rovina;lucisnik;6.0;8.0;3.0;6.0;6.0;1.2;0.05;10.0;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;hora;valecnik;6.0;8.0;4.0;6.0;1.0;1.2;0.05;15.0;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+2;hora;lucisnik;6.0;8.0;3.0;6.0;6.0;1.2;0.05;10.0;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;rovina;valecnik;6.0;8.0;4.0;6.0;1.0;1.2;0.05;15.0;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;rovina;lucisnik;6.0;8.0;3.0;6.0;7.0;1.2;0.05;10.0;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;hora;valecnik;6.0;8.0;4.0;6.0;1.0;1.2;0.05;15.0;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rych_+3_luc_dos_+3;hora;lucisnik;6.0;8.0;3.0;6.0;7.0;1.2;0.05;10.0;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}

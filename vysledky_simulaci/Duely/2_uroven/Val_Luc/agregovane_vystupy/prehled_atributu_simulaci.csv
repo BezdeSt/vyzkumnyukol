@@ -1,0 +1,65 @@
+Název simulace;Název scénáře;ID sady atributů;Typ entity;Útok Min;Útok Max;Obrana;Rychlost;Dosah;Kritická šance (násobitel);Úhyb (%);Maximální životy;Cena (surovina:množství);Cena za kolo (surovina:množství)
+Válečník_vs_Lučištník;rovina;zaklad2;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;zaklad2;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;zaklad2;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;zaklad2;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_minAtk_+1;valecnik;7;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_minAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_minAtk_+1;valecnik;7;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_minAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_maxAtk_+1;valecnik;6;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_maxAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_maxAtk_+1;valecnik;6;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_maxAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_minAtk_-1_maxAtk_+1;valecnik;5;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_minAtk_-1_maxAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_minAtk_-1_maxAtk_+1;valecnik;5;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_minAtk_-1_maxAtk_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_minAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_minAtk_+1;lucisnik;7;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_minAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_minAtk_+1;lucisnik;7;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1;lucisnik;5;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1;lucisnik;5;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_maxAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_maxAtk_+1;lucisnik;6;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_maxAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_maxAtk_+1;lucisnik;6;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1_maxAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1_maxAtk_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_def_-1;valecnik;6;8;3;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_def_-1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_def_-1;valecnik;6;8;3;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_def_-1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_def_+1;valecnik;6;8;5;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_def_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_def_+1;valecnik;6;8;5;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_def_+1;lucisnik;6;8;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_def_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_def_-1;lucisnik;6;8;2;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_def_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_def_-1;lucisnik;6;8;2;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_def_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_def_+1;lucisnik;6;8;4;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_def_+1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_def_+1;lucisnik;6;8;4;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;val_luc_minAtk_-1_maxAtk_+1;valecnik;5;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;val_luc_minAtk_-1_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;val_luc_minAtk_-1_maxAtk_+1;valecnik;5;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;val_luc_minAtk_-1_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1_val_luc_maxAtk_+1;valecnik;6;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_minAtk_-1_val_luc_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1_val_luc_maxAtk_+1;valecnik;6;9;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_minAtk_-1_val_luc_maxAtk_+1;lucisnik;5;9;3;6;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_hp_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_hp_-1;lucisnik;6;8;3;6;5;1.2;0.05;9;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_hp_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_hp_-1;lucisnik;6;8;3;6;5;1.2;0.05;9;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;rovina;luc_rych_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;rovina;luc_rych_-1;lucisnik;6;8;3;5;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
+Válečník_vs_Lučištník;hora;luc_rych_-1;valecnik;6;8;4;6;1;1.2;0.05;15;{'jidlo': 60, 'drevo': 30, 'kamen': 0};{'jidlo': 3}
+Válečník_vs_Lučištník;hora;luc_rych_-1;lucisnik;6;8;3;5;5;1.2;0.05;10;{'jidlo': 15, 'drevo': 15, 'kamen': 0};{'jidlo': 2, 'drevo': 1}
