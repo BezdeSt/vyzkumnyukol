@@ -3,13 +3,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import glob
-import ast  # Pro bezpečné vyhodnocování řetězcových reprezentací slovníků
 
 # --- Konfigurace ---
 LOG_DIR = 'sim_logy'
 BASE_OUTPUT_DIR = 'agregovane_vystupy'  # Základní výstupní složka
 SUMMARY_FILE_NAME = 'souhrn_simulaci.csv'
-DETAIL_FILE_PATTERN = '*_detail.csv'  # Pattern pro detailní logy
+DETAIL_FILE_PATTERN = '*_detail.csv'  # detailní logy
 
 # Vytvoření základní výstupní složky, pokud neexistuje
 os.makedirs(BASE_OUTPUT_DIR, exist_ok=True)
@@ -31,40 +30,29 @@ def generate_attribute_summary_table(df_detail_data, output_dir):
     """
     print("\n--- Generuji tabulku atributů pro jednotlivé sady ze detailních dat ---")
 
-    # Definujte základní atributy, které jsou statické pro typ jednotky/budovy.
-    # Tyto by měly být přítomny v df_detail.
-    # 'zivoty' v df_detail je aktuální zdraví, 'max_zivoty' je základní hodnota.
     static_attributes_candidates = [
         'utok_min', 'utok_max', 'obrana', 'rychlost', 'dosah',
-        'crit', 'uhyb', 'max_zivoty', 'cena', 'cena_za_kolo', 'produkce'  # Přidáno 'produkce' pro budovy
+        'crit', 'uhyb', 'max_zivoty', 'cena', 'cena_za_kolo', 'produkce'
     ]
 
     # Společné sloupce pro seskupení, které definují unikátní sadu atributů
     groupby_cols = ['nazev', 'id_atribut_sada', 'scenar_nazev', 'typ']
 
-    # Zkontrolujte, zda jsou všechny potřebné seskupovací sloupce přítomny
     for col in groupby_cols:
         if col not in df_detail_data.columns:
             print(f"Chyba: Sloupec '{col}' není v detailních datech. Nelze vygenerovat tabulku atributů.")
             return
 
-    # Filtrujte pro relevantní sloupce a odstraňte duplicity na základě seskupovacích klíčů.
-    # Protože atributy by měly být statické pro daný typ v rámci sady/scénáře,
-    # stačí vzít první výskyt pro každou unikátní kombinaci.
     unique_attribute_sets = df_detail_data.drop_duplicates(subset=groupby_cols).copy()
 
-    # Zjistěte, které z kandidátských statických atributů jsou skutečně přítomny v DataFrame.
     actual_static_attributes = [attr for attr in static_attributes_candidates if attr in unique_attribute_sets.columns]
 
-    # Vyberte pouze potřebné sloupce (seskupovací klíče + skutečné statické atributy)
     cols_to_select = groupby_cols + actual_static_attributes
 
-    # Odeberte sloupce, které nejsou v datech (pro jistotu, pokud kandidát chybí)
     cols_to_select = [col for col in cols_to_select if col in unique_attribute_sets.columns]
 
     df_attributes = unique_attribute_sets[cols_to_select].copy()
 
-    # Přejmenujte sloupce pro lepší čitelnost ve finálním výstupu
     df_attributes.rename(columns={
         'nazev': 'Název simulace',
         'id_atribut_sada': 'ID sady atributů',
@@ -108,14 +96,12 @@ try:
 
     # Zajištění sloupce 'nazev'
     if 'nazev' not in df_summary.columns:
-        df_summary['nazev'] = 'Vychozi_nazev_simulace'  # Výchozí hodnota, pokud sloupec chybí
+        df_summary['nazev'] = 'Vychozi_nazev_simulace'  # hodnota, pokud sloupec chybí
         print(
             "Varování: Sloupec 'nazev' nebyl nalezen v souhrnném logu. Použit výchozí název 'Vychozi_nazev_simulace'.")
 
-    # OPRAVA: id_atribut_sada by měla být string, ne integer
     df_summary['id_atribut_sada'] = df_summary['id_atribut_sada'].astype(str)
 
-    # pocet_kol by mělo být numerické, s převodem chyb na NaN
     df_summary['pocet_kol'] = pd.to_numeric(df_summary['pocet_kol'], errors='coerce')
 
 except FileNotFoundError:
@@ -138,7 +124,6 @@ else:
         try:
             df_temp = pd.read_csv(f, delimiter=',')
             df_temp['id_simulace'] = df_temp['id_simulace'].astype(str)
-            # OPRAVA i zde pro id_atribut_sada v detailních logách
             df_temp['id_atribut_sada'] = df_temp['id_atribut_sada'].astype(str)
             list_df_detail.append(df_temp)
         except Exception as e:
@@ -148,8 +133,6 @@ else:
         print(f"Načteno a spojeno {len(detail_files)} detailních logů.")
         print(f"Celkový počet záznamů v detailním logu: {len(df_detail)}")
 
-        # Merge df_summary (for 'nazev' and 'scenar_nazev') into df_detail
-        # This is crucial for later grouping df_detail by 'nazev' etc.
         df_detail = pd.merge(df_detail,
                              df_summary[['id_simulace', 'nazev', 'scenar_nazev']],
                              on='id_simulace',
@@ -245,8 +228,8 @@ if not df_detail.empty:
                 smrt_kolo=('kolo', 'min'),
                 typ=('typ', 'first'),
                 id_atribut_sada=('id_atribut_sada', 'first'),
-                nazev=('nazev', 'first'),  # Ensure 'nazev' is carried over
-                scenar_nazev=('scenar_nazev', 'first')  # Ensure 'scenar_nazev' is carried over
+                nazev=('nazev', 'first'),
+                scenar_nazev=('scenar_nazev', 'first')
             ).reset_index()
 
             lifespan_stats = unit_death_rounds.groupby(detail_groupby_keys)['smrt_kolo'].agg(
@@ -329,43 +312,35 @@ else:
         "\nNelze vytvořit finální detailní tabulku: nedostatek dat z agregace života nebo bojových statistik jednotek.")
 
 # --- 4. Vizualizace (Grafy) ---
-# Grafy budou stále organizovány do podsložek podle 'nazev' pro lepší čitelnost.
 print("\n--- Generování grafů (do podsložek dle názvu simulace) ---")
 
 sns.set_style("whitegrid")
-# Zvětšíme výchozí velikost obrázku, ale necháme individuální úpravy pro specifické grafy
 plt.rcParams['figure.figsize'] = (14, 8)
 
-# Iterate through unique_nazvy for plotting
 unique_nazvy = df_summary['nazev'].unique()
 for current_nazev in unique_nazvy:
     print(f"\n--- Generuji grafy pro název simulace: '{current_nazev}' ---")
 
-    # Create output subdirectory for current_nazev
     current_output_dir = os.path.join(BASE_OUTPUT_DIR, current_nazev)
     os.makedirs(current_output_dir, exist_ok=True)
 
-    # Filter data for plotting based on current_nazev
     df_summary_for_plot = df_summary[df_summary['nazev'] == current_nazev].copy()
     df_detail_for_plot = df_detail[df_detail['nazev'] == current_nazev].copy()
 
-    # Determine filename suffix based on number of unique id_atribut_sada
     unique_sadas_in_nazev = df_summary_for_plot['id_atribut_sada'].unique()
     if len(unique_sadas_in_nazev) == 1:
         sada_suffix = f"_sada_{unique_sadas_in_nazev[0]}"
     elif len(unique_sadas_in_nazev) > 1:
         sada_suffix = "_vsechny_sady"
     else:
-        sada_suffix = ""  # Should not happen if df_summary_for_plot is not empty
+        sada_suffix = ""
 
-    # Filter `final_summary_table` for plotting
     summary_plot_data_filtered = pd.DataFrame()
     if current_nazev in final_summary_table.index.get_level_values('nazev'):
-        # Ensure we get all levels back as columns if it's a MultiIndex
         temp_summary_data = final_summary_table.loc[current_nazev].copy()
         if temp_summary_data.index.nlevels > 1:
             summary_plot_data_filtered = temp_summary_data.reset_index()
-        else:  # Handle case where only 'nazev' is in index, and id_atribut_sada is not part of index
+        else:
             summary_plot_data_filtered = temp_summary_data.reset_index(names=['id_atribut_sada', 'scenar_nazev'])
 
     # Filter `final_detail_table` for plotting
@@ -401,7 +376,7 @@ for current_nazev in unique_nazvy:
             g.set_axis_labels("Výsledek simulace", "Procento vítězství (%)")
             g.set_titles("Sada atributů: {row_name}, Scénář: {col_name}")
             plt.suptitle(f"Vítězná procenta hráčů a nerozhodné výsledky pro '{current_nazev}'", y=1.02, fontsize=16)
-            plt.tight_layout()  # Zajištění, aby se vše vešlo
+            plt.tight_layout()
             plt.savefig(os.path.join(current_output_dir, f'vitezna_procenta{sada_suffix}.png'))
             plt.close()
             print(f"Graf 'vitezna_procenta{sada_suffix}.png' uložen.")
@@ -410,7 +385,6 @@ for current_nazev in unique_nazvy:
     else:
         print("Nelze vygenerovat graf vítězných procent: data nejsou k dispozici pro tento název simulace.")
 
-    # NOVÝ GRAF: Srovnání vítězných procent všech sad atributů - ROZDĚLENO DLE SCÉNÁŘE
     if not summary_plot_data_filtered.empty and 'Vítěz_Hráč1_%' in summary_plot_data_filtered.columns:
         win_percentages_compare_data = summary_plot_data_filtered.melt(
             id_vars=['id_atribut_sada', 'scenar_nazev'],
@@ -422,16 +396,14 @@ for current_nazev in unique_nazvy:
         win_percentages_compare_data = win_percentages_compare_data.dropna(subset=['Procento'])
 
         if not win_percentages_compare_data.empty:
-            # Získáme unikátní názvy scénářů pro tuto simulaci
             unique_scenarios_for_plot = win_percentages_compare_data['scenar_nazev'].unique()
 
             for scenario in unique_scenarios_for_plot:
-                # Filtrujeme data pro aktuální scénář
                 data_for_scenario = win_percentages_compare_data[
                     win_percentages_compare_data['scenar_nazev'] == scenario]
 
                 if not data_for_scenario.empty:
-                    plt.figure(figsize=(12, 7))  # Upravená velikost pro jednotlivý graf
+                    plt.figure(figsize=(12, 7))
                     sns.barplot(
                         data=data_for_scenario,
                         x='id_atribut_sada',
@@ -462,7 +434,7 @@ for current_nazev in unique_nazvy:
     if not df_summary_for_plot.empty and 'pocet_kol' in df_summary_for_plot.columns:
         df_summary_for_plot_dropna = df_summary_for_plot.dropna(subset=['pocet_kol'])
         if not df_summary_for_plot_dropna.empty:
-            plt.figure(figsize=(16, 9))  # Zvětšená velikost
+            plt.figure(figsize=(16, 9))
             sns.boxplot(
                 data=df_summary_for_plot_dropna,
                 x='scenar_nazev',
@@ -473,9 +445,9 @@ for current_nazev in unique_nazvy:
             plt.title(f"Distribuce počtu kol simulací pro '{current_nazev}' dle scénáře a sady atributů")
             plt.xlabel("Název scénáře (mapy)")
             plt.ylabel("Počet kol")
-            plt.xticks(rotation=30, ha='right')  # Lehčí rotace popisků X osy
+            plt.xticks(rotation=30, ha='right')
             plt.legend(title="ID Sady atributů", bbox_to_anchor=(1.05, 1), loc='upper left')  # Legenda mimo graf
-            plt.tight_layout()  # Zajištění, aby se vše vešlo
+            plt.tight_layout()
             plt.savefig(os.path.join(current_output_dir, f'distribuce_kol{sada_suffix}.png'))
             plt.close()
             print(f"Graf 'distribuce_kol{sada_suffix}.png' uložen.")
@@ -492,11 +464,10 @@ for current_nazev in unique_nazvy:
             values='Zpusobene_poskozeni__mean'
         )
         if not plot_data.empty:
-            # Dynamické nastavení velikosti na základě počtu prvků na ose X
             num_x_elements = len(plot_data.index)
-            fig_width = max(12, num_x_elements * 0.8)  # Min width 12, then 0.8 per element
+            fig_width = max(12, num_x_elements * 0.8)
             plt.figure(figsize=(fig_width, 8))
-            plot_data.plot(kind='bar', ax=plt.gca())  # Use ax=plt.gca() with plt.figure()
+            plot_data.plot(kind='bar', ax=plt.gca())
 
             plt.title(f"Průměrné způsobené poškození za kolo na jednotku (Mean) pro '{current_nazev}'")
             plt.xlabel("(ID Sady atributů, Název scénáře)")

@@ -72,7 +72,7 @@ def obsahuje_text_v_sloupci(cesta_k_csv, nazev_sloupce, hledany_text):
 global_sim_id_counter = 0
 
 def jednaVSjedna(jednotka1, jednotka2):
-    global global_sim_id_counter # Abychom mohli modifikovat globální proměnnou
+    global global_sim_id_counter
     nazev_scenare = duel
     mapa_scenare = [mapa_flat, mapa_non_flat]
     mapa_scenare_nazev = ["rovina", "hora"]
@@ -82,16 +82,15 @@ def jednaVSjedna(jednotka1, jednotka2):
             current_sim_id = global_sim_id_counter
             random.seed(current_sim_id)
 
-            # Předáme id_simulace do SpravceHry
             Hra = hra.SpravceHry(
                 hraci=[],
                 mrizka=mapa_scenare[mapa_id],
                 jednotky={},
                 budovy=[],
-                soubor_nazev=duel,  # Původní scenar_nazev, nyní pro název souboru
-                scenar_nazev=mapa_scenare_nazev[mapa_id],  # Nový scenar_nazev pro sloupec (název mapy)
+                soubor_nazev=duel,
+                scenar_nazev=mapa_scenare_nazev[mapa_id],
                 id_simulace=current_sim_id,
-                id_atribut_sada=cislo_pokusu  # Předání ID sady atributů
+                id_atribut_sada=cislo_pokusu
             )
             Hra.inicializace_scenare("Hráč 1", "Hráč 2")
             hrac1 = Hra.hraci[0]

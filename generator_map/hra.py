@@ -36,12 +36,11 @@ class SpravceHry:
         self.stav_hry = 1  # 1 Hra probíhá; 0 Hra byla ukončena
         self.pocitadlo_id = 0
 
-        # AI váhy pro rozhodování (mohou být předány jako parametr nebo načteny z konfigurace)
+        # AI váhy pro rozhodování
         self.ai_decision_weights = {
             "random_move_chance": 0.2,  # 20% šance na náhodný pohyb
             "target_priority_melee": 1.0,  # Váha pro útok na jednotky pro boj zblízka
             "target_priority_ranged": 1.2,  # Váha pro útok na jednotky s velkým dosahem (vyšší priorita)
-            # ... další váhy dle potřeby (např. pro ekonomiku, obranu)...
         }
 
         # Inicializace loggeru
@@ -52,7 +51,6 @@ class SpravceHry:
             id_atribut_sada=id_atribut_sada
         )
 
-    # Předdefinované šablony jednotek
     JEDNOTKY_SABLONY = {
         'bojovnik': {
             'typ': 'bojovnik',
@@ -149,12 +147,12 @@ class SpravceHry:
             'typ': 'zakladna',
             'rychlost': 0,
             'dosah': 0,
-            'utok_min': 0,  # Základna neútočí
-            'utok_max': 0,  # Základna neútočí
+            'utok_min': 0,
+            'utok_max': 0,
             'obrana': 0,
             'zivoty': 50,
-            'crit': 1.0,  # Základna nemá kritický zásah
-            'uhyb': 0.0,  # Základna se nevyhýbá
+            'crit': 1.0,
+            'uhyb': 0.0,
             'cena': {'jidlo': 0, 'drevo': 0, 'kamen': 0},
             'cena_za_kolo': {'jidlo': 0}
         },
@@ -232,8 +230,6 @@ class SpravceHry:
         #print(f"Clekový zisk: {celkovi_zisk}")
         #print(f"Clekové náklady: {celkove_naklady}")
 
-        # Zde by probíhala simulace akcí hráče nebo AI
-        # (např. náhodné akce, skripty, apod.)
         self.ai_tah(hrac, celkovi_zisk, celkove_naklady)
 
         #print(hrac.suroviny)
@@ -576,7 +572,7 @@ class SpravceHry:
                                     nova_pozice[0] - nejblizsi_nepritel_vedle.pozice[0]) + abs(
                                     nova_pozice[1] - nejblizsi_nepritel_vedle.pozice[1])
 
-                                if jednotka.dosah >= vzdalenost_k_nepriteli_z_nove_pozice:  # Pokud stále dosáhneme
+                                if jednotka.dosah >= vzdalenost_k_nepriteli_z_nove_pozice:  # Pokud stále dosáhne
                                     # Pokud je tato nová pozice dál od nepřítele než dosavadní nejlepší
                                     if vzdalenost_k_nepriteli_z_nove_pozice > max_vzdalenost_od_nepritele_po_pohybu:
                                         max_vzdalenost_od_nepritele_po_pohybu = vzdalenost_k_nepriteli_z_nove_pozice

@@ -27,4 +27,4 @@ class Budova:
         """
         Vrací suroviny vyprodukované touto budovou za jedno kolo.
         """
-        return self.produkce.copy()  # nechceme vracet odkaz na originál
+        return self.produkce.copy()

@@ -216,7 +216,7 @@ class Jednotka:
         # 1. Výpočet základního poškození s náhodnou variabilitou
         poskozeni_ciste = random.randint(self.utok_min, self.utok_max)
 
-        # Poškození redukované obranou cíle (použijte efektivní obranu cíle)
+        # Poškození redukované obranou cíle
         celkove_poskozeni = max(0, poskozeni_ciste - (cilova_jednotka.obrana + cilova_jednotka.modifikace_obrany_terenem(mapa)))
 
         # 2. Šance na uhnutí cílové jednotky
@@ -226,7 +226,7 @@ class Jednotka:
             cilova_jednotka.uhyby_za_kolo += 1
             print(f"{cilova_jednotka.typ} uhnula útoku!") # Pro ladění
         else:
-            # 3. Kritický zásah (pokud útok neminul)
+            # 3. Kritický zásah
             if random.random() < CRITICAL_HIT_CHANCE:
                 # TODO: Simulace
                 self.kriticke_zasahy_za_kolo += 1
@@ -243,7 +243,6 @@ class Jednotka:
 
     def proved_protiutok(self, utocici_jednotka, mapa):
         if self.zivoty > 0 and abs(utocici_jednotka.pozice[0] - self.pozice[0]) + abs(utocici_jednotka.pozice[1] - self.pozice[1]) <= self.dosah:
-            # Voláme proved_utok z pohledu bránící se jednotky na útočící jednotku
 
             # TODO: Simulace
             self.protiutoky_za_kolo += 1
@@ -288,9 +287,9 @@ class Jednotka:
             'dosah': self.dosah,
             'crit': self.crit,
             'uhyb': self.uhyb,
-            'cena': self.cena,  # PŘIDÁNO
-            'cena_za_kolo': self.cena_za_kolo,  # PŘIDÁNO
-            # --- NOVÉ STATISTIKY ZA KOLO ---
+            'cena': self.cena,
+            'cena_za_kolo': self.cena_za_kolo,
+
             'zpusobene_poskozeni_za_kolo': self.zpusobene_poskozeni_za_kolo,
             'prijate_poskozeni_za_kolo': self.prijate_poskozeni_za_kolo,
             'utoky_za_kolo': self.utoky_za_kolo,

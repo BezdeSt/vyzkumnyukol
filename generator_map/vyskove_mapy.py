@@ -55,11 +55,11 @@ def cislo_na_policko(grid):
 
     for i in range(grid.shape[0]):  # Počet řádků
         for j in range(grid.shape[1]):  # Počet sloupců
-            if grid[i][j] < 0.2:
+            if grid[i][j] < 0.25:
                 mapa[i][j] = "V"  # Voda
-            elif grid[i][j] < 0.45:
+            elif grid[i][j] < 0.5:
                 mapa[i][j] = "P"  # Pláně
-            elif grid[i][j] < 0.8:
+            elif grid[i][j] < 0.75:
                 mapa[i][j] = "L"  # Les
             else:
                 mapa[i][j] = "H"  # Hory
@@ -343,15 +343,16 @@ nazev_ = "mensi_voda_vetsi_hory"
 big_rows = 50
 big_cols = 50
 scale = 25
-vizualni_test()
+#vizualni_test()
 #scale25(nazev_)
 
 
 big_rows = 60
 big_cols = 60
 scale = 15
-vizualni_test()
-#scale15(nazev_)
 
-print_prumeru("scale_25_"+nazev_)
-print_prumeru("scale_15_"+nazev_)
+zobraz_mapu(cislo_na_policko(nahodne_pole(big_rows,big_cols)), "Náhodná mapa")
+
+zobraz_mapu(cislo_na_policko(interpolovane_pole(big_rows,big_cols,5,5)), "Interpolovaná mapa")
+
+zobraz_mapu(cislo_na_policko(perlin_noise_pole(big_rows, big_cols, scale=scale)), "Gradientní mapa")
